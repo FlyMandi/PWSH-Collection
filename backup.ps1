@@ -13,5 +13,5 @@ $leafName = Split-Path -Path $f -Leaf
 $archiveName = "$leafName`_backup-$date.rar"
 $archive_full = "$t\$archiveName"
 
-# run rar.exe "a -u" (update) "-y" (presume yes) "-m5" (highest compression) "-t" (test after finishing)
+# run rar.exe "a -u" (add/update) "-y" (presume yes) "-m5" (highest compression) "-t" (test after finishing)
 &$rar a -u -y -m5 -t $archive_full $f

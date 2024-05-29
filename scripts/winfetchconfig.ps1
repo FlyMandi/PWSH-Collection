@@ -4,7 +4,8 @@ Param(
     [switch]$save = $false,
     [switch]$f = $false,
     [switch]$delete = $false,
-    [switch]$edit = $false
+    [switch]$edit = $false,
+    [switch]$list = $false
 )
 
 # destination should not need to be changed. Current config is in C:\users\YOU\.config\winfetch
@@ -51,6 +52,10 @@ function Save-Theme{
 
 if (($save -and $delete) -or ($f -and $delete) -or ($delete -and $edit)){
     throw "ERROR: Can't edit/save and delete at the same time."
+}
+elseif ($list){
+    Clear-Temp
+    Get-ChildItem $configPath
 }
 elseif ($edit){
     # notepad is fine, no real need to use another editor... but I'm not gonna stop you.

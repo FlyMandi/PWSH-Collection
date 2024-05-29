@@ -2,8 +2,8 @@
 [List of all scripts](scripts/)
 
 When downloading a script, I suggest making a "scripts" folder somewhere safe and then adding that folder to PATH[^1].\
-Then, you can just write the name of the script with arguments in your favourite shell.
-Example: `script -f flag1 -t -flag2`
+Then, you can just write the name of the script with arguments in your favourite shell.\
+Example: `script -f flag1 -t -flag2`\
 If not, you will have to call each script either by relative or absolute paths.\
 Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 

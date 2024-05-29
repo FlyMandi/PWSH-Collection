@@ -10,9 +10,11 @@ Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 ## Fix winget showing out-of-date package version with updated app
 [Script to update winget package registry version](scripts/updateWR.ps1), some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number. 
 
-Example usage: ```updatewr discord.discord``` [Here it is in action.](images/xample_discord.png)\
+Example usage:\
+```updatewr discord.discord``` [Here it is in action.](images/xample_discord.png)\
 Limitations: registry key folder must match the name that's displayed via "winget show" or you have to supply the registry folder name.\
-Example: ```updatewr jandedobbeleer.ohmyposh``` doesn't work, but \
+Example:\
+```updatewr jandedobbeleer.ohmyposh``` doesn't work, but \
 ```updatewr jandedobbeleer.ohmyposh -reg "Oh My Posh_is1"``` does.
 
 to update a steam app that is recognized via `winget` but has an out-of-date or unknown version number, you can utilize the steam app ID, as follows:\

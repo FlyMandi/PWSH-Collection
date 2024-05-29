@@ -3,7 +3,8 @@ Param(
     [string]$theme,
     [switch]$save = $false,
     [switch]$f = $false,
-    [switch]$delete = $false
+    [switch]$delete = $false,
+    [switch]$edit = $false
 )
 
 # destination should not need to be changed. Current config is in C:\users\YOU\.config\winfetch
@@ -48,8 +49,17 @@ function Save-Theme{
     Move-Item -Path $tempTheme -Destination $configPath
 }
 
-if (($save -and $delete) -or ($f -and $delete)){
-    throw "ERROR: Choose only 1 operation at a time. (save/delete)"
+if (($save -and $delete) -or ($f -and $delete) -or ($delete -and $edit)){
+    throw "ERROR: Can't edit/save and delete at the same time."
+}
+elseif ($edit){
+    # notepad is fine, no real need to use another editor... but I'm not gonna stop you.
+    if ($theme -eq ''){
+        notepad $currentConfig
+    }
+    else{   
+        notepad $themePath
+    }
 }
 elseif ($f){
     if (Test-Path $themePath){

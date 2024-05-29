@@ -44,7 +44,7 @@ To save & overwrite a theme, write:\
 To restore defaults, write:\
 `winfetchconfig !default`
 
-To save current to default (why?:suspect:), write:\
+To save current to default (why? :suspect:), write:\
 `winfetchconfig !default -save -f`
 
 The location for all your personal configs is in `%UserProfile%\Documents\.personalConfigs\winfetch`.\

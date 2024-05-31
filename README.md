@@ -70,19 +70,24 @@ To save & overwrite a theme, write:
 winfetchconfig save ThemeName -f
 ```
 
-To restore defaults, write:
+To save current to default, write:
 ```shell
-winfetchconfig choose !default
+winfetchconfig savedefault
 ```
 
-To save current to default (why? :suspect:), write:
+To restore (saved) default, write:
 ```shell
-winfetchconfig save !default -f
+winfetchconfig reset
 ```
 
-To view all available configs (your custom ones + default), write:
+To view a list of all custom themes, write:
 ```shell
 winfetchconfig list
+```
+
+To set a random theme, write:
+```shell
+winfetchconfig random
 ```
 
 The location for all your personal configs is in `%UserProfile%\Documents\.personalConfigs\winfetch`.\

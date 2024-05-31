@@ -43,11 +43,15 @@ and look for the Registry Key called `DisplayVersion`, then update it.
 
 [Script to change between made winfetch config files](scripts/winfetchconfig.ps1). The first time you run it (or when it can't find a file of the same name), it will store your current config in a file called `!default.ps1`. I shan't need to say that you need to have winfetch installed. Personally, I've installed it via `scoop install winfetch`. Uninstalling winfetch via `scoop uninstall winfetch` _will not_ get rid of your saved theme configuration files. 
 
-Syntax is as follows: ```winfetchconfig operation ThemeName```
+Syntax is as follows: ```winfetchconfig operation ThemeName``` ◀️ the order is important! Tip: when no operation is specified, `choose` is the fallback operation.
 
 To choose a theme, type:
 ```shell
 winfetchconfig choose ThemeName
+```
+or simply:
+```shell
+winfetchconfig ThemeName
 ```
 
 To make changes to the current configuration, type:

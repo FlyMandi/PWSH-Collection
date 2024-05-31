@@ -41,9 +41,22 @@ and look for the Registry Key called `DisplayVersion`, then update it.
 
 ## Swap between winfetch configs
 
-[Script to change between made winfetch config files](scripts/winfetchconfig.ps1). The first time you run it (or when it can't find a file of the same name), it will store your current config in a file called `!default.ps1`. I shan't need to say that you need to have winfetch installed. Personally, I've installed it via `scoop install winfetch`. Uninstalling winfetch via `scoop uninstall winfetch` _will not_ get rid of your saved theme configuration files. 
+[Script to change between made winfetch config files](scripts/winfetchconfig.ps1). The first time you run it (or when it can't find a file of the same name), it will store your current config in a file called `!default.ps1`. I shan't need to say that you need to have winfetch installed. Personally, I've installed it via `scoop install winfetch`. Uninstalling winfetch via `scoop uninstall winfetch` _will not_ get rid of your saved theme configuration files.
+
+I personally use `winfetchconfig` as a way to change up the image being displayed when `winfetch` is called, as I was tired of always manually editing the config file for that. If you want to do that, read below.\
+Note: 
 
 Syntax is as follows: ```winfetchconfig operation ThemeName``` ◀️ the order is important! Tip: when no operation is specified, `choose` is the fallback operation.
+
+The location for all your personal configs is in `%UserProfile%\Documents\.personalConfigs\winfetch`.\
+You shouldn't need to access this folder unless you desire to change them in a specific text editor instead of with the script.\
+At that point, just go and edit the line that says `notepad` in the script yourself.
+
+To save a theme with a name, write:
+```shell
+winfetchconfig save ThemeName
+```
+Note: use the `-f` flag to overwrite a saved theme with the same name. Also, I shouldn't need to say this, but always replace `ThemeName` with... your desired name for the theme. :suspect:
 
 To choose a theme, type:
 ```shell
@@ -52,6 +65,11 @@ winfetchconfig choose ThemeName
 or simply:
 ```shell
 winfetchconfig ThemeName
+```
+
+To view a list of all custom themes, write:
+```shell
+winfetchconfig list
 ```
 
 To make changes to the current configuration, type:
@@ -64,39 +82,22 @@ To make changes to a specific configuration, type:
 winfetchconfig edit ThemeName
 ```
 
-To save a configuration with a name, write:
-```shell
-winfetchconfig save ThemeName
-```
-
-To save & overwrite a theme, write:
-```shell
-winfetchconfig save ThemeName -f
-```
-
-To save current to default, write:
-```shell
-winfetchconfig savedefault
-```
-
-To restore (saved) default, write:
-```shell
-winfetchconfig reset
-```
-
-To view a list of all custom themes, write:
-```shell
-winfetchconfig list
-```
-
 To set a random theme, write:
 ```shell
 winfetchconfig random
 ```
 
-The location for all your personal configs is in `%UserProfile%\Documents\.personalConfigs\winfetch`.\
-You shouldn't need to access this folder unless you desire to change them in a specific text editor instead of with the script.\
-At that point, just go and edit the line that says `notepad` in the `.ps1` script.
+The default theme is stored as `%UserProfile%\Documents\.personalConfigs\winfetch\default\!default.ps1` and is created the first time you use `winfetchconfig`, but can be adjusted to your liking by setting your current config as the default one. Personally, I recommend letting the default... be the default.
+
+To save current theme to default, write:
+```shell
+winfetchconfig savedefault
+```
+
+To reset theme to default, write:
+```shell
+winfetchconfig reset
+```
 
 ## Automated backup
 [Simple script to compress & back-up a folder with 7zip](scripts/backup.ps1), it will take a source Folder as the -f flag and a destination Folder as the -t flag, copy & compress everything from the source folder and create an aptly named backup. If nothing is specified, it will take the default destination from the folder and the current folder as the folder to be backed up.

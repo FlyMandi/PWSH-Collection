@@ -41,7 +41,7 @@ and look for the Registry Key called `DisplayVersion`, then update it.
 
 ## Swap between winfetch configs
 
-[Script to change between made winfetch config files](scripts/winfetchconfig.ps1). The first time you run it (or when it can't find a file of the same name), it will store your current config in a file called `!default.ps1`. I shan't need to say that you need to have winfetch installed. Personally, I've installed it via `scoop install winfetch`. Uninstalling winfetch via `scoop uninstall winfetch` _will not_ get rid of your saved theme configuration files.
+[Script to change between made winfetch config files](scripts/winfetchconfig.ps1). I shan't need to say that you need to have winfetch installed. Personally, I've installed it via `scoop install winfetch`. Uninstalling winfetch via `scoop uninstall winfetch` _will not_ get rid of your saved theme configuration files.
 
 I personally use `winfetchconfig` as a way to change up the image being displayed when `winfetch` is called, as I was tired of always manually editing the config file for that. If you want to do that, read below.\
 Note: 
@@ -72,12 +72,12 @@ To view a list of all custom themes, write:
 winfetchconfig list
 ```
 
-To make changes to the current configuration, type:
+To make changes to the current theme, type:
 ```shell
 winfetchconfig edit
 ```
 
-To make changes to a specific configuration, type:
+To make changes to a specific theme, type:
 ```shell
 winfetchconfig edit ThemeName
 ```

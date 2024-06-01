@@ -93,9 +93,15 @@ To save current theme to default, write:
 winfetchconfig savedefault
 ```
 
-To reset theme to default, write:
+To reset theme to (saved) default, write:
 ```shell
 winfetchconfig reset
+```
+
+To reset default to default (c'mon now), write:
+```shell
+winfetch -genconf
+winfetchconfig savedefault
 ```
 
 ## Automated backup

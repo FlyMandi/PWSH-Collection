@@ -14,22 +14,6 @@ Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
 I communicate with a lot of people abroad via discord and it's super handy to be able to set a discord timestamp that automatically converts to the reader's timezone. For example, when I set a streaming schedule and want to say "Tuesdays at x time, thursdays at y time" I can't say my time because that's only going to apply to people within my timezone. Here's a quick way to get a formatted discord timestamp from a time of your desire:
 
-Usage:
-```shell
-unix discord -m Mode
-```
-where `Mode` can be any of the following:
-| Mode              | Values                | Result in clipboard   | Format in discord     |
-| ---               | ---                   | ---                   | ---                   |
-| relative          | `relative` or `r`     | `<t:1717331031:R>`    | `54 minutes ago`      |
-| long time         | `longtime` or `lt`    | `<t:1717331031:T>`    | `14:23:51`            |
-| short time        | `shorttime` or `st`   | `<t:1717331031:t>`    | `14:23`               |
-| long date         | `longdate` or `ld`    | `<t:1717331031:D>`    | `2 June 2024`         |
-| short date        | `shortdate` or `sd`   | `<t:1717331031:d>`    | `02/06/2024`          |
-| long full         | `longfull` or `lf`    | `<t:1717331031:F>`    | `Sunday, 2 June 14:23`|
-| short full        | `shortfull` or `sf`   | `<t:1717331031:f>`    | `2 June 2024 14:23`   |
-| default           | blank or invalid      | `<t:1717331031>`      | `2 June 2024 14:23`   |
-
 ### To copy the current unix time to clipboard (without formatting):
 Input:
 ```shell
@@ -61,6 +45,18 @@ Output:
 `02 June 2024 15:02:14` will have been written to your clipboard.
 
 ### To convert a unix time to discord timestamp:
+`Mode` can be any of the following:
+| Mode              | Values                | Result in clipboard   | Format in discord     |
+| ---               | ---                   | ---                   | ---                   |
+| relative          | `relative` or `r`     | `<t:1717331031:R>`    | `54 minutes ago`      |
+| long time         | `longtime` or `lt`    | `<t:1717331031:T>`    | `14:23:51`            |
+| short time        | `shorttime` or `st`   | `<t:1717331031:t>`    | `14:23`               |
+| long date         | `longdate` or `ld`    | `<t:1717331031:D>`    | `2 June 2024`         |
+| short date        | `shortdate` or `sd`   | `<t:1717331031:d>`    | `02/06/2024`          |
+| long full         | `longfull` or `lf`    | `<t:1717331031:F>`    | `Sunday, 2 June 14:23`|
+| short full        | `shortfull` or `sf`   | `<t:1717331031:f>`    | `2 June 2024 14:23`   |
+| default           | blank or invalid      | `<t:1717331031>`      | `2 June 2024 14:23`   |
+
 Usage:
 ```
 unix discord -m Mode -t time

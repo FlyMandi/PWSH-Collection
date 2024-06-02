@@ -9,7 +9,7 @@ Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
 //TODO: create package to be installed via `scoop`
 
-## Get & convert unix time & discord timestamps
+# Get & convert unix time & discord timestamps
 [Script to get unix & discord timestamps](scripts/unix.ps1)
 
 I communicate with a lot of people abroad via discord and it's super handy to be able to set a discord timestamp that automatically converts to the reader's timezone. For example, when I set a streaming schedule and want to say "Tuesdays at x time, thursdays at y time" I can't say my time because that's only going to apply to people within my timezone. Here's a quick way to get a formatted discord timestamp from a time of your desire:
@@ -21,18 +21,69 @@ unix discord -m Mode
 where `Mode` can be any of the following:
 | Mode              | Values                | Result in clipboard   | Format in discord     |
 | ---               | ---                   | ---                   | ---                   |
-| relative          | `relative` or `r`     | `<t:1717331031:R>`    | `2 minutes ago`       |
+| relative          | `relative` or `r`     | `<t:1717331031:R>`    | `54 minutes ago`      |
 | long time         | `longtime` or `lt`    | `<t:1717331031:T>`    | `14:23:51`            |
 | short time        | `shorttime` or `st`   | `<t:1717331031:t>`    | `14:23`               |
 | long date         | `longdate` or `ld`    | `<t:1717331031:D>`    | `2 June 2024`         |
 | short date        | `shortdate` or `sd`   | `<t:1717331031:d>`    | `02/06/2024`          |
 | long full         | `longfull` or `lf`    | `<t:1717331031:F>`    | `Sunday, 2 June 14:23`|
 | short full        | `shortfull` or `sf`   | `<t:1717331031:f>`    | `2 June 2024 14:23`   |
+| default           |                       | `<t:1717331031>`      | `2 June 2024 14:23`   |
 
-Limitations: can only work with current time (for now)\
-//TODO: Take any date & time as input
+### To copy the current unix time to clipboard (without formatting):
+Input:
+```shell
+unix
+```
+or
+```shell
+unix get
+```
+Output:
+```
+Writing time 06/02/2024 15:02:13 (1717333334) to clipboard.
+```
+`1717333334` will have been written to your clipboard.
 
-## Fix winget showing out-of-date package version with updated app
+### To convert a unix time to clipboard (without formatting):
+Input:
+```
+unix convert 1717333334
+```
+or
+```shell
+unix convert -t 1717333334
+```
+Output:
+```
+02 June 2024 15:02:14
+```
+`02 June 2024 15:02:14` will have been written to your clipboard.
+
+### To convert a unix time to discord timestamp:
+Usage:
+```
+unix discord -m Mode -t time
+```
+Input:
+```shell
+unix discord -m relative -t 1717333334
+```
+Output:
+```
+Writing time 06/02/2024 15:13:45 to clipboard.
+Written timestamp with mode : <t:1717333334:R>
+```
+`<t:1717333334:R>` will have been written to your clipboard.
+
+If you leave out the mode, the mode will fall back to `default` and if you leave out the time, it will use the current unix timestamp.
+
+
+Limitations: can only work with current or specific unix time (for now)\
+//TODO: Take any date & time as input\
+//TODO: Take relative dates & times as input
+
+# Fix winget showing out-of-date package version with updated app
 [Script to update winget package registry version](scripts/updateWR.ps1)
 
 Some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number. 
@@ -66,7 +117,7 @@ or\
 ```HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall```\
 and look for the Registry Key called `DisplayVersion`, then update it.
 
-## Swap between winfetch configs
+# Swap between winfetch configs
 
 [Script to change between made winfetch config files](scripts/winfetchconfig.ps1)
 
@@ -86,7 +137,7 @@ winfetchconfig save ThemeName
 ```
 Note: use the `-f` flag to overwrite a saved theme with the same name. Also, I shouldn't need to say this, but always replace `ThemeName` with... your desired name for the theme. :suspect:
 
-To choose a theme, type:
+### To choose a theme:
 ```shell
 winfetchconfig choose ThemeName
 ```
@@ -95,22 +146,22 @@ or simply:
 winfetchconfig ThemeName
 ```
 
-To view a list of all custom themes, write:
+### To view a list of all custom themes:
 ```shell
 winfetchconfig list
 ```
 
-To make changes to the current theme, type:
+### To make changes to the current theme:
 ```shell
 winfetchconfig edit
 ```
 
-To make changes to a specific theme, type:
+### To make changes to a specific theme:
 ```shell
 winfetchconfig edit ThemeName
 ```
 
-To set a random theme, write:
+### To set a random theme
 ```shell
 winfetchconfig random
 ```
@@ -133,7 +184,7 @@ winfetch -genconf
 winfetchconfig savedefault
 ```
 
-## Automated backup
+# Automated backup
 [Simple script to compress & back-up a folder with 7zip](scripts/backup.ps1)
 
 It will take a source Folder as the -f flag and a destination Folder as the -t flag, copy & compress everything from the source folder and create an aptly named backup. If nothing is specified, it will take the default destination from the folder and the current folder as the folder to be backed up.

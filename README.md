@@ -7,7 +7,9 @@ Example: `script -f flag1 -t -flag2`\
 If not, you will have to call each script either by relative or absolute paths.\
 Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
-## Get & convert unix time & discord timestamp
+//TODO: create package to be installed via `scoop`
+
+## Get & convert unix time & discord timestamps
 [Script to get unix & discord timestamps](scripts/unix.ps1)
 
 I communicate with a lot of people abroad via discord and it's super handy to be able to set a discord timestamp that automatically converts to the reader's timezone. For example, when I set a streaming schedule and want to say "Tuesdays at x time, thursdays at y time" I can't say my time because that's only going to apply to people within my timezone. Here's a quick way to get a formatted discord timestamp from a time of your desire:
@@ -27,7 +29,7 @@ where `Mode` can be any of the following:
 | long full         | `longfull` or `lf`    | `<t:1717331031:F>`    | `Sunday, 2 June 14:23`|
 | short full        | `shortfull` or `sf`   | `<t:1717331031:f>`    | `2 June 2024 14:23`   |
 
-
+Limitations: can only work with current time (for now)\
 //TODO: Take any date & time as input
 
 ## Fix winget showing out-of-date package version with updated app

@@ -47,7 +47,7 @@ switch($operation){
             $unix = $time
         }
         # else, fallback to current unix time
-        Write-Host "Writing time $nowRaw to clipboard."
+        Write-Host "Writing time"(Get-Date -UnixTimeSeconds $unix)"to clipboard."
             switch($mode){
                 {($_ -eq "r") -or ($_ -eq "relative")}      { $discordTime = "<t:$unix`:R>" }
                 {($_ -eq "lt") -or ($_ -eq "longtime")}     { $discordTime = "<t:$unix`:T>" }

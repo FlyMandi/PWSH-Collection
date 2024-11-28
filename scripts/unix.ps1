@@ -12,20 +12,40 @@ Param(
 #TODO: take 12h input (530AM, 1230AM, 1159PM, etc)
 #TODO: take date input (05/12/2024), (6/12/2000), etc
 
-$nowRaw = Get-Date
-$now = ([int64](Get-Date -UFormat %s))
-# fallback for unix value is current time
-$unix = $now
+[string]$nowRaw = Get-Date
+[int64]$now = ([int64](Get-Date -UFormat %s))
+[int64]$unix = 0
 
 # use these values for 'unix discord -d yesterday -m r' or something like that
 # example inputs:
-# 'unix discord -t in5hr', 'unix discord -t in2d', 'unix discord -t yesterday -m shortdate'
+# 'unix discord -d in5hr', 'unix discord -d in2d', 'unix discord -d yesterday -m shortdate'
 # fallback disc timestamp mode = relative
-$oneHour = 3600
-$oneDay = 86400 
-$oneWeek = 604800
-$oneMonth = 2629743 
-$oneYear = 31556926
+[int64]$oneHour = 3600
+[int64]$oneDay = 86400 
+[int64]$oneWeek = 604800
+[int64]$oneMonth = 2629743 
+[int64]$oneYear = 31556926
+
+function Set-Current{
+    Write-Host "Writing unix time $now to clipboard. ($nowRaw)"
+    Set-Clipboard -Value $now
+}
+
+function Set-Stamp($timeIn){
+    switch($mode){
+        {($_ -eq "r") -or ($_ -eq "relative")}      { $script:discordStamp = "<t:$timeIn`:R>" }
+        {($_ -eq "lt") -or ($_ -eq "longtime")}     { $script:discordStamp = "<t:$timeIn`:T>" }
+        {($_ -eq "st") -or ($_ -eq "shorttime")}    { $script:discordStamp = "<t:$timeIn`:t>" }
+        {($_ -eq "ld") -or ($_ -eq "longdate")}     { $script:discordStamp = "<t:$timeIn`:D>" }
+        {($_ -eq "sd") -or ($_ -eq "shortdate")}    { $script:discordStamp = "<t:$timeIn`:d>" }
+        {($_ -eq "sf") -or ($_ -eq "shortfull")}    { $script:discordStamp = "<t:$timeIn`:f>" }
+        {($_ -eq "lf") -or ($_ -eq "longfull")}     { $script:discordStamp = "<t:$timeIn`:F>" }
+        Default                                     {
+            $script:discordStamp = "<t:$timeIn>"
+            $script:mode = "default"
+        }
+    }
+}
 
 switch($operation){
     "convert"{
@@ -34,35 +54,58 @@ switch($operation){
     }
     "get"{
         if ($time -eq 0){
-            Write-Host "Writing time $nowRaw ($now) to clipboard."
-            Set-Clipboard -Value $now
+            Set-Current
         }
         else{
             # get unix timestamp from time & date specified
         }
     }
     "discord"{
-        # only set time if time was input
         if ($time -ne 0){
-            $unix = $time
+            # set directly
+            Write-Host "Writing discord timestamp for unix time '$time' to clipboard:`n" (Get-Date -UnixTimeSeconds $time)
+            Set-Stamp $time
+            Set-Clipboard -Value $discordStamp
+            Write-host "Written $mode timestamp with: $discordStamp"
         }
-        # else, fallback to current unix time
-        Write-Host "Writing time"(Get-Date -UnixTimeSeconds $unix)"to clipboard."
-            switch($mode){
-                {($_ -eq "r") -or ($_ -eq "relative")}      { $discordTime = "<t:$unix`:R>" }
-                {($_ -eq "lt") -or ($_ -eq "longtime")}     { $discordTime = "<t:$unix`:T>" }
-                {($_ -eq "st") -or ($_ -eq "shorttime")}    { $discordTime = "<t:$unix`:t>" }
-                {($_ -eq "ld") -or ($_ -eq "longdate")}     { $discordTime = "<t:$unix`:D>" }
-                {($_ -eq "sd") -or ($_ -eq "shortdate")}    { $discordTime = "<t:$unix`:d>" }
-                {($_ -eq "sf") -or ($_ -eq "shortfull")}    { $discordTime = "<t:$unix`:f>" }
-                {($_ -eq "lf") -or ($_ -eq "longfull")}     { $discordTime = "<t:$unix`:F>" }
-                Default                                     { $discordTime = "<t:$unix>"    }
+        elseIf($date -ne ''){
+            switch($date){
+                "now"{
+                    $unix = $now
+                }
+                "today"{
+                    $unix = $now - ($now % $oneday) - (2 * $oneHour)
+                }
+                "midnight"{
+                    $unix = $now - ($now % $oneday) - (2 * $oneHour) + $oneDay
+                }
+                "tomorrow"{
+                    $unix = $now + $oneday
+                }
+                "yesterday"{
+                    $unix = $now - $oneday
+                }
+                # regex recognize date & time{
+                # 
+                # }
+                Default{
+                    throw "Could not find date '$date'."
+                }
             }
-            Write-host "Written timestamp with mode $m`: $discordTime"
-            Set-Clipboard -Value $discordTime
+            Write-Host "Writing discord timestamp for '$date' to clipboard:" (Get-Date -UnixTimeSeconds $unix)
+            Set-Stamp $unix
+            Set-Clipboard -Value $discordStamp
+            Write-host "Written $mode timestamp with: $discordStamp"
+        }
+        else{
+            # fallback is current unix time
+            Write-Host "Writing discord timestamp for current time to clipboard:" (Get-Date -UnixTimeSeconds $now)
+            Set-Stamp $now
+            Set-Clipboard -Value $discordStamp
+            Write-host "Written $mode timestamp with: $discordStamp"
+        }
     }
     Default{
-        Write-Host "Writing time $nowRaw ($now) to clipboard."
-        Set-Clipboard -Value $now
+        Set-Current
     }
 }

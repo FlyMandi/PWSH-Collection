@@ -4,6 +4,8 @@ Param(
     [Parameter(Mandatory=$false,Position=1)]
     [string]$reg
 )
+#TODO: find folder from app name given by package, -r is now fallback only
+#TODO: verify if found folder is a valid path ($keypath) or ($keypath2)
 
 $valueName = "DisplayVersion"
 $pathSet = $false

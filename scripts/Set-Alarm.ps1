@@ -42,7 +42,7 @@ elseIf($status){
 else{
 
     if (-Not (Test-Path $path)){
-        throw "Not a valid filepath."
+        throw "'$path' is not a valid filepath."
     }
 
     if ($timeString -match "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:?[0-5]?[0-9]?$") {
@@ -55,7 +55,6 @@ else{
             $alarmTime = Get-Date -Hour $_hours -Minute $_minutes -Second $_seconds
         }
         else { 
-            $alarmTimeTminus = New-TimeSpan -Hours $_hours -Minutes $_minutes  
             $alarmTime = Get-Date -Hour $_hours -Minute $_minutes
         }
 
@@ -85,7 +84,7 @@ else{
         $settings = New-ScheduledTaskSettingsSet -WakeToRun -DeleteExpiredTaskAfter 00:00:01
         $task = New-ScheduledTask -Action $action -Trigger $trigger -Settings $settings
 
-        Register-ScheduledTask -TaskName $name -InputObject $task
+        Register-ScheduledTask -TaskName $name -InputObject $task | Out-Null
 
     }
     else{

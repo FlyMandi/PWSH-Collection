@@ -112,4 +112,4 @@ Push-Config $RepoPSpath $PROFILE
 
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Cyan 
 
-&fetch
+&winfetchconfig.ps1

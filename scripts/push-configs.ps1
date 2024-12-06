@@ -49,7 +49,7 @@ Function Get-Package {
     if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){
         if (-Not ($override -eq "default")) { $trgt = $override }
         &$pkgmgr install $trgt
-        Write-Host "$trgt successfully installed!" -ForegroundColor Green
+        Write-Host "$trgt successfully installed via $pkgmgr!" -ForegroundColor Green
     }
     else{
         Write-Host "$trgt already installed, continuing..."
@@ -63,7 +63,7 @@ Function Get-ScoopPackage {
 
     if (-Not (Test-Path (Join-Path -Path $scoopDir -ChildPath $scoopTrgt))) { 
         &scoop install $scoopTrgt
-        Write-Host "$scoopTrgt successfully installed!" -ForegroundColor Green
+        Write-Host "$scoopTrgt successfully installed via scoop!" -ForegroundColor Green
     }
     else{
         Write-Host "$scoopTrgt already installed, continuing..."
@@ -93,14 +93,13 @@ function Get-Binary {
 
         Expand-Archive -Path $tempZIP -DestinationPath $destination -Force
         Remove-Item $tempZIP -Force
-
-        #$tempFolder = (Join-Path -PATH $destination -ChildPath "$sourceRepo/lib/")  
-        #Move-Item -Path $tempFolder -Destination (Join-Path -PATH $destination -ChildPath "/bin/")
-        #Remove-Item $tempFolder -Force -Recurse
         
         $binFolder = (Join-Path -PATH $destination -ChildPath "/bin/") 
-        Move-Item -Path "$binFolder/*.*" -Destination $destination -Force
-        Remove-Item $binFolder -Recurse -Force
+        if (Test-Path $binFolder){
+            Move-Item -Path "$binFolder\*.*" -Destination $destination -Force
+            Remove-Item $binFolder -Recurse -Force
+        }
+        Write-Host "$command successfully installed from github!" -ForegroundColor Green
     }
     else{
         Write-Host "$command already installed, continuing..."
@@ -159,5 +158,3 @@ Push-Certain $RepoGlazepath $WinGlazepath
 Push-Certain $RepoPSpath $PROFILE 
 
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Cyan 
-
-&winfetchconfig.ps1

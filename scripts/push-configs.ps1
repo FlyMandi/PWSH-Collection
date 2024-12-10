@@ -41,6 +41,8 @@ $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\config.yaml"
 
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\Microsoft.PowerShell_profile.ps1"
 
+#TODO: turn function arguments into references whereever possible
+
 Function Get-Package { 
     Param(
         $pkgmgr,
@@ -77,7 +79,7 @@ function Get-Binary {
         [switch]$preRelease = $false
     )
     if (-Not(Get-Command $command -ErrorAction SilentlyContinue)){
-        $destination = Join-Path -PATH $repo -ChildPath "/lib/"
+        $libFolder = Join-Path -PATH $repo -ChildPath "/lib/"
         
         if ($preRelease){
             Write-Host "Installing latest $namePattern release package from $sourceRepo..."
@@ -89,20 +91,49 @@ function Get-Binary {
         }
         $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $(Split-Path -Path $sourceURI -Leaf)
         Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
-
-        Expand-Archive -Path $tempZIP -DestinationPath $destination -Force
+    
+        $repoNameFolder = (Join-Path -PATH $libFolder -ChildPath $SourceRepo) 
+        Expand-Archive -Path $tempZIP -DestinationPath $repoNameFolder -Force
         Remove-Item $tempZIP -Force
-        
-        $binFolder = (Join-Path -PATH $destination -ChildPath "/bin/") 
-        if (Test-Path $binFolder){
-            Move-Item -Path "$binFolder\*.*" -Destination $destination -Force
-            Remove-Item $binFolder -Recurse -Force
-        }
+       
+        #TODO: create shortcut to .exe in $repoNameFolder
         Write-Host "$command successfully installed from github!" -ForegroundColor Green
     }
+    #TODO: change this to elseIf(there's no new release available)
     else{
         Write-Host "$command already installed, continuing..."
     }
+    #else{
+    #TODO: remove all old files (folder and shortcut) and call function recursively
+    #
+    #    if (Test-Path $repoNameFolder){
+    #        Remove-Item "$repoNameFolder\.." -Recurse -Force
+    #   }
+    #} 
+}
+
+function Get-FileChange{
+    param(
+        $file1,
+        $file2
+    )
+    #TODO:
+    #if file 1 identical to file 2
+        #return true
+    #else false
+}
+
+function Remove-OnFileChange{
+    param(
+        $inputPath,
+        $outputPath
+    )
+   
+   #TODO: for (every child item in file folder and its counterpart){
+        if (Get-FileChange $file1 $file2){
+            Remove-Item -PATH $outputPath -Recurse
+        }
+    #}
 }
 
 function Push-Certain
@@ -119,8 +150,8 @@ function Push-Certain
     }
 
     if (Test-Path $outputPath){
-        Remove-Item -PATH $outputPath -Recurse
-        Write-Host "`nDeleted existing config in $outputPath." 
+        Write-Host "`nExisting config found in $outputPath, updating..."
+        Remove-OnFileChange $inputPath $outputPath
     }
     else{
         Write-Host "`nNo existing config found in $outputPath, pushing..."
@@ -132,6 +163,7 @@ function Push-Certain
 
 #FIXME: Out-Null not working at all here
 
+&scoop cleanup --all 6>$null
 Get-Package scoop '7z' -o '7zip'
 Get-Package scoop 'everything'
 Get-Package scoop 'innounp'
@@ -140,15 +172,16 @@ Get-Package scoop 'neofetch'
 Get-Package scoop 'nvim' -o 'neovim'
 Get-Package scoop 'ninja'
 Get-Package scoop 'npm' -o 'nodejs'
+Get-Package scoop 'rg' -o 'ripgrep'
 Get-Package scoop 'spt' -o 'spotify-tui'
 Get-Package scoop 'winfetch'
 Get-Package scoop 'zoomit'
 
-&scoop cleanup --all | Out-Null
 Get-ScoopPackage 'discord'
 Get-ScoopPackage 'listary'
 Get-ScoopPackage 'libreoffice'
 Get-ScoopPackage 'spotify'
+Get-ScoopPackage 'vcredist2022'
 
 Get-Package winget 'git' -o 'git.git'
 #TODO: automatically check & set github username and e-mail
@@ -157,12 +190,16 @@ Get-Package winget 'glazewm' -o 'glzr-io.glazeWM'
 
 Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
+Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
 
-Push-Certain $RepoVimpath $WinVimpath
-Push-Certain $RepoGlazepath $WinGlazepath
+#TODO: finish implementing file change detection
+#Push-Certain $RepoVimpath $WinVimpath
+#Push-Certain $RepoGlazepath $WinGlazepath
+#Push-Certain $RepoPSpath $PROFILE
+
 #FIXME: for some reason Windows Terminal doesn't want to play nice with the paths.
 #Push-Certain $RepoTermpath $WinTermpath
 #Push-Certain $RepoTermpath $WinTermPreviewPath
-Push-Certain $RepoPSpath $PROFILE
 
+#TODO: reload environment variables without closing the console
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Cyan 

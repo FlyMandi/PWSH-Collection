@@ -124,21 +124,27 @@ function Push-ChangedFiles{
         $folder2
     )
 
+#TODO: change method to just check if a file in /dotfiles/* has a given counterpart in the chosen destination
 #FIXME: Cannot bind argument to parameter 'DifferenceObject' because it is null.
     $missingFiles = Compare-Object -ReferenceObject (Get-ChildItem -Path $folder1 -File) -DifferenceObject (Get-ChildItem -Path $folder2 -File) | Where-Object { $_.SideIndicator -eq '<=' }
-    $filesToReplace = Compare-Object -ReferenceObject (Get-ChildItem -Path $folder1 -File) -DifferenceObject (Get-ChildItem -Path $folder2 -File) | Where-Object { $_.SideIndicator -eq '=>' }
-    
+
     foreach ($file in $missingFiles) {
         $fileName = $file.InputObject.BaseName
-	$fileNameWithExtension = $fileName + $file.InputObject.Extension
-        Write-Host "file name: $fileNameWithExtension"
+	    $fileNameWithExtension = $fileName + $file.InputObject.Extension
+        Write-Host "Copying Missing File: $fileNameWithExtension" -ForegroundColor Green
         Copy-Item -Path (Join-Path -PATH $folder1 -ChildPath $fileNameWithExtension) -Destination (Join-Path -PATH $folder2 -ChildPath $fileNameWithExtension)
     } 
 
-#FIXME:
+#TODO: change method to check with file hashes
+#BUG: It replaces already added files, even though they literally are the same as source since they've just been copied
+    $filesToReplace = Compare-Object -ReferenceObject (Get-ChildItem -Path $folder1 -File) -DifferenceObject (Get-ChildItem -Path $folder2 -File) | Where-Object { $_.SideIndicator -eq '=>' }
+    
     foreach($file in $filesToReplace){
-        Remove-Item "$($file.InputObject)"
-        Copy-Item -Path "$folder1\$($file.InputObject)" -Destination "$folder2\$($file.InputObject)"
+        $fileName = $file.InputObject.BaseName
+	    $fileNameWithExtension = $fileName + $file.InputObject.Extension
+        Write-Host "Updating Existing File: $fileNameWithExtension" 
+        Remove-Item (Join-Path -PATH $folder2 -ChildPath $fileNameWithExtension) 
+        Copy-Item -Path (Join-Path -PATH $folder1 -ChildPath $fileNameWithExtension) -Destination (Join-Path -PATH $folder2 -ChildPath $fileNameWithExtension)
     }
 }
 
@@ -155,7 +161,7 @@ function Push-Certain
         throw "Not a valid path to copy config from."
     }
 
-    if (-Not(Test-Path $outputPath) || (Get-ChildItem $outputPath -Force -File | Measure-Object).count -eq 0){
+    if (-Not(Test-Path $outputPath) || (Get-ChildItem $outputPath -File -Recurse | Measure-Object).count -eq 0){
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 	Copy-Item $inputPath $outputPath -Recurse
     }

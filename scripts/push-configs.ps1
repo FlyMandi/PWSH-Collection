@@ -21,6 +21,9 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add "sysinternals"
 }
 
+[int]$filesAdded = 0
+[int]$filesUpdated = 0
+
 $scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
 
 $WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
@@ -39,6 +42,7 @@ $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
 #$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\settings.json"
 #$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\wt\settings.json"
 
+$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 
 #TODO: turn function arguments into references whereever possible
@@ -120,36 +124,57 @@ function Get-Binary {
 
 function Push-ChangedFiles{
     param(
-        $folder1,
-        $folder2
+        $sourceFolder,
+        $destFolder
     )
 
-#TODO: change method to just check if a file in /dotfiles/* has a given counterpart in the chosen destination
-#FIXME: Cannot bind argument to parameter 'DifferenceObject' because it is null.
-    $missingFiles = Compare-Object -ReferenceObject (Get-ChildItem -Path $folder1 -File) -DifferenceObject (Get-ChildItem -Path $folder2 -File) | Where-Object { $_.SideIndicator -eq '<=' }
+    $sourceFileList = Get-ChildItem $sourceFolder -Recurse -File
+    $destFileList = Get-ChildItem $destFolder -Recurse -File
 
-    foreach ($file in $missingFiles) {
-        $fileName = $file.InputObject.BaseName
-	    $fileNameWithExtension = $fileName + $file.InputObject.Extension
-        Write-Host "Copying Missing File: $fileNameWithExtension" -ForegroundColor Green
-        Copy-Item -Path (Join-Path -PATH $folder1 -ChildPath $fileNameWithExtension) -Destination (Join-Path -PATH $folder2 -ChildPath $fileNameWithExtension)
-    } 
-
-#TODO: change method to check with file hashes
-#BUG: It replaces already added files, even though they literally are the same as source since they've just been copied
-    $filesToReplace = Compare-Object -ReferenceObject (Get-ChildItem -Path $folder1 -File) -DifferenceObject (Get-ChildItem -Path $folder2 -File) | Where-Object { $_.SideIndicator -eq '=>' }
-    
-    foreach($file in $filesToReplace){
-        $fileName = $file.InputObject.BaseName
-	    $fileNameWithExtension = $fileName + $file.InputObject.Extension
-        Write-Host "Updating Existing File: $fileNameWithExtension" 
-        Remove-Item (Join-Path -PATH $folder2 -ChildPath $fileNameWithExtension) 
-        Copy-Item -Path (Join-Path -PATH $folder1 -ChildPath $fileNameWithExtension) -Destination (Join-Path -PATH $folder2 -ChildPath $fileNameWithExtension)
+    if($null -eq $sourceFileList){
+       throw "ERROR: No files to copy from."
     }
+    elseIf($null -eq $destFileList){
+       Write-Host "No files to compare against, continuing..." 
+    }
+    else{
+        $sourceTransformed = @()
+        $destTransformed = @()
+
+        foreach($file in $sourceFileList){
+            $sourceTransformed += ([string]$file).Substring($sourceFolder.Length)
+        }
+
+        foreach($file in $destFileList){
+            $destTransformed += ([string]$file).Substring($destFolder.Length)
+        }
+
+        $missingFiles = Compare-Object $sourceTransformed $destTransformed | Where-Object {$_.sideindicator -eq "<="}
+    }
+
+    foreach($file in $missingFiles){
+        Copy-Item -Path (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject) -Destination (Join-Path -PATH $destFolder -ChildPath $file.InputObject)  
+        Write-Host "Added Item: " -NoNewline
+        Write-Host $file.InputObject -ForegroundColor Cyan
+        $filesAdded += 1
+    }
+    
+    foreach($file in $sourceTransformed){
+        $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file)
+        $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file)
+
+        if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash)){ 
+            Remove-Item $fileInDest -Force
+            Copy-Item $fileInSource -Destination $fileInDest
+            Write-Host "Updated Item: " -NoNewline
+            Write-Host $file -ForegroundColor Magenta
+            $filesUpdated += 1
+        }
+    }
+
 }
 
-function Push-Certain
-{
+function Push-Certain{
     param (
         $inputPath,
         $outputPath
@@ -161,18 +186,20 @@ function Push-Certain
         throw "Not a valid path to copy config from."
     }
 
-    if (-Not(Test-Path $outputPath) || (Get-ChildItem $outputPath -File -Recurse | Measure-Object).count -eq 0){
+    if (-Not(Test-Path $outputPath) || $null -eq (Get-ChildItem $outputPath -File -Recurse)){
         Write-Host "`nNo existing config found in $outputPath, pushing..."
-	Copy-Item $inputPath $outputPath -Recurse
+	    Copy-Item $inputPath $outputPath -Recurse
+        $filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
     }
     else{
         Write-Host "`nExisting config found in $outputPath, updating..."
     	Push-ChangedFiles $inputPath $outputPath
     }
-
-    Write-Host "Config push successful.`n" -ForegroundColor Green -NoNewline
+        Write-Host "Update Complete. "
+        if(-Not($filesAdded -eq 0)){Write-Host "added $filesAdded Items." -ForegroundColor Cyan}
+        if(-Not($filesUpdated -eq 0)){Write-Host "updated $filesUpdated Items." -ForegroundColor Magenta}
+        elseIf(($filesAdded -eq 0) && ($filesUpdated -eq 0)){Write-Host "No files changed."}
 }
-
 &scoop cleanup --all 6>$null
 Get-Package scoop '7z' -o '7zip'
 Get-Package scoop 'everything'
@@ -202,10 +229,9 @@ Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
 Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
 
-#FIXME: finish implementing file change detection
 Push-Certain $RepoVimpath $WinVimpath
 Push-Certain $RepoGlazepath $WinGlazepath
-Push-Certain $RepoPSpath "$PROFILE.."
+Push-Certain $RepoPSpath $WinPSPath
 
 #FIXME: for some reason Windows Terminal doesn't want to play nice with the paths.
 #Push-Certain $RepoTermpath $WinTermpath
@@ -214,4 +240,4 @@ Push-Certain $RepoPSpath "$PROFILE.."
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 Write-Host "`nEnvironment variables refreshed."
-Write-Host "All configs are now up to date! ^^" -ForegroundColor Cyan 
+Write-Host "All configs are now up to date! ^^" -ForegroundColor Green

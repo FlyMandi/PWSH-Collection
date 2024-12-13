@@ -13,13 +13,13 @@ if (Get-Command "nvim" -ErrorAction SilentlyContinue) { $editor = "nvim" }
 
 $destination = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\winfetch"
 if (-Not (Test-Path $destination)){
-    &mkdir $destination
+    &mkdir $destination | Out-Null
 }
 
-$configPath = Join-Path -Path $repo -ChildPath "\dotfiles\winfetch\"
+$configPath = Join-Path -Path $env:Repo -ChildPath "\dotfiles\winfetch\"
 $defaultPath = (Join-Path -Path $configPath -ChildPath "\default\")
 if (-Not (Test-Path $defaultPath)){
-    &mkdir $defaultPath
+    &mkdir $defaultPath | Out-Null
 }
 
 $defaultConfig = Join-Path -Path $defaultPath -ChildPath "!default.ps1"

@@ -236,8 +236,6 @@ Get-ScoopPackage 'spotify'
 Get-ScoopPackage 'vcredist2022'
 
 Get-Package winget 'git' -o 'git.git'
-#TODO: automatically check & set github username and e-mail
-#TODO: automatically set up ssh (take ssh key from github as input)
 Get-Package winget 'glazewm' -o 'glzr-io.glazeWM'
 
 Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
@@ -248,13 +246,16 @@ Push-Certain $RepoVimpath $WinVimpath
 Push-Certain $RepoGlazepath $WinGlazepath
 Push-Certain $RepoPSpath $WinPSPath
 
-#FIXME: for some reason Windows Terminal doesn't want to play nice with the paths.
 #Push-Certain $RepoTermpath $WinTermpath
 #Push-Certain $RepoTermpath $WinTermPreviewPath
 
 $temp = $env:Path
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
+
+&git config --global user.name FlyMandi
+&git config --global user.email steidlmartinez@gmail.com
+#TODO: automatically set up git-cli ssh (take ssh key from github as input)
 
 if(-Not($global:filesAdded -eq 0) -Or -Not($global:filesUpdated -eq 0)){Write-Host "`nTotal:" -ForegroundColor Green}
 Get-filesAdded

@@ -185,9 +185,9 @@ function Push-ChangedFiles{
         $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject)
         $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file.InputObject)
 
-        if (-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest)}
+        if (-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest) | Out-Null}
         Copy-Item -Path $fileInSource -Destination $fileInDest
-        Write-Host "Added Item: " -NoNewline
+        Write-Host "Added Item: " -ForegroundColor White -NoNewline
         Write-Host $file.InputObject -ForegroundColor Cyan
         $global:filesAdded += 1
     }
@@ -199,7 +199,7 @@ function Push-ChangedFiles{
         if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash)){ 
             Remove-Item $fileInDest -Force
             Copy-Item $fileInSource -Destination $fileInDest
-            Write-Host "Updated Item: " -NoNewline
+            Write-Host "Updated Item: " -ForegroundColor White -NoNewline
             Write-Host $file -ForegroundColor Magenta
             $global:filesUpdated += 1
         }
@@ -271,7 +271,7 @@ Set-CombinedPath
 &git config --global user.email steidlmartinez@gmail.com
 #TODO: automatically set up git-cli ssh (take ssh key from github as input)
 
-if(-Not($global:filesAdded -eq 0) -Or -Not($global:filesUpdated -eq 0)){Write-Host "`nTotal:" -ForegroundColor Green}
+if(-Not($global:filesAdded -eq 0) -Or -Not($global:filesUpdated -eq 0)){Write-Host "`nTotal config file changes:" -ForegroundColor White}
 Get-filesAdded
 Get-filesUpdated
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green

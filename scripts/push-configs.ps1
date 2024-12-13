@@ -1,11 +1,32 @@
-if(-Not (Test-Path $repo)){
-    Write-Host "Set \Repository\ location for first execution of this script:" -ForegroundColor Red 
-    $repo = Read-Host
+function Set-CombinedPath{
+    $temp = $env:Path
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
 }
 
-$dotfiles = Join-Path -Path $repo -ChildPath "\dotfiles\"
+#Start the rest of this process as admin (avoid using it, comment out only for testing)
+#if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){ 
+#        Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -WindowStyle hidden
+#}
+
+if(-Not(Test-Path $env:Repo)){
+    Write-Host "\Repository\ folder location not set or set to an invalid path, please do so now " -ForegroundColor Red -NoNewline
+    Write-Host "(current value: " -NoNewline -ForegroundColor Red
+    Write-Host $env:Repo -ForegroundColor Yellow -NoNewline
+    Write-Host "):" -ForegroundColor Red
+    $InputRepo = Read-Host
+    if (-Not(Test-Path $InputRepo)){
+        throw "ERROR: Directory doesn't exist. Please create it or choose a valid Directory."
+    }
+    else{
+        [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
+        $env:Repo = $InputRepo
+    }
+}
+
+$dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
 if (-Not(Test-Path $dotfiles)){ 
-    Write-Host "No valid directory \dotfiles\ in $repo."
+    Write-Host "No valid directory \dotfiles\ in $env:Repo."
     &git clone "https://github.com/FlyMandi/dotfiles" $dotfiles 
     Write-Host "Cloned FlyMandi/dotfiles repo successfully!" -ForegroundColor Green
 }
@@ -88,7 +109,7 @@ function Get-Binary {
         [switch]$preRelease = $false
     )
     if (-Not(Get-Command $command -ErrorAction SilentlyContinue)){
-        $libFolder = Join-Path -PATH $repo -ChildPath "/lib/"
+        $libFolder = Join-Path -PATH $env:Repo -ChildPath "/lib/"
         
         if ($preRelease){
             Write-Host "Installing latest $namePattern release package from $sourceRepo..."
@@ -244,9 +265,7 @@ Push-Certain $RepoPSpath $WinPSPath
 Push-Certain $RepoTermpath $WinTermpath
 Push-Certain $RepoTermPreviewpath $WinTermPreviewPath
 
-$temp = $env:Path
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
+Set-CombinedPath
 
 &git config --global user.name FlyMandi
 &git config --global user.email steidlmartinez@gmail.com

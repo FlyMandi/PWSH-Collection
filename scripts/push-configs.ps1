@@ -279,9 +279,9 @@ Push-Certain $RepoPSpath $WinPSPath
 
 Get-NewMachinePath
 
-&git config --global user.name FlyMandi
-&git config --global user.email steidlmartinez@gmail.com
-#TODO: automatically set up git-cli ssh (take ssh key from github as input)
+#TODO: automatically ask for git user.name and user.email if they are not set
+
+#TODO: automatically ask for git ssh key and set it up 
 
 if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
     Write-Host "`nTotal config file changes:" -ForegroundColor White

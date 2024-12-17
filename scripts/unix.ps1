@@ -11,6 +11,7 @@ Param(
 #TODO: take military time input (0530, 0030, 2359, etc)
 #TODO: take 12h input (530AM, 1230AM, 1159PM, etc)
 #TODO: take date input (05/12/2024), (6/12/2000), etc
+#TODO: take relative input (t-2h), (t-1h30m), etc
 
 [string]$nowRaw = Get-Date
 [int64]$now = ([int64](Get-Date -UFormat %s))

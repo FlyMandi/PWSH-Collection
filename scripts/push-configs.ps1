@@ -20,7 +20,7 @@ if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
     #DEBUG:
     Write-Host "PS Command Path: $PSCommandPath" -ForegroundColor Yellow
-    Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Wait -NoNewWindow
+    #Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Wait -NoNewWindow
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
 }
 

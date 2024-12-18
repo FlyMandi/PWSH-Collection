@@ -80,28 +80,15 @@ $RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPr
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
 
-#FIXME: this isn't getting executed corretly via IRM ... | IEX from powershell 1
-
 if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
-    
+
     if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
-    else { $commandPath = $PSCommandPath }
-    $commandArgs = "-NoProfile -ExecutionPolicy Bypass -Wait -NoNewWindow -File $commandPath"
+    else{ $commandPath = $PSCommandPath }
+    
+    $commandArgs = "-NoExit -NoProfile -ExecutionPolicy Bypass -Wait -NoNewWindow -File $commandPath"
     Start-Process $PS7exe $commandArgs
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
-}
-
-if(Test-IsNotWinTerm){
-    if (-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal }
-
-    $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
-    $windowPID = $window.ProcessId
-    $parentPID = $window.ParentProcessId
-    #TODO: pass script to wt.exe below
-    &wt.exe 
-    &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
-    &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
 }
 
 #Start the rest of this process as admin (avoid using it, comment out only for testing)
@@ -173,7 +160,7 @@ function Get-Binary{
         $zipFolderName = $(Split-Path -Path $sourceURI -Leaf)
         $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $zipFolderName 
         Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
-    
+   
         $repoNameFolder = (Join-Path -PATH $libFolder -ChildPath $SourceRepo) 
         $binFolder = (Join-Path -PATH $repoNameFolder -ChildPath "\bin")
         Expand-Archive -Path $tempZIP -DestinationPath $repoNameFolder -Force
@@ -277,7 +264,6 @@ function Push-Certain{
         if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
 
-
 &scoop cleanup --all 6>$null
 Get-FromPkgmgr scoop '7z' -o '7zip'
 Get-FromPkgmgr scoop 'everything'
@@ -323,4 +309,16 @@ if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
     Get-FilesUpdated
 
     Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
+}
+
+if(Test-IsNotWinTerm){
+    if (-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal }
+
+    $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
+    $windowPID = $window.ProcessId
+    $parentPID = $window.ParentProcessId
+
+    Start-Process wt.exe
+    &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
+    &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
 }

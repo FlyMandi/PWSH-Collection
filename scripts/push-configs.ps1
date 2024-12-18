@@ -82,17 +82,14 @@ Copy-IntoRepo "PWSH-Collection"
 
 if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
-
-    
-    #if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
-    #else{ $commandPath = $PSCommandPath }
     
     $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1")
     $commandArgs = "$commandPath", "-ExecutionPolicy Bypass", "-Wait", "-NoNewWindow"
     &$PS7exe $commandArgs
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
-    &pwsh
-} #FIXME: I'm calling pwsh.exe with wrongly formatted arguments, apparently
+    
+    &cmd.exe "/c TASKKILL /F /PID $PID" | Out-Null
+}
 
 #Start the rest of this process as admin (avoid using it, comment out only for testing)
 #if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){ 

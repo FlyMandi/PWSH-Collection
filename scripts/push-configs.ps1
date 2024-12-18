@@ -86,6 +86,8 @@ if ($PSHome -eq $PS1Home){
     if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
     else{ $commandPath = $PSCommandPath }
     
+    Write-Host $commandPath -ForegroundColor Magenta
+
     $commandArgs = "$commandPath", "-ExecutionPolicy Bypass", "-Wait", "-NoNewWindow"
     &$PS7exe $commandArgs
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green

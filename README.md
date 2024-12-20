@@ -7,6 +7,29 @@ Example: `script -f flag1 -t -flag2`\
 If not, you will have to call each script either by relative or absolute paths.\
 Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
+# View Code Documentation with `cht.sh`
+
+Make sure you've installed `less` and `fzf`, both available via scoop.
+This streamlines the use of `curl cht.sh/language/topic` like so:
+
+```shell
+cheatsheet language topic
+```
+
+So, if you've set a `csh` alias for `cheatsheet`, `curl cht.sh/cpp/loops` becomes:
+```shell
+csh cpp loops
+```
+
+You can also open a fuzzy find list of languages:
+```shell
+csh
+```
+and topics:
+```shell
+csh cpp
+```
+
 # Set Alarm with mpvnet
 [Script to set alarm from CLI](scripts/set-alarm.ps1)
 

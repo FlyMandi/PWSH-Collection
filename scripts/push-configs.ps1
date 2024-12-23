@@ -11,6 +11,19 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add "sysinternals"
 }
 
+[int]$script:filesAdded = 0
+[int]$script:filesUpdated = 0
+
+function Get-FilesAdded{
+    if (-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
+    $script:filesAdded = 0
+}
+
+function Get-FilesUpdated{
+    if(-Not($script:filesUpdated -eq 0)){Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black}
+    $script:filesUpdated = 0
+}
+
 $PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
 $PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
 
@@ -39,21 +52,7 @@ if(-Not(Test-Path $env:Repo)){
     }
 }
 
-function Copy-IntoRepo{
-    Param(
-        $folderName
-    )
-    
-    $folderPath = Join-Path $env:Repo $folderName
-    if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
-        &git clone "https://github.com/FlyMandi/$folderName" $folderPath
-        Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
-    }
-}
-
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
-
-$scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
 
 $WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
 $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
@@ -68,9 +67,6 @@ $WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft
 $WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
 $RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
 $RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
-
-[int]$script:filesAdded = 0
-[int]$script:filesUpdated = 0
 
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
@@ -89,66 +85,6 @@ if ($PSHome -eq $PS1Home){
 
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green 
     &cmd.exe "/c TASKKILL /F /PID $PID" | Out-Null
-}
-
-function Get-FilesAdded{
-    if (-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
-    $script:filesAdded = 0
-}
-
-function Get-FilesUpdated{
-    if(-Not($script:filesUpdated -eq 0)){Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black}
-    $script:filesUpdated = 0
-}
-
-function Get-NewMachinePath{
-    $temp = $env:Path
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
-}
-
-Function Get-FromPkgmgr{ 
-    Param(
-        $pkgmgr,
-        $trgt,
-        $override = $null
-    )
-
-    if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){ 
-        if(-Not ($null -eq $override)){ &$pkgmgr install $override }
-        else { &$pkgmgr install $trgt }
-    }
-}
-
-Function Get-ScoopPackage{
-    Param(
-        $scoopTrgt
-    )
-
-    if (-Not (Test-Path (Join-Path -Path $scoopDir -ChildPath $scoopTrgt))) { 
-        &scoop install $scoopTrgt
-    }
-}
-
-function Get-GitLatestReleaseURI{
-    param(
-        [Parameter(Position = 0, mandatory = $false)]
-        $sourceRepo,
-        [Parameter(Position = 1, mandatory = $false)]
-        $namePattern,
-        [Parameter(Position = 2, mandatory = $false)]
-        [switch]$preRelease = $false
-    )
-
-        if ($preRelease){
-            Write-Host "Installing latest $namePattern release package from $sourceRepo..."
-            $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases")[0].assets | Where-Object name -like $namePattern).browser_download_url
-        }
-        else{
-            Write-Host "Installing latest $namePattern pre-release package from $sourceRepo..."
-            $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases/latest").assets | Where-Object name -like $namePattern).browser_download_url
-        }
-    return $sourceURI
 }
 
 function Get-Binary{
@@ -181,9 +117,6 @@ function Get-Binary{
 
         Expand-Archive -Path $tempZIP -DestinationPath $destFolder -Force
         Remove-Item $tempZIP -Force
-
-        #TESTING:
-        Write-Host "destination folder: $destFolder"
         
         Remove-LayeredFolderLayers $destFolder
 
@@ -199,63 +132,6 @@ function Get-Binary{
         }
 
         Write-Host "$command successfully installed!" -ForegroundColor Green
-    }
-}
-
-function Push-ChangedFiles{
-    param(
-        $sourceFolder,
-        $destFolder
-    )
-
-    $sourceFileList = Get-ChildItem $sourceFolder -Recurse -File
-    $destFileList = Get-ChildItem $destFolder -Recurse -File
-
-    if($null -eq $sourceFileList){
-        Write-Host "ERROR: No files to copy from." -ForegroundColor Red
-        break
-    }
-    elseIf($null -eq $destFileList){
-        Write-Host "ERROR: no files to compare against." -ForegroundColor Red
-        break
-    }
-    else{
-        $sourceTransformed = @()
-        $destTransformed = @()
-
-        foreach($file in $sourceFileList){
-            $sourceTransformed += ([string]$file).Substring($sourceFolder.Length)
-        }
-
-        foreach($file in $destFileList){
-            $destTransformed += ([string]$file).Substring($destFolder.Length)
-        }
-
-        $missingFiles = Compare-Object $sourceTransformed $destTransformed | Where-Object {$_.sideindicator -eq "<="}
-    }
-
-    foreach($file in $missingFiles){
-        $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject)
-        $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file.InputObject)
-
-        if (-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest) | Out-Null}
-        Copy-Item -Path $fileInSource -Destination $fileInDest
-        Write-Host "Added Item: " -ForegroundColor White -NoNewline
-        Write-Host $file.InputObject -ForegroundColor Cyan -BackgroundColor Black
-        $script:filesAdded++
-    }
-    
-    foreach($file in $sourceTransformed){
-        $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file)
-        $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file)
-
-        if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash)){ 
-            Remove-Item $fileInDest -Force
-            Copy-Item $fileInSource -Destination $fileInDest
-            Write-Host "Updated Item: " -ForegroundColor White -NoNewline
-            Write-Host $file -ForegroundColor Magenta -BackgroundColor Black
-            $script:filesUpdated++
-        }
     }
 }
 

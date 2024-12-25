@@ -16,15 +16,15 @@ Param(
 #TODO: fix error handling for:
     # - trying to -s or -c an alarm that's not scheduled
 
-if ($cancel -or $status){
-    if ($name -eq ""){
+if($cancel -or $status){
+    if($name -eq ""){
         throw "No alarm name specified."
     }
 
     $formattedTime = (((Get-ScheduledTask -TaskName $name -Verbose | Select-Object *).Triggers).StartBoundary -replace ".*T" -replace "[+].*")
 }
 
-if ($cancel){
+if($cancel){
     Unregister-ScheduledTask -TaskName $name -Confirm:$false
 
     Write-Host "Alarm with name " -NoNewline
@@ -43,16 +43,16 @@ elseIf($status){
 }
 else{
 
-    if (-Not (Test-Path $path)){
+    if(-Not (Test-Path $path)){
         throw "'$path' is not a valid filepath."
     }
 
-    if ($timeString -match "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:?[0-5]?[0-9]?$") {
+    if($timeString -match "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:?[0-5]?[0-9]?$") {
 
         $_hours = $timeString.Substring(0,2)
         $_minutes = $timeString.Substring(3,2)
         
-        if ($timeString -match "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"){
+        if($timeString -match "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"){
             $_seconds = $timeString.Substring(6,2)
             $alarmTime = Get-Date -Hour $_hours -Minute $_minutes -Second $_seconds
         }
@@ -60,7 +60,7 @@ else{
             $alarmTime = Get-Date -Hour $_hours -Minute $_minutes
         }
 
-        if ((Get-Date) -gt $alarmTime) {
+        if((Get-Date) -gt $alarmTime) {
             throw "Timestamp has already passed."
         }
     }
@@ -76,7 +76,7 @@ else{
     Write-Host $fileName -BackgroundColor Cyan -NoNewline
 
 
-    if (Get-Command mpvnet -errorAction SilentlyContinue){
+    if(Get-Command mpvnet -errorAction SilentlyContinue){
         $params = '--really-quiet', '--title=ALARM', '--fs', '--keep-open=no', '--loop-file=inf' 
         $command = "mpvnet $path $params & exit"
 

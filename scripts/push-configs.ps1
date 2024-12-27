@@ -95,59 +95,9 @@ if($PSHome -eq $PS1Home){
 }
 
 $pwshCollectionModules = Get-ChildItem (Join-Path $env:Repo "\PWSH-Collection\modules\")
-foreach($module in $pwshCollectionModules){
-    Import-Module $module
-}
+foreach($module in $pwshCollectionModules){ Import-Module $module }
 
-function Get-Binary{
-    Param(
-        [Parameter(Position = 0, mandatory = $false)]
-        $command,
-        [Parameter(Position = 1, mandatory = $false)]
-        $sourceRepo,
-        [Parameter(Position = 2, mandatory = $false)]
-        $namePattern,
-        [Parameter(Position = 3, mandatory = $false)]
-        [switch]$preRelease = $false,
-        [Parameter(Position = 4, mandatory = $false)]
-        [string]$override = $null
-    )
-
-    if(-Not(Get-Command $command -ErrorAction SilentlyContinue)){
-        $libFolder = Join-Path -PATH $env:Repo -ChildPath "/lib/"
-       
-        if([string]::IsNullOrEmpty($override)){ $sourceURI = Get-GitLatestReleaseURI $sourceRepo -n $namePattern -preRelease $preRelease }
-        else{ $sourceURI = $override }
-
-        $zipFolderName = $(Split-Path -Path $sourceURI -Leaf)
-        $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $zipFolderName 
-        Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
-   
-        if([string]::IsNullOrEmpty($sourceRepo)){ $destFolder = Join-Path $libFolder -ChildPath $zipFolderName }
-        else { $destFolder = (Join-Path $libFolder -ChildPath $sourceRepo) }
-
-
-        Expand-Archive -Path $tempZIP -DestinationPath $destFolder -Force
-        Remove-Item $tempZIP -Force
-        
-        Remove-LayeredFolderLayers $destFolder
-
-        $binFolder = (Join-Path -PATH $destFolder -ChildPath "\bin")
-
-        if((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*")){
-            [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$binFolder",[EnvironmentVariableTarget]::User)       
-            Write-Host "Added $binFolder to path!" -ForegroundColor Green
-        }
-        elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$destFolder*")){
-            [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$destFolder",[EnvironmentVariableTarget]::User)       
-            Write-Host "Added $destFolder to path!" -ForegroundColor Green
-        }
-
-        Write-Host "$command successfully installed!" -ForegroundColor Green
-    }
-}
-
-function Push-Certain{
+function Push-ConfigSafely{
     param (
         $inputPath,
         $outputPath
@@ -204,36 +154,16 @@ Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
 
 #Get-Binary alpine -o "https://alpineapp.email/alpine/release/src/alpine-2.26.zip"
 
-Push-Certain $RepoTermpath $WinTermpath
-Push-Certain $RepoTermPreviewpath $WinTermPreviewPath
-Push-Certain $RepoVimpath $WinVimpath
-Push-Certain $RepoGlazepath $WinGlazepath
-Push-Certain $RepoPSpath $WinPSPath
+Push-ConfigSafely $RepoTermpath $WinTermpath
+Push-ConfigSafely $RepoTermPreviewpath $WinTermPreviewPath
+Push-ConfigSafely $RepoVimpath $WinVimpath
+Push-ConfigSafely $RepoGlazepath $WinGlazepath
+Push-ConfigSafely $RepoPSpath $WinPSPath
 
 Get-NewMachinePath
 
-$gitUserName = &git config get user.name
-$gitUserEmail = &git config get user.email
-
-if([string]::IsNullOrEmpty($gitUserName)){
-    Write-Host "No git user.name found, please enter one now: " -NoNewline
-    $gitUserName = Read-Host
-    if([string]::IsNullOrEmpty($gitUserName)) {
-        Write-Host "ERROR: please enter username." -ForegroundColor Red
-        break
-    }
-    &git config set user.name $gitUserName
-}
-
-if([string]::IsNullOrEmpty($gitUserEmail)){
-    Write-Host "No git user.email found, please enter one now: " -NoNewline
-    $gitUserEmail = Read-Host
-    if(-Not(Test-EmailAddress $gitUserEmail)) {
-        Write-Host "ERROR: please enter a valid e-mail address." -ForegroundColor Red
-        break
-    }
-    &git config set user.email $gitUserEmail
-}
+Test-GitUserName
+Test-GitUserEmail
 
 #TODO: automatically ask for git ssh key and set it up 
 

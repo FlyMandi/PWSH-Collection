@@ -15,7 +15,10 @@ function Get-Binary{
     if(-Not(Get-Command $command -ErrorAction SilentlyContinue)){
         $libFolder = Join-Path -PATH $env:Repo -ChildPath "/lib/"
        
-        if([string]::IsNullOrEmpty($override)){ $sourceURI = Get-GitLatestReleaseURI $sourceRepo -n $namePattern -preRelease $preRelease }
+        if([string]::IsNullOrEmpty($override)){ 
+            if($preRelease){ $sourceURI = Get-GitLatestReleaseURI $sourceRepo -n $namePattern -preRelease }
+            else{ $sourceURI = Get-GitLatestReleaseURI $sourceRepo -n $namePattern }
+        } 
         else{ $sourceURI = $override }
 
         $zipFolderName = $(Split-Path -Path $sourceURI -Leaf)

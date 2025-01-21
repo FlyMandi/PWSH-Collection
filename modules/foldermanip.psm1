@@ -84,17 +84,34 @@ function Push-ChangedFiles{
 }
 Export-ModuleMember -Function Push-ChangedFiles
 
-function Get-LatestFileTimeNoConfig{
-    param($path)
+function Test-IsConfigFileExtension{
+    param(
+        $extension
+    )
+    $listOfConfigFileExtensions = ".ini", ".xml", ".toml", ".yaml", ".txt"
+    return $listOfConfigFileExtensions.Contains($extension)
+}
+Export-ModuleMember -Function Test-IsConfigFileExtension
+
+function Get-LatestTimeInFolderNoConfig{
+    param(
+        $path
+    )
+
     if((Get-ChildItem $path).count -eq 0){
-        return (Get-Item $path).LastWriteTime
-        #change this to fit custok object return
+        $file = Get-Item $path
+        return [PSCustomObject]@{ path = $path; extension = $file.Extension; time = $file.LastWriteTime }
     }
     else{
-        #TODO: iterate lol
-        #TODO: return custom object?
-            #path, filetype, lastwritetime
-            #all in array
+        [PsCustomObject]$result = @{ Path = ''; Extension = ''; Time = "5/27/1800"; }
+        $filesList = Get-ChildItem $path -File -Recurse
+        foreach($file in $filesList){
+            [PsCustomObject]$current = @{ Path = $file; Extension = $file.Extension; Time = $file.LastWriteTime }
+            if($current.Time -gt $result.Time && -Not((Test-IsConfigFileExtension $current.Extension))){
+                $result = $current
+            }
+        }
+        return $result
     }
 }
-Export-ModuleMember -Function Get-LatestFileTimeNoConfig
+Export-ModuleMember -Function Get-LatestTimeInFolderNoConfig

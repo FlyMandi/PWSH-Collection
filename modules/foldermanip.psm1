@@ -104,8 +104,6 @@ function Get-LatestFileInFolderNoConfig{
         FilePath = ''; 
         FileExtension = ''; 
         FileTime = $placeholderTime;
-        FolderExtensionList = [System.Collections.Generic.List[System.Object]]@();
-        FolderFileCount = 0;
     }
     $current = $result
     $filesList = Get-ChildItem -LiteralPath $path -File -Recurse
@@ -116,9 +114,7 @@ function Get-LatestFileInFolderNoConfig{
             $result.FilePath = $current.FilePath
             $result.FileExtension = $current.FileExtension
             $result.FileTime = $current.FileTime
-            $result.FolderExtensionList.Add($current.FileExtension)
         }
-        $result.FolderFileCount += 1
     }
     return $result
 }

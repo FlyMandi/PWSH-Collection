@@ -50,7 +50,7 @@ function Push-ChangedFiles{
         foreach($file in $sourceFileList){
             $sourceTransformed += ([string]$file).Substring($sourceFolder.Length)
         }
-
+T:\ModOrganizer\Skyrim\mods\Michelle Pfeiffer and Lucy Liu for COtR
         foreach($file in $destFileList){
             $destTransformed += ([string]$file).Substring($destFolder.Length)
         }
@@ -98,23 +98,28 @@ function Get-LatestFileInFolderNoConfig{
         $path
     )
 
-    $placeholderTime = "5/27/1800"
+    [DateTime]$placeholderTime = "1/1/1800 00:00:00"
 
-    if((Get-ChildItem $path).count -eq 0){
-        $file = Get-Item $path
-        return [PSCustomObject]@{ path = $path; extension = $file.Extension; time = $file.LastWriteTime }
+    [PsCustomObject]$result = @{ 
+        FilePath = ''; 
+        FileExtension = ''; 
+        FileTime = $placeholderTime;
+        FolderExtensionList = [System.Collections.Generic.List[System.Object]]@();
+        FolderFileCount = 0;
     }
-    else{
-        [PsCustomObject]$result = @{ Path = ''; Extension = ''; Time = $placeholderTime; }
-        $filesList = Get-ChildItem $path -File -Recurse
-        foreach($file in $filesList){
-            [PsCustomObject]$current = @{ Path = $file; Extension = $file.Extension; Time = $file.LastWriteTime }
-            if($current.Time -gt $result.Time && -Not((Test-IsConfigFileExtension $current.Extension))){
-                $result = $current
-            }
+    $current = $result
+    $filesList = Get-ChildItem -LiteralPath $path -File -Recurse
+
+    foreach($file in $filesList){
+        $current = @{ FilePath = $file; FileExtension = $file.Extension; FileTime = [DateTime]$file.LastWriteTime }
+        if(($current.FileTime -gt $result.FileTime) -And (-Not((Test-IsConfigFileExtension $current.FileExtension)))){
+            $result.FilePath = $current.FilePath
+            $result.FileExtension = $current.FileExtension
+            $result.FileTime = $current.FileTime
+            $result.FolderExtensionList.Add($current.FileExtension)
         }
-        if($result.Time -ne $placeholderTime){ return $result }
-        ##else{ -return latest file that's least probable to be a config file, like a .txt (except if it's a README)- }
+        $result.FolderFileCount += 1
     }
+    return $result
 }
 Export-ModuleMember -Function Get-LatestFileInFolderNoConfig

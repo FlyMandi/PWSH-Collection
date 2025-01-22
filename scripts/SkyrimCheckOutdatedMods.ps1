@@ -8,17 +8,16 @@ $i = 0
 $folderList = Get-ChildItem $folder -Directory
 $length = $folderList.Length
 
+#doesn't work:
 $host.privatedata.ProgressForegroundColor = 'Blue'
 $host.privatedata.ProgressBackgroundColor = $Host.UI.RawUI.BackgroundColor;
 
 foreach($subfolder in $folderList){
-    [PsCustomObject]$latestFile = Get-LatestFileInFolderNoConfig $subfolder 
+    $latestFile = Get-LatestFileInFolderNoConfig $subfolder
 
-    #TODO: use this to make choices
+    if('' -eq $latestFile.FilePath) { continue; } 
 
-    if('' -eq $latestFile.Path) { continue; } 
-
-    $current = [PSCustomObject]@{ Path = $subfolder; Time = $latestFile.FileTime }
+    $current = [PSCustomObject]@{ ModPath = $subfolder; ModTime = $latestFile.FileTime; ModFileType = Get-SkyrimModType $subfolder; ModFramework = Get-SkyrimModFramework $subfolder; }
 
     $percentComplete = [math]::floor(($i / $length) * 100)
     $progressParameters = @{
@@ -27,14 +26,14 @@ foreach($subfolder in $folderList){
         PercentComplete = $percentComplete 
     }
 
-    if($current.Time -lt $date){
+    if($current.ModTime -lt $date){
         $count += 1
         Write-Host "`nWARNING: " -NoNewline -ForegroundColor Red
         Write-Host "found likely outdated mod: "
-        Write-Host "    Name: " $current.FilePath.BaseName
-        Write-Host "    Path: " $current.FilePath
+        Write-Host "    Name: " $current.ModPath.BaseName
+        Write-Host "    Path: " $current.ModPath
         Write-Host "    Last Updated: " -NoNewline
-        Write-Host $current.FileTime -ForegroundColor Red
+        Write-Host $current.ModTime -ForegroundColor Red
         Write-Host ""
     }
 

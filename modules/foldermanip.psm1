@@ -50,7 +50,7 @@ function Push-ChangedFiles{
         foreach($file in $sourceFileList){
             $sourceTransformed += ([string]$file).Substring($sourceFolder.Length)
         }
-T:\ModOrganizer\Skyrim\mods\Michelle Pfeiffer and Lucy Liu for COtR
+
         foreach($file in $destFileList){
             $destTransformed += ([string]$file).Substring($destFolder.Length)
         }

@@ -129,6 +129,8 @@ function Push-ConfigSafely{
         if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
 
+Get-NewMachinePath
+
 &scoop cleanup --all 6>$null
 Get-FromPkgmgr scoop '7z' -o '7zip'
 Get-FromPkgmgr scoop 'everything'
@@ -143,7 +145,9 @@ Get-FromPkgmgr scoop 'nvim' -o 'neovim'
 Get-FromPkgmgr scoop 'ninja'
 Get-FromPkgmgr scoop 'npm' -o 'nodejs'
 Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
+Get-FromPkgmgr winget 'cargo' -o 'rust'
 Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
+Get-FromPkgmgr cargo 'twt' -o 'twitch-tui'
 Get-FromPkgmgr scoop 'winfetch'
 Get-FromPkgmgr scoop "$env:PROGRAMFILES\WireGuard\wireguard.exe" -o 'wireguard.wireguard'
 Get-FromPkgmgr scoop 'yt-dlp'

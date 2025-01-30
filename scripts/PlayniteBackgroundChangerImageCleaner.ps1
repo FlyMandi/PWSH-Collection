@@ -22,7 +22,7 @@ foreach($gameFolder in (Get-ChildItem $backgroundChangerImageFolder)){
     Write-Host "Scanning Game with id $gameID..."
 
     if(-Not(Test-Path $BCJson)){
-        Remove-Item $gameFolder
+        Remove-Item $gameFolder -Recurse
         Write-Host "    Removed leftover Folder (no corresponding .json): " -ForegroundColor Red -NoNewline
         Write-Host $gameFolder
         continue;

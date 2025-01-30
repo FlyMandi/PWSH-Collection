@@ -1,19 +1,12 @@
 Param(
-    [Parameter(Mandatory=$false,position=0)]
+    [Parameter(Mandatory=$true,position=0)]
     [string]$operation,
     [Parameter(Mandatory=$false,position=1)]
-    [int64]$time = 0,
-    [string]$date = '',
-    [switch]$convert = $false,
+    [DateTime]$date,
     [string]$mode
 )
 
-#TODO: take military time input (0530, 0030, 2359, etc)
-#TODO: take 12h input (530AM, 1230AM, 1159PM, etc)
-#TODO: take date input (05/12/2024), (6/12/2000), etc
-#TODO: take relative input (t-2h), (t-1h30m), etc
-
-[string]$nowRaw = Get-Date
+[DateTime]$nowRaw = Get-Date
 [int64]$now = ([int64](Get-Date -UFormat %s))
 [int64]$unix = 0
 
@@ -24,48 +17,50 @@ Param(
 [int64]$oneHour = 3600
 [int64]$oneDay = 86400 
 [int64]$oneWeek = 604800
-[int64]$oneMonth = 2629743 
+[int64]$oneMonth = 2629743
 [int64]$oneYear = 31556926
 
 function Set-Current{
-    Write-Host "Writing unix time $now to clipboard. ($nowRaw)"
     Set-Clipboard -Value $now
+    Write-Host "Written unix time $now to clipboard. ($nowRaw)"
 }
 
 function Set-Stamp($timeIn){
     switch($mode){
-        {($_ -eq "r") -or ($_ -eq "relative")}      { $script:discordStamp = "<t:$timeIn`:R>" }
-        {($_ -eq "lt") -or ($_ -eq "longtime")}     { $script:discordStamp = "<t:$timeIn`:T>" }
-        {($_ -eq "st") -or ($_ -eq "shorttime")}    { $script:discordStamp = "<t:$timeIn`:t>" }
-        {($_ -eq "ld") -or ($_ -eq "longdate")}     { $script:discordStamp = "<t:$timeIn`:D>" }
-        {($_ -eq "sd") -or ($_ -eq "shortdate")}    { $script:discordStamp = "<t:$timeIn`:d>" }
-        {($_ -eq "sf") -or ($_ -eq "shortfull")}    { $script:discordStamp = "<t:$timeIn`:f>" }
-        {($_ -eq "lf") -or ($_ -eq "longfull")}     { $script:discordStamp = "<t:$timeIn`:F>" }
-        Default                                     {
-            $script:discordStamp = "<t:$timeIn>"
+        {($_ -eq "r")  -or ($_ -eq "relative")}     { return "<t:$timeIn`:R>" }
+        {($_ -eq "lt") -or ($_ -eq "longtime")}     { return "<t:$timeIn`:T>" }
+        {($_ -eq "st") -or ($_ -eq "shorttime")}    { return "<t:$timeIn`:t>" }
+        {($_ -eq "ld") -or ($_ -eq "longdate")}     { return "<t:$timeIn`:D>" }
+        {($_ -eq "sd") -or ($_ -eq "shortdate")}    { return "<t:$timeIn`:d>" }
+        {($_ -eq "sf") -or ($_ -eq "shortfull")}    { return "<t:$timeIn`:f>" }
+        {($_ -eq "lf") -or ($_ -eq "longfull")}     { return "<t:$timeIn`:F>" }
+        Default{
             $script:mode = "default"
+            return "<t:$timeIn>"
         }
     }
 }
 
 switch($operation){
     "convert"{
-        Write-Host "time to convert: $time"
-        Get-Date -UnixTimeSeconds $time
+        Write-Host "time to convert: $date"
+        Get-Date -UnixTimeSeconds $date
     }
     "get"{
-        if ($time -eq 0){
+        if ($null -eq $date){
             Set-Current
         }
         else{
-            # get unix timestamp from time & date specified
+            Set-Clipboard -Value (Get-Date -Date $date -UFormat %s)
+            Write-Host "Written unix time $date to clipboard. ($date)"
         }
     }
+    #FIXME: weird format and usage
     "discord"{
-        if ($time -ne 0){
-            # set directly
-            Write-Host "Writing discord timestamp for unix time '$time' to clipboard:`n" (Get-Date -UnixTimeSeconds $time)
-            Set-Stamp $time
+        $timeToStamp = Get-Date -UnixTimeSeconds $date
+        if ($timeToStamp -ne 0){
+            Write-Host "Writing discord timestamp for unix time '$timeToStamp' to clipboard:`n" (Get-Date -UnixTimeSeconds $timeToStamp)
+            $discordStamp = Set-Stamp $timeToStamp
             Set-Clipboard -Value $discordStamp
             Write-host "Written $mode timestamp with: $discordStamp"
         }
@@ -99,14 +94,10 @@ switch($operation){
             Write-host "Written $mode timestamp with: $discordStamp"
         }
         else{
-            # fallback is current unix time
             Write-Host "Writing discord timestamp for current time to clipboard:" (Get-Date -UnixTimeSeconds $now)
             Set-Stamp $now
             Set-Clipboard -Value $discordStamp
             Write-host "Written $mode timestamp with: $discordStamp"
         }
-    }
-    Default{
-        Set-Current
     }
 }

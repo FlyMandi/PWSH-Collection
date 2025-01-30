@@ -81,10 +81,10 @@ $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
 $WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 
-$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
-$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
-$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
-$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
+#$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
+#$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
+#$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
+#$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
 
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
@@ -162,8 +162,8 @@ Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
 Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
 
-Push-ConfigSafely $RepoTermpath $WinTermpath
-Push-ConfigSafely $RepoTermPreviewpath $WinTermPreviewPath
+#Push-ConfigSafely $RepoTermpath $WinTermpath
+#Push-ConfigSafely $RepoTermPreviewpath $WinTermPreviewPath
 Push-ConfigSafely $RepoVimpath $WinVimpath
 Push-ConfigSafely $RepoGlazepath $WinGlazepath
 Push-ConfigSafely $RepoPSpath $WinPSPath

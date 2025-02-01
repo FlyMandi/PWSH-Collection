@@ -55,7 +55,7 @@ foreach($gameFolder in $backgroundChangerImageFolderList){
     if(-Not(Test-Path $BCJson)){
         $fileCount += (Get-ChildItem $gameFolder).count
         Remove-Item $gameFolder -Recurse
-        Write-Host "    Removed leftover Folder (no corresponding .json): " -ForegroundColor Red -NoNewline
+        Write-Host "    Removed leftover Folder (no corresponding .json): " -ForegroundColor Green -NoNewline
         Write-Host $gameFolder
         continue;
     }
@@ -67,7 +67,7 @@ foreach($gameFolder in $backgroundChangerImageFolderList){
         if(-Not(Test-HasCorrespondingJson $photo $BCPhotosJson)){
             ++$fileCount
             Remove-Item $photo
-            Write-Host "    Removed leftover Photo (no .json Name entry): " -ForegroundColor Red -NoNewline
+            Write-Host "    Removed leftover Photo (no .json Name entry): " -ForegroundColor Green -NoNewline
             Write-Host $photo
         }
     }

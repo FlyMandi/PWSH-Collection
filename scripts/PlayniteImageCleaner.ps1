@@ -54,7 +54,6 @@ function Remove-BackgroundChangerLeftovers{
 
         $gameID = (Get-Item $gameFolder).BaseName
         $BCJson = "$backgroundChangerJsonPath\$gameID.json"
-        
 
         if(-Not(Test-Path $BCJson)){
             $script:BCfileCount += (Get-ChildItem $gameFolder).count

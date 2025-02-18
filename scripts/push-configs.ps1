@@ -11,6 +11,8 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add "sysinternals"
 }
 
+#TODO: get rid of wt.exe in favour of WezTerm
+
 [int]$script:filesAdded = 0
 [int]$script:filesUpdated = 0
 
@@ -78,13 +80,13 @@ $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
 $WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
 $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
 
-$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
+$WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\fastfetch\"
+$RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "\fastfetch\"
+
+$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\"
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 
-#$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
-#$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
-#$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
-#$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
+#TODO: wezterm configs
 
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
@@ -135,13 +137,13 @@ Get-NewMachinePath
 Get-FromPkgmgr scoop '7z' -o '7zip'
 Get-FromPkgmgr scoop 'ant'
 Get-FromPkgmgr scoop 'everything'
+Get-FromPkgmgr scoop 'fastfetch'
 Get-FromPkgmgr scoop 'fzf'
 Get-FromPkgmgr winget 'git' -o 'git.git'
 Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
 Get-FromPkgmgr scoop 'innounp'
 Get-FromPkgmgr scoop 'lazygit'
 Get-FromPkgmgr scoop 'less'
-Get-FromPkgmgr scoop 'neofetch'
 Get-FromPkgmgr scoop 'nvim' -o 'neovim'
 Get-FromPkgmgr scoop 'ninja'
 Get-FromPkgmgr scoop 'npm' -o 'nodejs'
@@ -163,11 +165,10 @@ Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
 Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
 
-#Push-ConfigSafely $RepoTermpath $WinTermpath
-#Push-ConfigSafely $RepoTermPreviewpath $WinTermPreviewPath
 Push-ConfigSafely $RepoVimpath $WinVimpath
 Push-ConfigSafely $RepoGlazepath $WinGlazepath
 Push-ConfigSafely $RepoPSpath $WinPSPath
+Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath
 
 Get-NewMachinePath
 
@@ -185,14 +186,15 @@ if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
     Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
 }
 
-if(Test-IsNotWinTerm){
-    if(-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal.Preview }
-
-    $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
-    $windowPID = $window.ProcessId
-    $parentPID = $window.ParentProcessId
-    
-    Start-Process wt.exe
-    &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
-    &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
-}
+#TODO: rewrite function for WezTerm
+# if(Test-IsNotWinTerm){
+#     if(-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal.Preview }
+# 
+#     $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
+#     $windowPID = $window.ProcessId
+#     $parentPID = $window.ParentProcessId
+#     
+#     Start-Process wt.exe
+#     &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
+#     &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
+# }

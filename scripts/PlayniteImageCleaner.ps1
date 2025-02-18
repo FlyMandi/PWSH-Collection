@@ -86,14 +86,15 @@ function Remove-DuplicateCoversInFolder{
         if($imageNameList.Contains($new.BaseName)){
             foreach($cover in $imageFullList){
                 if(($new.BaseName -eq $cover.BaseName) -and ($new -ne $cover)){
-                    ++$script:CSfileCount
                     if($new.LastWriteTime -ge $cover.LastWriteTime){
                         if(Test-Path $cover){ 
+                            ++$script:CSfileCount
                             Remove-Item $cover
                             Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
                             Write-Host $cover
                         }
                     }elseIf(Test-Path $new){
+                        ++$script:CSfileCount
                         Remove-Item $new
                         Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
                         Write-Host $new

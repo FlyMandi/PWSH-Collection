@@ -9,6 +9,7 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add "extras"
     &scoop bucket add "nerd-fonts" 
     &scoop bucket add "sysinternals"
+    &scoop bucket add scoop-imgcat https://github.com/danielgatis/scoop-imgcat.git
 }
 
 #TODO: get rid of wt.exe in favour of WezTerm
@@ -24,6 +25,71 @@ function Get-FilesAdded{
 function Get-FilesUpdated{
     if(-Not($script:filesUpdated -eq 0)){Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black}
     $script:filesUpdated = 0
+}
+
+function Push-ChangedFiles{
+    param(
+        $sourceFolder,
+        $destFolder
+    )
+    if ([string]::IsNullOrEmpty($sourceFolder)){ 
+        Write-Host "ERROR: source folder is an empty path."
+        break
+    }
+    if ([string]::IsNullOrEmpty($destFolder)){ 
+        Write-Host "ERROR: destination folder is an empty path."
+        break
+    }
+
+    $sourceFileList = Get-ChildItem $sourceFolder -Recurse -File
+    $destFileList = Get-ChildItem $destFolder -Recurse -File
+
+    if($null -eq $sourceFileList){
+        Write-Host "ERROR: No files to copy from." -ForegroundColor Red
+        break
+    }
+    elseIf($null -eq $destFileList){
+        Write-Host "ERROR: no files to compare against." -ForegroundColor Red
+        break
+    }
+    else{
+        $sourceTransformed = @()
+        $destTransformed = @()
+
+        foreach($file in $sourceFileList){
+            $sourceTransformed += ([string]$file).Substring($sourceFolder.Length)
+        }
+
+        foreach($file in $destFileList){
+            $destTransformed += ([string]$file).Substring($destFolder.Length)
+        }
+
+        $missingFiles = Compare-Object $sourceTransformed $destTransformed | Where-Object {$_.sideindicator -eq "<="}
+    }
+
+    foreach($file in $missingFiles){
+        $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject)
+        $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file.InputObject)
+
+        if (-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest) | Out-Null}
+        Copy-Item -Path $fileInSource -Destination $fileInDest
+        Write-Host "Added Item: " -ForegroundColor White -NoNewline
+        Write-Host $file.InputObject -ForegroundColor Cyan -BackgroundColor Black
+        $script:filesAdded++
+    }
+    
+    foreach($file in $sourceTransformed){
+        $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file)
+        $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file)
+
+        if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash)){ 
+            Remove-Item $fileInDest -Force
+            Copy-Item $fileInSource -Destination $fileInDest
+            Write-Host "Updated Item: " -ForegroundColor White -NoNewline
+            Write-Host $file -ForegroundColor Magenta -BackgroundColor Black
+            $script:filesUpdated++
+        }
+    }
 }
 
 $PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
@@ -80,13 +146,14 @@ $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
 $WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
 $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
 
-$WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\fastfetch\"
-$RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "\fastfetch\"
+$WinWeztermPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\wezterm\"
+$RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "\wezterm\"
 
 $WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\"
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 
-#TODO: wezterm configs
+$WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\fastfetch\"
+$RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "\fastfetch\"
 
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
@@ -110,6 +177,10 @@ function Push-ConfigSafely{
         $inputPath,
         $outputPath
     )
+    $added = $script:filesAdded
+    $updated = $script:filesUpdated
+
+    #TODO: ignore .log files
 
     if(-Not(Test-Path $inputPath)){
         Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
@@ -128,7 +199,7 @@ function Push-ConfigSafely{
     	Push-ChangedFiles $inputPath $outputPath
     }
         Write-Host "Update Complete. "
-        if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
+        if(($script:filesAdded -eq $added) -And ($script:filesUpdated -eq $updated)){Write-Host "No files changed."}
 }
 
 Get-NewMachinePath
@@ -142,6 +213,7 @@ Get-FromPkgmgr scoop 'fzf'
 Get-FromPkgmgr winget 'git' -o 'git.git'
 Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
 Get-FromPkgmgr scoop 'innounp'
+Get-FromPkgmgr scoop 'imgcat'
 Get-FromPkgmgr scoop 'lazygit'
 Get-FromPkgmgr scoop 'less'
 Get-FromPkgmgr scoop 'nvim' -o 'neovim'
@@ -167,6 +239,7 @@ Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
 
 Push-ConfigSafely $RepoVimpath $WinVimpath
 Push-ConfigSafely $RepoGlazepath $WinGlazepath
+Push-ConfigSafely $RepoWeztermPath $WinWeztermPath
 Push-ConfigSafely $RepoPSpath $WinPSPath
 Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath
 
@@ -177,7 +250,7 @@ Test-GitUserEmail
 
 #TODO: automatically ask for git ssh key and set it up 
 
-if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
+if(($script:filesAdded -gt 0) -Or ($script:filesUpdated -gt 0)){
     Write-Host "`nTotal config file changes:" -ForegroundColor White
 
     Get-FilesAdded

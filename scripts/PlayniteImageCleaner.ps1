@@ -58,8 +58,8 @@ function Remove-BackgroundChangerLeftovers{
         if(-Not(Test-Path $BCJson)){
             $script:BCfileCount += (Get-ChildItem $gameFolder).count
             Remove-Item $gameFolder -Recurse
-            Write-Host "    Removed leftover Folder (no corresponding BC {gameid}.json): " -ForegroundColor Red -NoNewline
-            Write-Host $gameFolder
+            #Write-Host "    Removed leftover Folder (no corresponding BC {gameid}.json): " -ForegroundColor Red -NoNewline
+            #Write-Host $gameFolder
             continue;
         }
 
@@ -70,8 +70,8 @@ function Remove-BackgroundChangerLeftovers{
             if(-Not(Test-HasCorrespondingJson $photo $BCPhotosJson)){
                 ++$script:BCfileCount
                 Remove-Item $photo
-                Write-Host "    Removed leftover Photo (no BC {gameid}.json Name entry): " -ForegroundColor Red -NoNewline
-                Write-Host $photo
+                #Write-Host "    Removed leftover Photo (no BC {gameid}.json Name entry): " -ForegroundColor Red -NoNewline
+                #Write-Host $photo
             }
         }
     }
@@ -90,14 +90,14 @@ function Remove-DuplicateCoversInFolder{
                         if(Test-Path $cover){ 
                             ++$script:CSfileCount
                             Remove-Item $cover
-                            Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
-                            Write-Host $cover
+                            #Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
+                            #Write-Host $cover
                         }
                     }elseIf(Test-Path $new){
                         ++$script:CSfileCount
                         Remove-Item $new
-                        Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
-                        Write-Host $new
+                        #Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
+                        #Write-Host $new
 
                         $new = $cover
                     }
@@ -134,6 +134,45 @@ function Remove-DuplicatesInSlot{
     }
 }
 
+function Remove-CoverInSlotIfNoEquivalent{
+    param( $path )
+
+    if($path.BaseName -ne "original"){ throw "ERROR: trying to run equivalent removal on slot other than original: $path" }
+   
+    $rawList = Get-ChildItem -File -Recurse $path
+    $slotFolder = Get-ChildItem $path.parent | Where-Object {$_ -NotMatch "original"}
+
+    $i = 0
+
+    foreach($image in $rawList){
+        $percentComplete = [math]::floor(($i / $rawList.Length) * 100)
+        $progressParameters = @{
+            Activity = "Scanning CS original covers for duplicates: "
+            Status = "Scanned $i of " + $rawList.Length
+            PercentComplete = $percentComplete
+        }
+        Write-Progress @progressParameters
+        ++$i
+
+        $hasNoEquivalent = $true
+        $file = $image
+        $fileWithoutExtension = Join-Path $file.DirectoryName $file.BaseName
+        $fileWithoutExtensionRelative = [System.IO.Path]::GetRelativePath($path, $fileWithoutExtension)
+
+        foreach($slot in $slotFolder){
+            $check = Join-Path -PATH $slot -ChildPath $fileWithoutExtensionRelative
+            if(Test-Path "$check*"){ $hasNoEquivalent = $false; continue; }
+        }
+
+        if($hasNoEquivalent){
+            Remove-Item $image
+            ++$script:CSfileCount
+            #Write-Host "    Removed unnecessarily saved cover: " -ForegroundColor DarkRed -NoNewline
+            #Write-Host $image
+        } 
+    } 
+}
+
 function Remove-CoverStyleDuplicates{
     $coverStylesBackupFolder = "C:\Cover Styles\Backup\"
     if(-Not(Test-Path $coverStylesBackupFolder)){
@@ -150,13 +189,14 @@ function Remove-CoverStyleDuplicates{
 
     foreach($slot in (Get-ChildItem -Directory $coverStylesBackupFolder)){
         Remove-DuplicatesInSlot $slot
+        if($slot.BaseName -eq "original"){ Remove-CoverInSlotIfNoEquivalent $slot }
     }
 }
 
 Remove-BackgroundChangerLeftovers
 Remove-CoverStyleDuplicates
 
-Write-Host "`nSummary: Removed " -NoNewline
+Write-Host "Summary: Removed " -NoNewline
 Write-Host $script:BCfileCount -ForegroundColor Red -NoNewline
 Write-Host " unused images and " -NoNewline
 Write-Host $script:CSfileCount -ForegroundColor DarkRed -NoNewline

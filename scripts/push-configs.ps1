@@ -228,6 +228,7 @@ Get-FromPkgmgr scoop 'yt-dlp'
 Get-FromPkgmgr scoop 'zoomit'
 
 Get-ScoopPackage 'discord'
+Get-ScoopPackage 'fancontrol'
 Get-ScoopPackage 'listary'
 Get-ScoopPackage 'libreoffice'
 Get-ScoopPackage 'spotify'

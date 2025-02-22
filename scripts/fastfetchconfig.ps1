@@ -42,6 +42,9 @@ switch ($operation) {
             $themeNotFound
         }
     }
+    "slot"{
+        #TODO: modular config with default in the base folder, then /slot1/, /slot2/ subfolders
+    }
     ""{
         Get-Fastfetch
     }

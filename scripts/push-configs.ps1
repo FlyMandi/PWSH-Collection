@@ -155,6 +155,9 @@ $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 $WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\fastfetch\"
 $RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "\fastfetch\"
 
+$WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\scoop\persist\fancontrol\configurations\"
+$RepoFancontrolPath = Join-Path -PATH $dotfiles -ChildPath "\fancontrol\"
+
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
 
@@ -243,6 +246,7 @@ Push-ConfigSafely $RepoGlazepath $WinGlazepath
 Push-ConfigSafely $RepoWeztermPath $WinWeztermPath
 Push-ConfigSafely $RepoPSpath $WinPSPath
 Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath
+Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath
 
 Get-NewMachinePath
 

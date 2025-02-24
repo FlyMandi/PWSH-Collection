@@ -15,8 +15,6 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
 }
 
 #TODO: Replace wt detecting functionality with WezTerm
-#TODO: add pull-config (opposite functionality, from current config to dotfiles)
-    #TODO: maybe rename them, since push-configs would rather be pushing from windows, pulling would be from github intuitively for me
 
 [int]$script:filesAdded = 0
 [int]$script:filesUpdated = 0
@@ -149,9 +147,8 @@ function Get-ConfigSafely{
     )
     $added = $script:filesAdded
     $updated = $script:filesUpdated
-
-    Write-Host "function under construction lol".
-
+    
+    #TODO: push-configSafely behaviour, but only for files that already exist in the repository (so only updates, no new files added.)
 }
 
 function Push-ConfigSafely{

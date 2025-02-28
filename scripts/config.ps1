@@ -23,6 +23,7 @@ $PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
 
 function Get-FilesAdded{
     if(-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
+
     $script:filesAdded = 0
 }
 
@@ -45,18 +46,22 @@ function Push-ChangedFiles{
         break
     }
 
-    $sourceFileList = Get-ChildItem $sourceFolder -Recurse -File
+    $sourceFileList = Get-ChildItem $sourceFolder -Recurse -File | Where-Object {$_ -notmatch ".log"}
     $destFileList = Get-ChildItem $destFolder -Recurse -File | Where-Object {$_ -notmatch ".log"}
+
+    if($sourceFolder -eq $winPSpath){
+       $sourceFileList = (Join-Path $winPSpath "\mandi.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1") 
+    }elseIf($destFolder -eq $winPSpath){
+       $destFileList = (Join-Path $winPSpath "\mandi.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1")
+    }
 
     if($null -eq $sourceFileList){
         Write-Host "ERROR: No files to copy from." -ForegroundColor Red
         break
-    }
-    elseIf($null -eq $destFileList){
-        Write-Host "ERROR: no files to compare against." -ForegroundColor Red
+    }elseIf($null -eq $destFileList){
+        Write-Host "ERROR: No files to compare against." -ForegroundColor Red
         break
-    }
-    else{
+    }else{
         $sourceTransformed = @()
         $destTransformed = @()
 
@@ -75,7 +80,7 @@ function Push-ChangedFiles{
         $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject)
         $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file.InputObject)
 
-        if (-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest) | Out-Null}
+        if(-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest) | Out-Null}
         Copy-Item -Path $fileInSource -Destination $fileInDest
         Write-Host "Added Item: " -ForegroundColor White -NoNewline
         Write-Host $file.InputObject -ForegroundColor Cyan -BackgroundColor Black
@@ -96,7 +101,6 @@ function Push-ChangedFiles{
     }
 }
 
-
 if(-Not(Test-Path $env:Repo)){
     Write-Host "\Repository\ folder location at: " -ForegroundColor Red -NoNewline
     Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
@@ -107,15 +111,13 @@ if(-Not(Test-Path $env:Repo)){
     if(($answer -eq "y") -Or ($answer -eq "yes")){ 
         [System.Environment]::SetEnvironmentVariable("Repo", "C:\Repository\", "User")
         $env:Repo = "C:\Repository\"
-    }
-    else{
+    }else{
         Write-Host "Please provide another Directory: " -ForegroundColor Yellow -NoNewline
         $InputRepo = Read-Host
 
         if(-Not(Test-Path $InputRepo)){
             throw "FATAL: Directory doesn't exist. Please create it or choose a valid Directory."
-        }
-        else{
+        }else{
             [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
             $env:Repo = $InputRepo
         }
@@ -131,13 +133,13 @@ function Copy-IntoRepo{
     if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
         &git clone "https://github.com/FlyMandi/$folderName" $folderPath
         Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
-    }
-    elseIf($operation -eq "pull"){
-        $current = Get-Location
-        Set-Location $folderPath
-        &git pull
-        Set-Location $current
-    }
+    }#elseIf($operation -eq "pull"){
+        #FIXME: find a faster way to do this or put this in a different action.
+#        $current = Get-Location
+#        Set-Location $folderPath
+#        &git pull
+#        Set-Location $current
+#    }
 }
 
 function Get-ConfigSafely{
@@ -145,10 +147,23 @@ function Get-ConfigSafely{
         $inputPath,
         $outputPath
     )
-    $added = $script:filesAdded
     $updated = $script:filesUpdated
     
-    #TODO: push-configSafely behaviour, but only for files that already exist in the repository (so only updates, no new files added.)
+    if(-Not(Test-Path $inputPath)){
+        Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
+        Write-Host $inputPath -BackgroundColor DarkGray
+        Write-Host "Not a valid path to copy config from." -ForegroundColor Red
+        break
+    }
+
+    if(-Not(Test-Path $outputPath) -Or ($null -eq (Get-ChildItem $outputPath -File -Recurse))){
+        throw "ERROR: no repo equivalent found in $outputPath."
+    }else{
+        Write-Host "`nUpdating config in $outputPath..."
+        Push-ChangedFiles $inputPath $outputPath
+    }
+        Write-Host "Update Complete. "
+        if($script:filesUpdated -eq $updated){Write-Host "No files changed."}
 }
 
 function Push-ConfigSafely{
@@ -170,8 +185,7 @@ function Push-ConfigSafely{
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 	    Copy-Item $inputPath $outputPath -Recurse
         $script:filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
-    }
-    else{
+    }else{
         Write-Host "`nExisting config found in $outputPath, updating..."
     	Push-ChangedFiles $inputPath $outputPath
     }
@@ -229,14 +243,12 @@ switch($operation){
 
         if(($script:filesAdded -gt 0) -Or ($script:filesUpdated -gt 0)){
             Write-Host "`nTotal config repo file changes:" -ForegroundColor White
-
             Get-FilesAdded
             Get-FilesUpdated
-
             Write-Host "`nAll config repos are now up to date! ^^" -ForegroundColor Green
         }
-    }
-    "pull"{
+    } 
+    "pull"{ #FIXME: improve performance, man... takes an entire second :( 
         Get-FromPkgmgr scoop '7z' -o '7zip'
         Get-FromPkgmgr scoop 'ant'
         Get-FromPkgmgr scoop 'everything'
@@ -292,16 +304,13 @@ switch($operation){
 
             Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
         }
-    }
-    "clean"{
+    }"clean"{
         &scoop cleanup --all
         #TODO: add more cleanup
-    }
-    "update"{
+    }"update"{
         &scoop update --all
         &winget upgrade --all --include-unknown
-    }
-    Default{
+    }Default{
         throw "ERROR: no config operation specified, i.e. push, pull"
     }
 }

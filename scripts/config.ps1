@@ -133,13 +133,12 @@ function Copy-IntoRepo{
     if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
         &git clone "https://github.com/FlyMandi/$folderName" $folderPath
         Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
-    }#elseIf($operation -eq "pull"){
-        #FIXME: find a faster way to do this or put this in a different action.
-#        $current = Get-Location
-#        Set-Location $folderPath
-#        &git pull
-#        Set-Location $current
-#    }
+    }elseIf($operation -eq "update"){
+        $current = Get-Location
+        Set-Location $folderPath
+        &git pull
+        Set-Location $current
+    }
 }
 
 function Get-ConfigSafely{
@@ -216,7 +215,7 @@ $RepoFancontrolPath = Join-Path -PATH $dotfiles -ChildPath "\fancontrol\"
 if($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
     
-    $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1")
+    $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\config.ps1")
     $commandArgs = "$commandPath", "-ExecutionPolicy Bypass", "-Wait", "-NoNewWindow"
     &$PS7exe $commandArgs
 
@@ -247,8 +246,13 @@ switch($operation){
             Get-FilesUpdated
             Write-Host "`nAll config repos are now up to date! ^^" -ForegroundColor Green
         }
-    } 
-    "pull"{ #FIXME: improve performance, man... takes an entire second :( 
+    }"clean"{
+        &scoop cleanup --all
+        #TODO: add more cleanup
+    }"update"{
+        &scoop update --all
+        &winget upgrade --all --include-unknown
+    }Default{
         Get-FromPkgmgr scoop '7z' -o '7zip'
         Get-FromPkgmgr scoop 'ant'
         Get-FromPkgmgr scoop 'everything'
@@ -304,14 +308,6 @@ switch($operation){
 
             Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
         }
-    }"clean"{
-        &scoop cleanup --all
-        #TODO: add more cleanup
-    }"update"{
-        &scoop update --all
-        &winget upgrade --all --include-unknown
-    }Default{
-        throw "ERROR: no config operation specified, i.e. push, pull"
     }
 }
 

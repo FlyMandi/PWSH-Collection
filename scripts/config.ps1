@@ -25,7 +25,6 @@ $PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
 
 function Get-FilesAdded{
     if(-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
-
     $script:filesAdded = 0
 }
 
@@ -34,28 +33,22 @@ function Get-FilesUpdated{
     $script:filesUpdated = 0
 }
 
+function Get-UpdateSummary{
+    if(($script:filesAdded -gt 0) -Or ($script:filesUpdated -gt 0)){
+        Write-Host "`nTotal config file changes:" -ForegroundColor White
+        Get-FilesAdded
+        Get-FilesUpdated
+        Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
+    }
+}
+
 function Push-ChangedFiles{
     param(
         $sourceFolder,
-        $destFolder
+        $destFolder,
+        $sourceFileList,
+        $destFileList
     )
-    if ([string]::IsNullOrEmpty($sourceFolder)){ 
-        Write-Host "ERROR: source folder is an empty path."
-        break
-    }
-    if ([string]::IsNullOrEmpty($destFolder)){ 
-        Write-Host "ERROR: destination folder is an empty path."
-        break
-    }
-
-    $sourceFileList = Get-ChildItem $sourceFolder -Recurse -File | Where-Object {$_ -notmatch ".log"}
-    $destFileList = Get-ChildItem $destFolder -Recurse -File | Where-Object {$_ -notmatch ".log"}
-
-    if($sourceFolder -eq $winPSpath){
-       $sourceFileList = (Join-Path $winPSpath "\mandi.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1") 
-    }elseIf($destFolder -eq $winPSpath){
-       $destFileList = (Join-Path $winPSpath "\mandi.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1")
-    }
 
     if($null -eq $sourceFileList){
         Write-Host "ERROR: No files to copy from." -ForegroundColor Red
@@ -143,76 +136,70 @@ function Copy-IntoRepo{
     }
 }
 
-function Get-ConfigSafely{
-    param (
-        $inputPath,
-        $outputPath
-    )
-    $updated = $script:filesUpdated
-    
-    if(-Not(Test-Path $inputPath)){
-        Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
-        Write-Host $inputPath -BackgroundColor DarkGray
-        Write-Host "Not a valid path to copy config from." -ForegroundColor Red
-        break
-    }
-
-    if(-Not(Test-Path $outputPath) -Or ($null -eq (Get-ChildItem $outputPath -File -Recurse))){
-        throw "ERROR: no repo equivalent found in $outputPath."
-    }else{
-        Write-Host "`nUpdating config in $outputPath..."
-        Push-ChangedFiles $inputPath $outputPath
-    }
-        Write-Host "Update Complete. "
-        if($script:filesUpdated -eq $updated){Write-Host "No files changed."}
-}
-
 function Push-ConfigSafely{
     param (
         $inputPath,
-        $outputPath
+        $outputPath,
+        $inputFileList,
+        $outputFileList
     )
-    $added = $script:filesAdded
     $updated = $script:filesUpdated
 
     if(-Not(Test-Path $inputPath)){
         Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
         Write-Host $inputPath -BackgroundColor DarkGray
         Write-Host "Not a valid path to copy config from." -ForegroundColor Red
-        break
+        break;
     }
 
     if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse)){
         Write-Host "`nNo existing config found in $outputPath, pushing..."
-	    Copy-Item $inputPath $outputPath -Recurse
-        $script:filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
+
+        foreach($item in $inputFileList){
+            Copy-Item $item $outputPath
+        }
+
+        $script:filesAdded += $inputFileList.size
     }else{
         Write-Host "`nExisting config found in $outputPath, updating..."
-    	Push-ChangedFiles $inputPath $outputPath
+    	Push-ChangedFiles $inputPath $outputPath $inputFileList $outputFileList
     }
-        Write-Host "Update Complete. "
-        if(($script:filesAdded -eq $added) -And ($script:filesUpdated -eq $updated)){Write-Host "No files changed."}
+
+    Write-Host "Update Complete. "
+    if($script:filesUpdated -eq $updated){Write-Host "No existing files changed."}
 }
 
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
 
 $WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
 $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
+$WinVimList = Get-ChildItem $WinVimpath -File -Recurse
+$RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse
 
 $WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
 $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
+$WinGlazeList = Get-ChildItem $WinGlazepath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+$RepoGlazeList = Get-ChildItem $RepoGlazepath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
 $WinWeztermPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\wezterm\"
 $RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "\wezterm\"
+$WinWeztermList = Get-ChildItem $WinWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+$RepoWeztermList = Get-ChildItem $RepoWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
 $WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\"
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
+$WinPSList = (Join-Path $winPSpath "\mandi.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1")
+$RepoPSList = (Join-Path $RepoPSpath "\mandi.omp.json"), (Join-Path $RepoPSpath "\Microsoft.PowerShell_profile.ps1")
 
 $WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\fastfetch\"
 $RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "\fastfetch\"
+$WinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse | Where-Object {$_ -notmatch "config.jsonc"}
+$RepoFastfetchList = Get-ChildItem $RepoFastfetchPath -File -Recurse | Where-Object {$_ -notmatch "config.jsonc"}
 
 $WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\scoop\persist\fancontrol\configurations\"
 $RepoFancontrolPath = Join-Path -PATH $dotfiles -ChildPath "\fancontrol\"
+$WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
+$RepoFancontrolList = Get-Childitem $RepoFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
 
 if($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
@@ -235,26 +222,34 @@ Get-NewMachinePath
 
 switch($operation){
     "push"{
-        Get-ConfigSafely $WinVimpath $RepoVimpath
-        Get-ConfigSafely $WinGlazepath $RepoGlazepath
-        Get-ConfigSafely $WinWeztermPath $RepoWeztermPath 
-        Get-ConfigSafely $WinPSPath $RepoPSpath 
-        Get-ConfigSafely $WinFastfetchPath $RepoFastfetchPath 
-        Get-ConfigSafely $WinFancontrolPath $RepoFancontrolPath 
+        Push-ConfigSafely $WinVimpath $RepoVimpath $WinVimList $RepoVimList
+        Push-ConfigSafely $WinGlazepath $RepoGlazepath $WinGlazeList $RepoGlazeList
+        Push-ConfigSafely $WinWeztermPath $RepoWeztermPath $WinWeztermList $RepoWeztermList
+        Push-ConfigSafely $WinPSPath $RepoPSpath $WinPSList $RepoPSList 
+        Push-ConfigSafely $WinFastfetchPath $RepoFastfetchPath $WinFastfetchList $RepoFastfetchList
+        Push-ConfigSafely $WinFancontrolPath $RepoFancontrolPath $WinFancontrolList $RepoFancontrolList
 
-        if(($script:filesAdded -gt 0) -Or ($script:filesUpdated -gt 0)){
-            Write-Host "`nTotal config repo file changes:" -ForegroundColor White
-            Get-FilesAdded
-            Get-FilesUpdated
-            Write-Host "`nAll config repos are now up to date! ^^" -ForegroundColor Green
-        }
+        Get-UpdateSummary
+
+    }"pull"{
+        Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
+        Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList
+        Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
+        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList 
+        Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
+        Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
+
+        Get-UpdateSummary
+
     }"clean"{
         &scoop cleanup --all
         #TODO: add more cleanup
+
     }"update"{
         &scoop update --all
         Get-NewMachinePath
         &winget upgrade --all
+
     }Default{
         Get-FromPkgmgr scoop '7z' -o '7zip'
         Get-FromPkgmgr scoop 'ant'
@@ -291,12 +286,12 @@ switch($operation){
         Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
         Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
 
-        Push-ConfigSafely $RepoVimpath $WinVimpath
-        Push-ConfigSafely $RepoGlazepath $WinGlazepath
-        Push-ConfigSafely $RepoWeztermPath $WinWeztermPath
-        Push-ConfigSafely $RepoPSpath $WinPSPath
-        Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath
-        Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath
+        Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
+        Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList
+        Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
+        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList 
+        Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
+        Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
 
         Get-NewMachinePath
 
@@ -304,15 +299,8 @@ switch($operation){
         Test-GitUserEmail
 
         #TODO: automatically ask for git ssh key and set it up
-
-        if(($script:filesAdded -gt 0) -Or ($script:filesUpdated -gt 0)){
-            Write-Host "`nTotal config file changes:" -ForegroundColor White
-
-            Get-FilesAdded
-            Get-FilesUpdated
-
-            Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
-        }
+        
+        Get-UpdateSummary
     }
 }
 

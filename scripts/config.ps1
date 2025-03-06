@@ -251,7 +251,8 @@ switch($operation){
         #TODO: add more cleanup
     }"update"{
         &scoop update --all
-        &winget upgrade --all --include-unknown
+        Get-NewMachinePath
+        &winget upgrade --all
     }Default{
         Get-FromPkgmgr scoop '7z' -o '7zip'
         Get-FromPkgmgr scoop 'ant'

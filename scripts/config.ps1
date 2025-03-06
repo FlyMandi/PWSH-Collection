@@ -279,6 +279,7 @@ switch($operation){
         Get-ScoopPackage 'fancontrol'
         Get-ScoopPackage 'listary'
         Get-ScoopPackage 'libreoffice'
+        Get-ScoopPackage 'lua-for-windows'
         Get-ScoopPackage 'spotify'
         Get-ScoopPackage 'vcredist2022'
 

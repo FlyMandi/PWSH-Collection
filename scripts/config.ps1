@@ -41,8 +41,8 @@ function Get-UpdateSummary{
         Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
 
         if($operation -eq "push"){
-            Write-Host "Would you like to commit your changes now?(y/n):" -ForegroundColor Yellow
-            Read-Host $answer
+            Write-Host "Would you like to commit your changes now?(y/n): " -ForegroundColor Yellow -NoNewline
+            $answer = Read-Host
             if(($answer -eq "y") -Or ($answer -eq "yes")){
                 Push-Location "$env:Repo\dotfiles\"
                 &lazygit

@@ -24,12 +24,12 @@ $PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
 $PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
 
 function Get-FilesAdded{
-    if(-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
+    if(-Not($script:filesAdded -eq 0)){ Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black }
     $script:filesAdded = 0
 }
 
 function Get-FilesUpdated{
-    if(-Not($script:filesUpdated -eq 0)){Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black}
+    if(-Not($script:filesUpdated -eq 0)){ Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black }
     $script:filesUpdated = 0
 }
 
@@ -268,6 +268,7 @@ switch($operation){
         Get-FromPkgmgr scoop 'fzf'
         Get-FromPkgmgr winget 'git' -o 'git.git'
         Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
+        Get-FromPkgmgr scoop 'hxd'
         Get-FromPkgmgr scoop 'innounp'
         Get-FromPkgmgr scoop 'imgcat'
         Get-FromPkgmgr scoop 'lazygit'

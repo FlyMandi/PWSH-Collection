@@ -8,6 +8,7 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
 
+    # TODO: only do this on windows
     &scoop config SCOOP_BRANCH develop
     &scoop bucket add "extras"
     &scoop bucket add "nerd-fonts" 
@@ -179,6 +180,7 @@ function Push-ConfigSafely{
     if($script:filesUpdated -eq $updated){Write-Host "No existing files changed."}
 }
 
+# TODO: resolve these paths on linux & MAYBE android(if PWSH even runs there)
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
 
 $WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"

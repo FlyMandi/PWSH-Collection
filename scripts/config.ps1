@@ -270,6 +270,7 @@ switch($operation){
         Get-FromPkgmgr scoop 'fzf'
         Get-FromPkgmgr winget 'git' -o 'git.git'
         Get-FromPkgmgr scoop 'glazewm' 
+        Get-FromPkgmgr scoop 'hwinfo'
         Get-FromPkgmgr scoop 'hxd'
         Get-FromPkgmgr scoop 'innounp'
         Get-FromPkgmgr scoop 'imgcat'

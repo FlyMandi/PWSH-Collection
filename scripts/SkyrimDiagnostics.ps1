@@ -38,7 +38,8 @@ $exclusionList = @(
     "Fires Hurt SE",
     "Trainwreck - A Crash Logger",
     "Jaxonz Renamer",
-    "Realistic Conversations"
+    "Realistic Conversations",
+    "unofficial skyrim special edition patch"
 )
 
 #TODO: implement some "don't flag this if an update is installed on top" kinda deal.
@@ -131,7 +132,7 @@ if($outdatedCount -gt 0){
 }
 
 if($bigESPs.Length -gt 0){
-    Write-Host "Summary: found " $bigESPs " large ESPs. Please check list of 10 biggest below and reconsider." -ForegroundColor Yellow
+    Write-Host "Summary: found " $bigESPs.Length " large ESPs. Please check list of 10 biggest below and reconsider." -ForegroundColor Yellow
     for($j = 0; ($j -lt 10) -and ($j -lt $bigESPs.Length); ++$j){
         Write-Host $bigESPs[$j].BaseName -NoNewline
         Write-Host ", size: " -NoNewline

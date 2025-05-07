@@ -39,7 +39,7 @@ $exclusionList = @(
     "Trainwreck - A Crash Logger",
     "Jaxonz Renamer",
     "Realistic Conversations",
-    "unofficial skyrim special edition patch",
+    "Unofficial Skyrim Special Edition Patch",
     "Sea of Spirits"
 )
 

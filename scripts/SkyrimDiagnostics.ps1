@@ -1,19 +1,31 @@
-#TODO: auto detect skyrim install
-
 param(
-    $folder,
-    $date = (Get-Date).AddYears(-5)
+    $date = (Get-Date).AddYears(-10)
 )
+
+$modsPattern = "ModOrganizer\Skyrim\Mods"
+$modsFolder = Join-Path "$env:LOCALAPPDATA" $modsPattern
+ 
+if(-Not(Test-Path $modsFolder)){
+    foreach($drive in (Get-PSDrive -PSProvider 'FileSystem')){
+        if(Test-Path (Join-Path $drive.Root $modsPattern)){
+            $modsFolder = Join-Path $drive.Root $modsPattern
+        }
+    }
+
+    while(-Not(Test-Path $modsFolder)){
+        Write-Host "Please provide a valid path to your MO2 skyrim mods folder:"
+        $modsFolder = Read-Host
+    }
+}    
 
 $count = 0
 $i = 0
-$folderList = Get-ChildItem $folder -Directory
+$modList = Get-ChildItem $modsFolder -Directory
 $nexusTime = [DateTime]"1/1/1800 00:00:00"
 
 #FIXME: doesnt't work:
 $host.privatedata.ProgressForegroundColor = 'Blue'
 $host.privatedata.ProgressBackgroundColor = $Host.UI.RawUI.BackgroundColor;
-
 
 #TODO: expand exclusion list
 $exclusionList = @(
@@ -23,7 +35,7 @@ $exclusionList = @(
     ""
 )
 
-foreach($subfolder in $folderList){
+foreach($subfolder in $modList){
     $latestFile = Get-LatestFileInFolderNoConfig $subfolder
 
     #TODO: read lastNexusUpdate in MO2 meta.ini if present
@@ -36,10 +48,10 @@ foreach($subfolder in $folderList){
         ModFramework = Get-SkyrimModFramework $subfolder;
     }
 
-    $percentComplete = [math]::floor(($i / $folderList.Length) * 100)
+    $percentComplete = [math]::floor(($i / $modList.Length) * 100)
     $progressParameters = @{
         Activity = 'Scan in Progress...'
-        Status = "Scanned $i of " + $folderList.Length + ", total progress: $percentComplete%"
+        Status = "Scanned $i of " + $modList.Length + ", total progress: $percentComplete%"
         PercentComplete = $percentComplete 
     }
     Write-Progress @progressParameters
@@ -50,7 +62,7 @@ foreach($subfolder in $folderList){
     
     if($exclusionList.Contains($current.ModPath.BaseName)){ continue; }
    
-    #TODO: switch($current.ModFramework)
+    #TODO:feature - switch($current.ModFramework)
         #warn about outdated frameworks:
         #FNIS
         #Nemesis
@@ -62,11 +74,7 @@ foreach($subfolder in $folderList){
         #Having mods share OAR priority
         #SPID & SkyPatcher for leveled lists
 
-    #TODO: add nice recommendations, like SC's KS Hairs retex if you have KS installed
-
-    #TODO: warn about not having a bashed patch, merged patch or something of the sorts (just match filename)
-
-    #TODO: warn about not having run parallaxgen with PBR textures
+    #TODO: warn about not having run parallaxgen or CS enabled with PBR textures 
 
     #TODO: switch($current.ModFileType)
         #eval differently and warn differently based on mod type
@@ -87,9 +95,8 @@ foreach($subfolder in $folderList){
     }
 
 }
+
 #TODO: add 6 months, 1 year, 2 years and 3+ years back, separate them into categories
-
-
 
 #TODO: read from MO2 .csv
     #add correct sorting via csv

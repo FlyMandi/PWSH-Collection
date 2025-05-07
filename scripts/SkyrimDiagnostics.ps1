@@ -1,6 +1,6 @@
 param(
     $date = (Get-Date).AddYears(-8),
-    $bigESPSize = 50000000
+    $bigESPSize = 15000000
 )
 
 $modsPattern = "ModOrganizer\Skyrim\Mods"
@@ -38,14 +38,16 @@ $exclusionList = @(
     "Fires Hurt SE",
     "Trainwreck - A Crash Logger",
     "Jaxonz Renamer",
-    "Lifelike Idle Animations DAR Version"
+    "Realistic Conversations"
 )
 
-$exclusionIfUpdated = @(
-    "Exchange Currency SE",
-    "Frostfall 3.4.1 SE Release",
-    "Relationship Dialogue Overhaul"
-)
+#TODO: implement some "don't flag this if an update is installed on top" kinda deal.
+# $exclusionIfUpdated = @(
+#     "Exchange Currency SE",
+#     "Frostfall 3.4.1 SE Release",
+#     "Relationship Dialogue Overhaul",
+#     "Lifelike Idle Animations by HHaleyy for SE"
+# )
 
 foreach($subfolder in $modList){
     $latestFile = Get-LatestFileInFolderNoConfig $subfolder
@@ -129,9 +131,12 @@ if($outdatedCount -gt 0){
 }
 
 if($bigESPs.Length -gt 0){
-    Write-Host "found " $bigESPs " large ESPs. Please check list of 10 biggest below and reconsider." -ForegroundColor Yellow
+    Write-Host "Summary: found " $bigESPs " large ESPs. Please check list of 10 biggest below and reconsider." -ForegroundColor Yellow
     for($j = 0; ($j -lt 10) -and ($j -lt $bigESPs.Length); ++$j){
-        Write-Host $bigESPs[$j].BaseName ", size: " ([math]::Truncate($bigESPs[$j].Length / 1MB)) " MB" -ForegroundColor Yellow
+        Write-Host $bigESPs[$j].BaseName -NoNewline
+        Write-Host ", size: " -NoNewline
+        Write-Host ([math]::Truncate($bigESPs[$j].Length / 1MB)) -NoNewline -ForegroundColor Yellow
+        Write-Host " MB" -ForegroundColor Yellow
     }
 }else{
     Write-Host "No particurlaly large ESPs found. Splendid!" -ForegroundColor Green

@@ -145,7 +145,6 @@ to update a steam app that is recognized via `winget` but has an out-of-date or 
 ```shell
 updatewr jagex.oldSchoolRunescape -reg 'steam app 1343370'
 ```
-[Example Image here.](images/xample_elevated.png)
 
 NOTE: to update the ones stuck in `HKEY_LOCAL_MACHINE`, you will need to run this script in an elevated prompt. Please never run scripts off the internet without having read through them. Unfortunately, not everyone is as nice as me. :eye:
 
@@ -154,6 +153,10 @@ If you want to take matters into your own hands, hit `Win+R`, type `regedit`, hi
 or\
 ```HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall```\
 and look for the Registry Key called `DisplayVersion`, then update it.
+
+## Clean unwanted/unused images from Playnite Library
+
+## 
 
 ## Swap between winfetch configs
 

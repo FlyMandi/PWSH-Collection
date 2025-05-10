@@ -153,7 +153,6 @@ If you want to take matters into your own hands, hit `Win+R`, type `regedit`, hi
 or\
 ```HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall```\
 and look for the Registry Key called `DisplayVersion`, then update it.
-```
 
 ## Clean unwanted/unused images from Playnite Library
 Simply run

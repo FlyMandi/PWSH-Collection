@@ -255,7 +255,10 @@ switch($operation){
 
     }"clean"{
         &scoop cleanup --all
-        Remove-Item (Join-Path $env:LOCALAPPDATA "/nvim-data/lsp.log")
+        $nvimLogs = (Get-ChildItem -File (Join-Path $env:LOCALAPPDATA "/nvim-data/")) | Where-Object {$_ -match ".log"}
+        foreach($log in $nvimLogs){
+            Remove-Item $log
+        }
 
     }"update"{
         &scoop update --all
@@ -269,6 +272,7 @@ switch($operation){
         Get-FromPkgmgr scoop 'fastfetch'
         Get-FromPkgmgr scoop 'fzf'
         Get-FromPkgmgr winget 'git' -o 'git.git'
+        Get-FromPkgmgr scoop 'gdb'
         Get-FromPkgmgr scoop 'glazewm' 
         Get-FromPkgmgr scoop 'hwinfo'
         Get-FromPkgmgr scoop 'hxd'

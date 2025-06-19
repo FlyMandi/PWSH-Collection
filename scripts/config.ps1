@@ -285,7 +285,6 @@ switch($operation){
         Get-FromPkgmgr scoop 'fastfetch'
         Get-FromPkgmgr scoop 'fzf'
         Get-FromPkgmgr winget 'git' -o 'git.git'
-        Get-FromPkgmgr scoop 'gdb'
         Get-FromPkgmgr scoop 'glazewm' 
         Get-FromPkgmgr scoop 'hwinfo'
         Get-FromPkgmgr scoop 'hxd'
@@ -320,7 +319,7 @@ switch($operation){
         #TODO: move OS detection into Get-Binary
         Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
         Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
-        Get-Binary termbench_release_clang "cmuratori/termbench" -o "https://github.com/cmuratori/termbench/files/6612606/termbench_v1.zip"
+        Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
         Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
         Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList

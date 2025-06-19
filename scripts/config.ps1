@@ -294,7 +294,6 @@ switch($operation){
         Get-FromPkgmgr scoop 'lazygit'
         Get-FromPkgmgr scoop 'less'
         Get-FromPkgmgr scoop 'luarocks'
-        Get-FromPkgmgr scoop 'nasm'
         Get-FromPkgmgr scoop 'ninja'
         Get-FromPkgmgr scoop 'npm' -o 'nodejs'
         Get-FromPkgmgr scoop 'nvim' -o 'neovim'

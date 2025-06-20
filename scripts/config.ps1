@@ -280,6 +280,7 @@ switch($operation){
         #Get-FromPkgmgr should also be platform agnostic and just use a
         #priority list of package managers per platform (scoop/apt/homebrew)
         Get-FromPkgmgr scoop '7z' -o '7zip'
+        Get-FromPkgmgr scoop 'bat'
         Get-FromPkgmgr scoop 'cloc'
         Get-FromPkgmgr scoop 'everything'
         Get-FromPkgmgr scoop 'fastfetch'

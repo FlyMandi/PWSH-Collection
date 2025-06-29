@@ -9,7 +9,7 @@ if(-Not (Get-Command winget -ErrorAction SilentlyContinue)){
     Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
 }
 
-if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){ 
+if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
 
@@ -17,7 +17,7 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     # probably move into a function called Install-PKGMGRs or something?
     &scoop config SCOOP_BRANCH develop
     &scoop bucket add "extras"
-    &scoop bucket add "nerd-fonts" 
+    &scoop bucket add "nerd-fonts"
     &scoop bucket add "sysinternals"
     &scoop bucket add scoop-imgcat https://github.com/danielgatis/scoop-imgcat.git
     &scoop update
@@ -98,12 +98,12 @@ function Push-ChangedFiles{
         Write-Host $file.InputObject -ForegroundColor Cyan -BackgroundColor Black
         $script:filesAdded++
     }
-    
+
     foreach($file in $sourceTransformed){
         $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file)
         $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file)
 
-        if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash)){ 
+        if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash)){
             Remove-Item $fileInDest -Force
             Copy-Item $fileInSource -Destination $fileInDest
             Write-Host "Updated Item: " -ForegroundColor White -NoNewline
@@ -120,7 +120,7 @@ if(-Not(Test-Path $env:Repo)){
     Write-Host "(y/n): " -NoNewline -ForegroundColor Yellow
 
     $answer = Read-Host
-    if(($answer -eq "y") -Or ($answer -eq "yes")){ 
+    if(($answer -eq "y") -Or ($answer -eq "yes")){
         [System.Environment]::SetEnvironmentVariable("Repo", "C:\Repository\", "User")
         $env:Repo = "C:\Repository\"
     }else{
@@ -140,7 +140,7 @@ function Copy-IntoRepo{
     Param(
         $folderName
     )
-    
+
     $folderPath = Join-Path $env:Repo $folderName
     if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
         &git clone "https://github.com/FlyMandi/$folderName" $folderPath
@@ -225,12 +225,12 @@ $RepoFancontrolList = Get-Childitem $RepoFancontrolPath -File -Recurse | Where-O
 
 if($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
-    
+
     $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\config.ps1")
     $commandArgs = "$commandPath", "-ExecutionPolicy Bypass", "-Wait", "-NoNewWindow"
     &$PS7exe $commandArgs
 
-    Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green 
+    Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
     &cmd.exe "/c TASKKILL /F /PID $PID" | Out-Null
 }
 
@@ -247,7 +247,7 @@ switch($operation){
         Push-ConfigSafely $WinVimpath $RepoVimpath $WinVimList $RepoVimList
         Push-ConfigSafely $WinGlazepath $RepoGlazepath $WinGlazeList $RepoGlazeList
         Push-ConfigSafely $WinWeztermPath $RepoWeztermPath $WinWeztermList $RepoWeztermList
-        Push-ConfigSafely $WinPSPath $RepoPSpath $WinPSList $RepoPSList 
+        Push-ConfigSafely $WinPSPath $RepoPSpath $WinPSList $RepoPSList
         Push-ConfigSafely $WinFastfetchPath $RepoFastfetchPath $WinFastfetchList $RepoFastfetchList
         Push-ConfigSafely $WinFancontrolPath $RepoFancontrolPath $WinFancontrolList $RepoFancontrolList
 
@@ -257,7 +257,7 @@ switch($operation){
         Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
         Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList
         Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
-        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList 
+        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList
         Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
         Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
 
@@ -276,17 +276,19 @@ switch($operation){
         &winget upgrade --all
 
     }Default{
-        #TODO: move these into an array of packages. 
+        #TODO: move these into an array of packages.
         #Get-FromPkgmgr should also be platform agnostic and just use a
         #priority list of package managers per platform (scoop/apt/homebrew)
         Get-FromPkgmgr scoop '7z' -o '7zip'
         Get-FromPkgmgr scoop 'bat'
+        Get-FromPkgmgr scoop 'btop'
         Get-FromPkgmgr scoop 'cloc'
+        Get-FromPkgmgr scoop 'dust'
         Get-FromPkgmgr scoop 'everything'
         Get-FromPkgmgr scoop 'fastfetch'
         Get-FromPkgmgr scoop 'fzf'
         Get-FromPkgmgr winget 'git' -o 'git.git'
-        Get-FromPkgmgr scoop 'glazewm' 
+        Get-FromPkgmgr scoop 'glazewm'
         Get-FromPkgmgr scoop 'hwinfo'
         Get-FromPkgmgr scoop 'hxd'
         Get-FromPkgmgr scoop 'innounp'
@@ -301,6 +303,7 @@ switch($operation){
         Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
         Get-FromPkgmgr scoop 'renderdoccli' -o 'renderdoc'
         Get-FromPkgmgr scoop 'tree-sitter'
+        Get-FromPkgmgr scoop 'tldr'
         Get-FromPkgmgr scoop 'winfetch'
         Get-FromPkgmgr scoop 'wireguard' -o 'wireguard.wireguard'
         Get-FromPkgmgr scoop 'yt-dlp'
@@ -319,13 +322,13 @@ switch($operation){
 
         #TODO: move OS detection into Get-Binary
         Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
-        Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
+        Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
         Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
         Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
         Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList
         Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
-        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList 
+        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList
         Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
         Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
 
@@ -335,7 +338,7 @@ switch($operation){
         Test-GitUserEmail
 
         #TODO: automatically ask for git ssh key and set it up
-        
+
         Get-UpdateSummary
     }
 }
@@ -343,11 +346,11 @@ switch($operation){
 #TODO: rewrite function for WezTerm
 # if(Test-IsNotWinTerm){
 #     if(-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal.Preview }
-# 
+#
 #     $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
 #     $windowPID = $window.ProcessId
 #     $parentPID = $window.ParentProcessId
-#     
+#
 #     Start-Process wt.exe
 #     &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
 #     &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null

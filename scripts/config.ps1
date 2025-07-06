@@ -5,16 +5,17 @@
 
 param( $operation )
 
-if(-Not (Get-Command winget -ErrorAction SilentlyContinue)){
+if(-Not (Get-Command winget -ErrorAction SilentlyContinue))
+{
     Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
 }
 
-if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
+if(-Not (Get-Command scoop -ErrorAction SilentlyContinue) -and $IsWindows)
+{
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
 
-    # TODO: only do this on windows
-    # probably move into a function called Install-PKGMGRs or something?
+    #probably move into a function called Install-PKGMGRs or something?
     &scoop config SCOOP_BRANCH develop
     &scoop bucket add "extras"
     &scoop bucket add "nerd-fonts"
@@ -27,31 +28,43 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
 
 [int]$script:filesAdded = 0
 [int]$script:filesUpdated = 0
-$PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
-$PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
+$PS1Home = (Join-Path $env:SYSTEMROOT "/System32/WindowsPowerShell/v1.0")
+$PS7exe = (Join-Path $env:PROGRAMFILES "/PowerShell/7/pwsh.exe")
 
-function Get-FilesAdded{
-    if(-Not($script:filesAdded -eq 0)){ Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black }
+function Get-FilesAdded
+{
+    if(-Not($script:filesAdded -eq 0))
+    {
+        Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black
+    }
     $script:filesAdded = 0
 }
 
-function Get-FilesUpdated{
-    if(-Not($script:filesUpdated -eq 0)){ Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black }
+function Get-FilesUpdated
+{
+    if(-Not($script:filesUpdated -eq 0))
+    {
+        Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black
+    }
     $script:filesUpdated = 0
 }
 
-function Get-UpdateSummary{
-    if(($script:filesAdded -gt 0) -Or ($script:filesUpdated -gt 0)){
+function Get-UpdateSummary
+{
+    if(($script:filesAdded -gt 0) -Or ($script:filesUpdated -gt 0))
+    {
         Write-Host "`nTotal config file changes:" -ForegroundColor White
         Get-FilesAdded
         Get-FilesUpdated
         Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
 
-        if($operation -eq "push"){
+        if($operation -eq "push")
+        {
             Write-Host "Would you like to commit your changes now?(y/n): " -ForegroundColor Yellow -NoNewline
             $answer = Read-Host
-            if(($answer -eq "y") -Or ($answer -eq "yes")){
-                Push-Location "$env:Repo\dotfiles\"
+            if(($answer -eq "y") -Or ($answer -eq "yes"))
+            {
+                Push-Location "$env:Repo/dotfiles/"
                 &lazygit
                 Pop-Location
             }
@@ -59,51 +72,67 @@ function Get-UpdateSummary{
     }
 }
 
-function Push-ChangedFiles{
-    param(
+function Push-ChangedFiles
+{
+    param
+    (
         $sourceFolder,
         $destFolder,
         $sourceFileList,
         $destFileList
     )
 
-    if($null -eq $sourceFileList){
+    if($null -eq $sourceFileList)
+    {
         Write-Host "ERROR: No files to copy from." -ForegroundColor Red
         break
-    }elseIf($null -eq $destFileList){
+    }
+    elseIf($null -eq $destFileList)
+    {
         Write-Host "ERROR: No files to compare against." -ForegroundColor Red
         break
-    }else{
+    }
+    else
+    {
         $sourceTransformed = @()
         $destTransformed = @()
 
-        foreach($file in $sourceFileList){
+        foreach($file in $sourceFileList)
+        {
             $sourceTransformed += ([string]$file).Substring($sourceFolder.Length)
         }
 
-        foreach($file in $destFileList){
+        foreach($file in $destFileList)
+        {
             $destTransformed += ([string]$file).Substring($destFolder.Length)
         }
 
-        $missingFiles = Compare-Object $sourceTransformed $destTransformed | Where-Object {$_.sideindicator -eq "<="}
+        $missingFiles = Compare-Object $sourceTransformed $destTransformed
+                        | Where-Object {$_.sideindicator -eq "<="}
     }
 
-    foreach($file in $missingFiles){
+    foreach($file in $missingFiles)
+    {
         $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject)
         $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file.InputObject)
 
-        if(-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest) | Out-Null}
+        if(-Not(Test-Path (Split-Path $fileInDest)))
+        {
+            &mkdir (Split-Path $fileInDest) | Out-Null
+        }
         Copy-Item -Path $fileInSource -Destination $fileInDest
         Write-Host "Added Item: " -ForegroundColor White -NoNewline
         Write-Host $file.InputObject -ForegroundColor Cyan -BackgroundColor Black
         $script:filesAdded++
     }
 
-    foreach($file in $sourceTransformed){
+    foreach($file in $sourceTransformed)
+    {
         $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file)
         $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file)
 
-        if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash)){
+        if(-Not((Get-FileHash $fileInSource).Hash -eq (Get-FileHash $fileInDest).Hash))
+        {
             Remove-Item $fileInDest -Force
             Copy-Item $fileInSource -Destination $fileInDest
             Write-Host "Updated Item: " -ForegroundColor White -NoNewline
@@ -113,39 +142,50 @@ function Push-ChangedFiles{
     }
 }
 
-if(-Not(Test-Path $env:Repo)){
-    Write-Host "\Repository\ folder location at: " -ForegroundColor Red -NoNewline
+if(-Not(Test-Path $env:Repo))
+{
+    Write-Host "/Repository/ folder location at: " -ForegroundColor Red -NoNewline
     Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
-    Write-Host " not found, do you want to set it as 'C:\Repository\'?" -ForegroundColor Red -NoNewline
+    Write-Host " not found, do you want to set it as 'C:/Repository/'?" -ForegroundColor Red -NoNewline
     Write-Host "(y/n): " -NoNewline -ForegroundColor Yellow
 
     $answer = Read-Host
-    if(($answer -eq "y") -Or ($answer -eq "yes")){
-        [System.Environment]::SetEnvironmentVariable("Repo", "C:\Repository\", "User")
-        $env:Repo = "C:\Repository\"
-    }else{
+    if(($answer -eq "y") -Or ($answer -eq "yes"))
+    {
+        [System.Environment]::SetEnvironmentVariable("Repo", "C:/Repository/", "User")
+        $env:Repo = "C:/Repository/"
+    }
+    else
+    {
         Write-Host "Please provide another Directory: " -ForegroundColor Yellow -NoNewline
         $InputRepo = Read-Host
 
-        if(-Not(Test-Path $InputRepo)){
+        if(-Not(Test-Path $InputRepo))
+        {
             throw "FATAL: Directory doesn't exist. Please create it or choose a valid Directory."
-        }else{
+        }
+        else
+        {
             [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
             $env:Repo = $InputRepo
         }
     }
 }
 
-function Copy-IntoRepo{
+function Copy-IntoRepo
+{
     Param(
         $folderName
     )
 
     $folderPath = Join-Path $env:Repo $folderName
-    if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
+    if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0))
+    {
         &git clone "https://github.com/FlyMandi/$folderName" $folderPath
         Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
-    }elseIf($operation -eq "update"){
+    }
+    elseIf($operation -eq "update")
+    {
         $current = Get-Location
         Set-Location $folderPath
         &git pull
@@ -153,8 +193,10 @@ function Copy-IntoRepo{
     }
 }
 
-function Push-ConfigSafely{
-    param (
+function Push-ConfigSafely
+{
+    param
+    (
         $inputPath,
         $outputPath,
         $inputFileList,
@@ -162,22 +204,27 @@ function Push-ConfigSafely{
     )
     $updated = $script:filesUpdated
 
-    if(-Not(Test-Path $inputPath)){
+    if(-Not(Test-Path $inputPath))
+    {
         Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
         Write-Host $inputPath -BackgroundColor DarkGray
         Write-Host "Not a valid path to copy config from." -ForegroundColor Red
         break;
     }
 
-    if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse)){
+    if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse))
+    {
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 
-        foreach($item in $inputFileList){
+        foreach($item in $inputFileList)
+        {
             Copy-Item $item $outputPath
         }
 
         $script:filesAdded += $inputFileList.size
-    }else{
+    }
+    else
+    {
         Write-Host "`nExisting config found in $outputPath, updating..."
     	Push-ChangedFiles $inputPath $outputPath $inputFileList $outputFileList
     }
@@ -187,46 +234,82 @@ function Push-ConfigSafely{
 }
 
 # TODO: resolve these paths on linux & MAYBE android()
-$dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
+$dotfiles = Join-Path -Path $env:Repo -ChildPath "/dotfiles/"
 
-$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
-$RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
+$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "/nvim/"
+$RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "/nvim/"
     #TODO: ignore anything that isn't:
     # init.lua
     # lua/*
     # ftplugin/*
+
+#WINDOWS PATHS
 $WinVimList = Get-ChildItem $WinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
+
+$WinGlazePath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.glzr/glazewm/"
+$WinGlazeList = Get-ChildItem $WinGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+
+$WinWeztermPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/wezterm/"
+$WinWeztermList = Get-ChildItem $WinWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+
+$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/Documents/PowerShell/"
+$WinPSList =    (Join-Path $winPSpath "/config.omp.json"),
+                (Join-Path $winPSpath "/Microsoft.PowerShell_profile.ps1")
+
+$WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/fastfetch/"
+$WinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
+                    | Where-Object {$_ -notmatch "config.jsonc"}
+
+$WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/scoop/persist/fancontrol/configurations/"
+$WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
+
+#LINUX PATHS
+$LinVimList = ""
+
+$LinDWMPath = ""
+$LinDWMList = ""
+
+$LinWeztermPath = ""
+$LinWeztermList = ""
+
+$LinPSPath = ""
+$LinPSList = ""
+
+$LinFastfetchPath = ""
+$LinFastfetchList = ""
+
+#REPO PATHS
 $RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
-$WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
-$RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
-$WinGlazeList = Get-ChildItem $WinGlazepath -File -Recurse | Where-Object {$_ -notmatch ".log"}
-$RepoGlazeList = Get-ChildItem $RepoGlazepath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+$RepoGlazePath = Join-Path -PATH $dotfiles -ChildPath "/glazewm/"
+$RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
-$WinWeztermPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\wezterm\"
-$RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "\wezterm\"
-$WinWeztermList = Get-ChildItem $WinWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+$RepoDWMPath = ""
+$RepoDWMath = ""
+
+$RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "/wezterm/"
 $RepoWeztermList = Get-ChildItem $RepoWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
-$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\"
-$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
-$WinPSList = (Join-Path $winPSpath "\config.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1")
-$RepoPSList = (Join-Path $RepoPSpath "\config.omp.json"), (Join-Path $RepoPSpath "\Microsoft.PowerShell_profile.ps1")
+$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "/PowerShell/"
+$RepoPSList =   (Join-Path $RepoPSpath "/config.omp.json"),
+                (Join-Path $RepoPSpath "/Microsoft.PowerShell_profile.ps1")
 
-$WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\fastfetch\"
-$RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "\fastfetch\"
-$WinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse | Where-Object {$_ -notmatch "config.jsonc"}
-$RepoFastfetchList = Get-ChildItem $RepoFastfetchPath -File -Recurse | Where-Object {$_ -notmatch "config.jsonc"}
+$RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "/fastfetch/"
+$RepoFastfetchList =    Get-ChildItem $RepoFastfetchPath -File -Recurse
+                        | Where-Object {$_ -notmatch "config.jsonc"}
 
-$WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\scoop\persist\fancontrol\configurations\"
-$RepoFancontrolPath = Join-Path -PATH $dotfiles -ChildPath "\fancontrol\"
-$WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
-$RepoFancontrolList = Get-Childitem $RepoFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
+$RepoFancontrolPath = Join-Path -PATH $dotfiles -ChildPath "/fancontrol/"
+$RepoFancontrolList =   Get-Childitem $RepoFancontrolPath -File -Recurse
+                        | Where-Object {$_ -notmatch "CACHE"}
 
-if($PSHome -eq $PS1Home){
-    if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
+if($PSHome -eq $PS1Home)
+{
+    if(-Not(Test-Path $PS7exe))
+    {
+        &winget install Microsoft.PowerShell
+    }
 
-    $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\config.ps1")
+    $commandPath = (Join-Path $env:Repo "/PWSH-Collection/scripts/config.ps1")
     $commandArgs = "$commandPath", "-ExecutionPolicy Bypass", "-Wait", "-NoNewWindow"
     &$PS7exe $commandArgs
 
@@ -237,100 +320,155 @@ if($PSHome -eq $PS1Home){
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
 
-$pwshCollectionModules = Get-ChildItem (Join-Path $env:Repo "\PWSH-Collection\modules\")
-foreach($module in $pwshCollectionModules){ Import-Module $module }
+$pwshCollectionModules = Get-ChildItem (Join-Path $env:Repo "/PWSH-Collection/modules/")
+foreach($module in $pwshCollectionModules)
+{
+    Import-Module $module
+}
 
 Get-NewMachinePath
 
-switch($operation){
-    "push"{
-        Push-ConfigSafely $WinVimpath $RepoVimpath $WinVimList $RepoVimList
-        Push-ConfigSafely $WinGlazepath $RepoGlazepath $WinGlazeList $RepoGlazeList
-        Push-ConfigSafely $WinWeztermPath $RepoWeztermPath $WinWeztermList $RepoWeztermList
-        Push-ConfigSafely $WinPSPath $RepoPSpath $WinPSList $RepoPSList
-        Push-ConfigSafely $WinFastfetchPath $RepoFastfetchPath $WinFastfetchList $RepoFastfetchList
-        Push-ConfigSafely $WinFancontrolPath $RepoFancontrolPath $WinFancontrolList $RepoFancontrolList
+function Push-LinuxConfigs
+{
+    Push-ConfigSafely $LinVimpath           $RepoVimpath        $LinVimList         $RepoVimList
+    # Push-ConfigSafely $LinDWMPath           $RepoDWMPath        $LinDWMList         $RepoDWMList
+    Push-ConfigSafely $LinWeztermPath       $RepoWeztermPath    $LinWeztermList     $RepoWeztermList
+    Push-ConfigSafely $LinPSPath            $RepoPSpath         $LinPSList          $RepoPSList
+    Push-ConfigSafely $LinFastfetchPath     $RepoFastfetchPath  $LinFastfetchList   $RepoFastfetchList
+}
+
+function Push-WindowsConfigs
+{
+    Push-ConfigSafely $WinVimpath           $RepoVimpath        $WinVimList         $RepoVimList
+    Push-ConfigSafely $WinGlazePath         $RepoGlazePath      $WinGlazeList       $RepoGlazeList
+    Push-ConfigSafely $WinWeztermPath       $RepoWeztermPath    $WinWeztermList     $RepoWeztermList
+    Push-ConfigSafely $WinPSPath            $RepoPSpath         $WinPSList          $RepoPSList
+    Push-ConfigSafely $WinFastfetchPath     $RepoFastfetchPath  $WinFastfetchList   $RepoFastfetchList
+    Push-ConfigSafely $WinFancontrolPath    $RepoFancontrolPath $WinFancontrolList  $RepoFancontrolList
+}
+
+switch($operation)
+{
+    "push"
+    {
+        if($isLinux)
+        {
+            Push-LinuxConfigs
+        }
+        elseIf($IsWindows)
+        {
+            Push-WindowsConfigs
+        }
 
         Get-UpdateSummary
 
-    }"pull"{
-        Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
-        Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList
-        Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
-        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList
-        Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
-        Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
+    }
+    "pull"
+    {
+        if($isLinux)
+        {
+            Push-LinuxConfigs
+        }
+        elseIf($IsWindows)
+        {
+            Push-WindowsConfigs
+        }
 
         Get-UpdateSummary
 
-    }"clean"{
+    }
+    "clean"
+    {
+        #TODO: linux cleanup & windows expanded
         &scoop cleanup --all
-        $nvimLogs = (Get-ChildItem -File (Join-Path $env:LOCALAPPDATA "/nvim-data/")) | Where-Object {$_ -match ".log"}
-        foreach($log in $nvimLogs){
+        $nvimLogs = (Get-ChildItem -File (Join-Path $env:LOCALAPPDATA "/nvim-data/"))
+                    | Where-Object {$_ -match ".log"}
+
+        foreach($log in $nvimLogs)
+        {
             Remove-Item $log
         }
 
-    }"update"{
-        &scoop update --all
-        Get-NewMachinePath
-        &winget upgrade --all
+    }
+    "update"
+    {
+        if($IsLinux)
+        {
+            &yay
+            # Get-NewMachinePath
+        }
+        elseIf($IsWindows)
+        {
+            &scoop update --all
+            &winget upgrade --all
+            Get-NewMachinePath
+        }
 
-    }Default{
+    }
+    Default
+    {
         #TODO: move these into an array of packages.
         #Get-FromPkgmgr should also be platform agnostic and just use a
         #priority list of package managers per platform (scoop/apt/homebrew)
-        Get-FromPkgmgr scoop '7z' -o '7zip'
-        Get-FromPkgmgr scoop 'bat'
-        Get-FromPkgmgr scoop 'btop'
-        Get-FromPkgmgr scoop 'cloc'
-        Get-FromPkgmgr scoop 'dust'
-        Get-FromPkgmgr scoop 'everything'
-        Get-FromPkgmgr scoop 'fastfetch'
-        Get-FromPkgmgr scoop 'fzf'
-        Get-FromPkgmgr winget 'git' -o 'git.git'
-        Get-FromPkgmgr scoop 'glazewm'
-        Get-FromPkgmgr scoop 'hwinfo'
-        Get-FromPkgmgr scoop 'hxd'
-        Get-FromPkgmgr scoop 'innounp'
-        Get-FromPkgmgr scoop 'imgcat'
-        Get-FromPkgmgr scoop 'lazygit'
-        Get-FromPkgmgr scoop 'less'
-        Get-FromPkgmgr scoop 'luarocks'
-        Get-FromPkgmgr scoop 'ninja'
-        Get-FromPkgmgr scoop 'npm' -o 'nodejs'
-        Get-FromPkgmgr scoop 'nvim' -o 'neovim'
-        Get-FromPkgmgr scoop 'premake5' -o 'premake'
-        Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
-        Get-FromPkgmgr scoop 'renderdoccli' -o 'renderdoc'
-        Get-FromPkgmgr scoop 'tree-sitter'
-        Get-FromPkgmgr scoop 'tldr'
-        Get-FromPkgmgr scoop 'winfetch'
-        Get-FromPkgmgr scoop 'wireguard' -o 'wireguard.wireguard'
-        Get-FromPkgmgr scoop 'yt-dlp'
-        Get-FromPkgmgr scoop 'zoomit'
 
-        Get-ScoopPackage 'cpu-z'
-        Get-ScoopPackage 'ddu'
-        Get-ScoopPackage 'discord'
-        Get-ScoopPackage 'fancontrol'
-        Get-ScoopPackage 'gpu-z'
-        Get-ScoopPackage 'listary'
-        Get-ScoopPackage 'libreoffice'
-        Get-ScoopPackage 'lua-for-windows'
-        Get-ScoopPackage 'spotify'
-        Get-ScoopPackage 'vcredist2022'
+        if($isLinux)
+        {
+        }
+        elseIf($isWindows)
+        {
+            Get-FromPkgmgr scoop    '7z' -o '7zip'
+            Get-FromPkgmgr scoop    'bat'
+            Get-FromPkgmgr scoop    'btop'
+            Get-FromPkgmgr scoop    'cloc'
+            Get-FromPkgmgr scoop    'dust'
+            Get-FromPkgmgr scoop    'everything'
+            Get-FromPkgmgr scoop    'fastfetch'
+            Get-FromPkgmgr scoop    'fzf'
+            Get-FromPkgmgr winget   'git' -o 'git.git'
+            Get-FromPkgmgr scoop    'glazewm'
+            Get-FromPkgmgr scoop    'hwinfo'
+            Get-FromPkgmgr scoop    'hxd'
+            Get-FromPkgmgr scoop    'innounp'
+            Get-FromPkgmgr scoop    'imgcat'
+            Get-FromPkgmgr scoop    'lazygit'
+            Get-FromPkgmgr scoop    'less'
+            Get-FromPkgmgr scoop    'luarocks'
+            Get-FromPkgmgr scoop    'ninja'
+            Get-FromPkgmgr scoop    'npm' -o 'nodejs'
+            Get-FromPkgmgr scoop    'nvim' -o 'neovim'
+            Get-FromPkgmgr scoop    'premake5' -o 'premake'
+            Get-FromPkgmgr scoop    'rg' -o 'ripgrep'
+            Get-FromPkgmgr scoop    'renderdoccli' -o 'renderdoc'
+            Get-FromPkgmgr scoop    'tree-sitter'
+            Get-FromPkgmgr scoop    'tldr'
+            Get-FromPkgmgr scoop    'winfetch'
+            Get-FromPkgmgr scoop    'wireguard' -o 'wireguard.wireguard'
+            Get-FromPkgmgr scoop    'yt-dlp'
+            Get-FromPkgmgr scoop    'zoomit'
 
-        #TODO: move OS detection into Get-Binary
-        Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
-        Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
-        Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
+            Get-ScoopPackage 'cpu-z'
+            Get-ScoopPackage 'ddu'
+            Get-ScoopPackage 'discord'
+            Get-ScoopPackage 'fancontrol'
+            Get-ScoopPackage 'gpu-z'
+            Get-ScoopPackage 'listary'
+            Get-ScoopPackage 'libreoffice'
+            Get-ScoopPackage 'lua-for-windows'
+            Get-ScoopPackage 'spotify'
+            Get-ScoopPackage 'vcredist2022'
 
-        Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
-        Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList
-        Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
-        Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList
-        Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
-        Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
+            #TODO: move OS detection into Get-Binary
+            Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
+            Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
+            Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
+
+            Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
+            Push-ConfigSafely $RepoGlazePath $WinGlazePath $RepoGlazeList $WinGlazeList
+            Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
+            Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList
+            Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
+            Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
+        }
 
         Get-NewMachinePath
 

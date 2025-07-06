@@ -7,7 +7,8 @@ param( $operation )
 
 if(-Not (Get-Command winget -ErrorAction SilentlyContinue))
 {
-    Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
+    Invoke-RestMethod   "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1"
+                        | Invoke-Expression | Out-Null
 }
 
 if(-Not (Get-Command scoop -ErrorAction SilentlyContinue) -and $IsWindows)
@@ -413,6 +414,16 @@ switch($operation)
 
         if($isLinux)
         {
+            Get-FromPkgmgr pacman   'bat'
+            Get-FromPkgmgr pacman   'btop'
+            Get-FromPkgmgr pacman   'cloc'
+            Get-FromPkgmgr pacman   'dust'
+            Get-FromPkgmgr pacman   'fastfetch'
+            Get-FromPkgmgr pacman   'fzf'
+            Get-FromPkgmgr pacman   'git'
+            Get-FromPkgmgr pacman   'lazygit'
+            Get-FromPkgmgr pacman   'nvim'
+            Get-FromPkgmgr pacman   'openssh'
         }
         elseIf($isWindows)
         {
@@ -462,12 +473,7 @@ switch($operation)
             Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
             Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
-            Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
-            Push-ConfigSafely $RepoGlazePath $WinGlazePath $RepoGlazeList $WinGlazeList
-            Push-ConfigSafely $RepoWeztermPath $WinWeztermPath $RepoWeztermList $WinWeztermList
-            Push-ConfigSafely $RepoPSpath $WinPSPath $RepoPSList $WinPSList
-            Push-ConfigSafely $RepoFastfetchPath $WinFastfetchPath $RepoFastfetchList $WinFastfetchList
-            Push-ConfigSafely $RepoFancontrolPath $WinFancontrolPath $RepoFancontrolList $WinFancontrolList
+            Push-WindowsConfigs
         }
 
         Get-NewMachinePath

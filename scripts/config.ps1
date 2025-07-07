@@ -145,30 +145,41 @@ function Push-ChangedFiles
 
 if(-Not(Test-Path $env:Repo))
 {
-    Write-Host "/Repository/ folder location at: " -ForegroundColor Red -NoNewline
-    Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
-    Write-Host " not found, do you want to set it as 'C:/Repository/'?" -ForegroundColor Red -NoNewline
-    Write-Host "(y/n): " -NoNewline -ForegroundColor Yellow
-
-    $answer = Read-Host
-    if(($answer -eq "y") -Or ($answer -eq "yes"))
+    if($isLinux)
     {
-        [System.Environment]::SetEnvironmentVariable("Repo", "C:/Repository/", "User")
-        $env:Repo = "C:/Repository/"
+        Write-Host "/Repository/ folder location at: " -ForegroundColor Red -NoNewline
+        Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
+        Write-Host " not found, do you want to set it as '~/repository/'?" -ForegroundColor Red -NoNewline
+
+        #TODO: finish setting up repo and dotfiles vars
     }
-    else
+    elseIf($IsWindows)
     {
-        Write-Host "Please provide another Directory: " -ForegroundColor Yellow -NoNewline
-        $InputRepo = Read-Host
+        Write-Host "/Repository/ folder location at: " -ForegroundColor Red -NoNewline
+        Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
+        Write-Host " not found, do you want to set it as 'C:/Repository/'?" -ForegroundColor Red -NoNewline
+        Write-Host "(y/n): " -NoNewline -ForegroundColor Yellow
 
-        if(-Not(Test-Path $InputRepo))
+        $answer = Read-Host
+        if(($answer -eq "y") -Or ($answer -eq "yes"))
         {
-            throw "FATAL: Directory doesn't exist. Please create it or choose a valid Directory."
+            [System.Environment]::SetEnvironmentVariable("Repo", "C:/Repository/", "User")
+            $env:Repo = "C:/Repository/"
         }
         else
         {
-            [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
-            $env:Repo = $InputRepo
+            Write-Host "Please provide another Directory: " -ForegroundColor Yellow -NoNewline
+            $InputRepo = Read-Host
+
+            if(-Not(Test-Path $InputRepo))
+            {
+                throw "FATAL: Directory doesn't exist. Please create it or choose a valid Directory."
+            }
+            else
+            {
+                [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
+                $env:Repo = $InputRepo
+            }
         }
     }
 }
@@ -267,8 +278,8 @@ $WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Obj
 #LINUX PATHS
 $LinVimList = ""
 
-$LinDWMPath = ""
-$LinDWMList = ""
+$LinSXWMPath = ""
+$LinSXWMList = ""
 
 $LinWeztermPath = ""
 $LinWeztermList = ""
@@ -285,8 +296,8 @@ $RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -not
 $RepoGlazePath = Join-Path -PATH $dotfiles -ChildPath "/glazewm/"
 $RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
-$RepoDWMPath = ""
-$RepoDWMath = ""
+$RepoSXWMPath = ""
+$RepoSXWMPath = ""
 
 $RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "/wezterm/"
 $RepoWeztermList = Get-ChildItem $RepoWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
@@ -329,16 +340,25 @@ foreach($module in $pwshCollectionModules)
 
 Get-NewMachinePath
 
-function Push-LinuxConfigs
+function Push-LinuxToRepo
 {
     Push-ConfigSafely $LinVimpath           $RepoVimpath        $LinVimList         $RepoVimList
-    # Push-ConfigSafely $LinDWMPath           $RepoDWMPath        $LinDWMList         $RepoDWMList
+    Push-ConfigSafely $LinSXWMPath          $RepoSXWMPath       $LinSXWMList        $RepoSXWMList
     Push-ConfigSafely $LinWeztermPath       $RepoWeztermPath    $LinWeztermList     $RepoWeztermList
     Push-ConfigSafely $LinPSPath            $RepoPSpath         $LinPSList          $RepoPSList
     Push-ConfigSafely $LinFastfetchPath     $RepoFastfetchPath  $LinFastfetchList   $RepoFastfetchList
 }
 
-function Push-WindowsConfigs
+function Push-RepoToLinux
+{
+    Push-ConfigSafely $RepoVimpath          $LinVimpath         $RepoVimList        $LinVimList
+    Push-ConfigSafely $RepoSXWMPath         $LinSXWMPath        $RepoSXWMList       $LinSXWMList
+    Push-ConfigSafely $RepoWeztermPath      $LinWeztermPath     $RepoWeztermList    $LinWeztermList
+    Push-ConfigSafely $RepoPSpath           $LinPSPath          $RepoPSList         $LinPSList
+    Push-ConfigSafely $RepoFastfetchPath    $LinFastfetchPath   $RepoFastfetchList  $LinFastfetchList
+}
+
+function Push-WindowsToRepo
 {
     Push-ConfigSafely $WinVimpath           $RepoVimpath        $WinVimList         $RepoVimList
     Push-ConfigSafely $WinGlazePath         $RepoGlazePath      $WinGlazeList       $RepoGlazeList
@@ -348,17 +368,27 @@ function Push-WindowsConfigs
     Push-ConfigSafely $WinFancontrolPath    $RepoFancontrolPath $WinFancontrolList  $RepoFancontrolList
 }
 
+function Push-RepoToWindows
+{
+    Push-ConfigSafely $RepoVimpath          $WinVimpath         $RepoVimList        $WinVimList
+    Push-ConfigSafely $RepoGlazePath        $WinGlazePath       $RepoGlazeList      $WinGlazeList
+    Push-ConfigSafely $RepoWeztermPath      $WinWeztermPath     $RepoWeztermList    $WinWeztermList
+    Push-ConfigSafely $RepoPSpath           $WinPSPath          $RepoPSList         $WinPSList
+    Push-ConfigSafely $RepoFastfetchPath    $WinFastfetchPath   $RepoFastfetchList  $WinFastfetchList
+    Push-ConfigSafely $RepoFancontrolPath   $WinFancontrolPath  $RepoFancontrolList $WinFancontrolList
+}
+
 switch($operation)
 {
     "push"
     {
         if($isLinux)
         {
-            Push-LinuxConfigs
+            Push-LinuxToRepo
         }
         elseIf($IsWindows)
         {
-            Push-WindowsConfigs
+            Push-WindowsToRepo
         }
 
         Get-UpdateSummary
@@ -368,11 +398,11 @@ switch($operation)
     {
         if($isLinux)
         {
-            Push-LinuxConfigs
+            Push-RepoToLinux
         }
         elseIf($IsWindows)
         {
-            Push-WindowsConfigs
+            Push-RepoToWindows
         }
 
         Get-UpdateSummary
@@ -424,6 +454,14 @@ switch($operation)
             Get-FromPkgmgr pacman   'lazygit'
             Get-FromPkgmgr pacman   'nvim'
             Get-FromPkgmgr pacman   'openssh'
+            # Get-FromPkgmgr yay      'powershell-bin'    # yay only if hands off?
+            # Get-FromPkgmgr yay      'sxwm'             # show diff, choose option?
+            Get-FromPkgmgr yay      'picom'
+            Get-FromPkgmgr pacman   'wezterm'           # maybe get a nerd font, too
+            Get-FromPkgmgr pacman   'xorg-server'
+            Get-FromPkgmgr pacman   'xorg-xrandr'
+
+            Push-RepoToLinux
         }
         elseIf($isWindows)
         {
@@ -473,7 +511,7 @@ switch($operation)
             Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
             Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
-            Push-WindowsConfigs
+            Push-RepoToWindows
         }
 
         Get-NewMachinePath

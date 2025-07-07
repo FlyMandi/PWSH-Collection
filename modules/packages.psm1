@@ -31,7 +31,7 @@ Function Get-FromPkgmgr
         }
     }
 
-    $pkgmgr += $installPrefix
+    $pkgmgr = $installPrefix + $pkgmgr
 
     if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue))
     {

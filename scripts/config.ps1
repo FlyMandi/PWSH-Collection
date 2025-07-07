@@ -408,7 +408,7 @@ switch($operation)
     }
     Default
     {
-        #TODO: move these into an array of packages.
+        #move these into an array of packages.
         #Get-FromPkgmgr should also be platform agnostic and just use a
         #priority list of package managers per platform (scoop/apt/homebrew)
 

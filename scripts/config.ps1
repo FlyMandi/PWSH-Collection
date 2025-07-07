@@ -242,13 +242,15 @@ function Push-ConfigSafely
     }
 
     Write-Host "Update Complete. "
-    if($script:filesUpdated -eq $updated){Write-Host "No existing files changed."}
+    if($script:filesUpdated -eq $updated)
+    {
+        Write-Host "No existing files changed."
+    }
 }
 
 # TODO: resolve these paths on linux & MAYBE android()
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "/dotfiles/"
 
-$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "/nvim/"
 $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "/nvim/"
     #TODO: ignore anything that isn't:
     # init.lua
@@ -256,6 +258,7 @@ $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "/nvim/"
     # ftplugin/*
 
 #WINDOWS PATHS
+$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "/nvim/"
 $WinVimList = Get-ChildItem $WinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
 $WinGlazePath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.glzr/glazewm/"
@@ -264,9 +267,9 @@ $WinGlazeList = Get-ChildItem $WinGlazePath -File -Recurse | Where-Object {$_ -n
 $WinWeztermPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/wezterm/"
 $WinWeztermList = Get-ChildItem $WinWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
-$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/Documents/PowerShell/"
-$WinPSList =    (Join-Path $winPSpath "/config.omp.json"),
-                (Join-Path $winPSpath "/Microsoft.PowerShell_profile.ps1")
+$WinPSPath =    Join-Path -PATH $env:USERPROFILE -ChildPath "/Documents/PowerShell/"
+$WinPSList =    (Join-Path $WinPSPath "/config.omp.json"),
+                (Join-Path $WinPSPath "/Microsoft.PowerShell_profile.ps1")
 
 $WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/fastfetch/"
 $WinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
@@ -276,19 +279,25 @@ $WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/scoop/persist
 $WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
 
 #LINUX PATHS
-$LinVimList = ""
+$LinVimPath = "~/config/nvim/"
+$LinVimList = Get-ChildItem $LinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
-$LinSXWMPath = ""
-$LinSXWMList = ""
+$LinX11Path =   "~/"
+$LinX11List =   (Join-Path $LinX11Path "/.xinitrc")
 
-$LinWeztermPath = ""
-$LinWeztermList = ""
+$LinSXWMPath =  "~/.config/"
+$LinSXWMList =  (Join-Path $LinSXWMPath "/sxwmrc")
 
-$LinPSPath = ""
-$LinPSList = ""
+$LinWeztermPath =   "~/"
+$LinWeztermList =   (Join-Path $LinWeztermPath "/.wezterm.lua")
 
-$LinFastfetchPath = ""
-$LinFastfetchList = ""
+$LinPSPath =    "~/.config/powershell/"
+$LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),
+                (Join-Path $LinPSPath "/Microsoft.Powershell_profile.ps1")
+
+$LinFastfetchPath = "~/config/fastfetch/"
+$LinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
+                    | Where-Object {$_ -notmatch "config.jsonc"}
 
 #REPO PATHS
 $RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
@@ -296,13 +305,16 @@ $RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -not
 $RepoGlazePath = Join-Path -PATH $dotfiles -ChildPath "/glazewm/"
 $RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
-$RepoSXWMPath = ""
-$RepoSXWMPath = ""
+$RepoX11Path = Join-Path -PATH $dotfiles -ChildPath "/x11/"
+$RepoX11List = Join-Path $RepoX11Path "/.xinitrc"
+
+$RepoSXWMPath = Join-Path -PATH $dotfiles -ChildPath "/sxwm/"
+$RepoSXWMList = Join-Path $RepoSXWMPath "/sxwmrc"
 
 $RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "/wezterm/"
 $RepoWeztermList = Get-ChildItem $RepoWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
-$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "/PowerShell/"
+$RepoPSPath = Join-Path -PATH $dotfiles -ChildPath "/PowerShell/"
 $RepoPSList =   (Join-Path $RepoPSpath "/config.omp.json"),
                 (Join-Path $RepoPSpath "/Microsoft.PowerShell_profile.ps1")
 
@@ -343,6 +355,7 @@ Get-NewMachinePath
 function Push-LinuxToRepo
 {
     Push-ConfigSafely $LinVimpath           $RepoVimpath        $LinVimList         $RepoVimList
+    Push-ConfigSafely $LinX11Path           $RepoX11Path        $LinX11List         $RepoX11List
     Push-ConfigSafely $LinSXWMPath          $RepoSXWMPath       $LinSXWMList        $RepoSXWMList
     Push-ConfigSafely $LinWeztermPath       $RepoWeztermPath    $LinWeztermList     $RepoWeztermList
     Push-ConfigSafely $LinPSPath            $RepoPSpath         $LinPSList          $RepoPSList
@@ -436,7 +449,27 @@ switch($operation)
         }
 
     }
-    Default
+    "verify"
+    {
+        #FIXME: wip
+        Write-Host "Please verify all paths are set adequately below:"
+
+        if($isLinux)
+        {
+            foreach($file in $LinVimList)
+            {
+                Write-Host $file
+            }
+        }
+        elseIf($IsWindows)
+        {
+            foreach($file in $WinVimList)
+            {
+                Write-Host $file
+            }
+        }
+    }
+    "setup"
     {
         if($isLinux)
         {
@@ -446,21 +479,23 @@ switch($operation)
             Get-FromPkgmgr pacman   'dust'
             Get-FromPkgmgr pacman   'fastfetch'
             Get-FromPkgmgr pacman   'fzf'
+            Get-FromPkgmgr pacman   'gcc'
             Get-FromPkgmgr pacman   'git'
             Get-FromPkgmgr pacman   'lazygit'
+            Get-FromPkgmgr pacman   'less'
+            Get-FromPkgmgr pacman   'libx11'
+            Get-FromPkgmgr pacman   'libxinerama'
+            Get-FromPkgmgr pacman   'make'
             Get-FromPkgmgr pacman   'nvim'
             Get-FromPkgmgr pacman   'openssh'
-            # Get-FromPkgmgr yay      'powershell-bin'
+            Get-FromPkgmgr yay      'powershell-bin'
             Get-FromPkgmgr pacman   'wezterm'
-            Get-FromPkgmgr pacman   'wofi'
+            Get-FromPkgmgr pacman   'rofi'
             Get-FromPkgmgr pacman   'qutebrowser'
-
-            #TODO: switch over to wayland + sway
-            #swayfx maybe, probably not
-            #rofi (wofi?) and/or prime-run?
-            #slurp
-            #grim
-            #wl-color-picker
+            Get-FromPkgmgr yay      'sxwm'
+            Get-FromPkgmgr pacman   'xorg-server'
+            Get-FromPkgmgr pacman   'xorg-xinit'
+            Get-FromPkgmgr pacman   'xorg-xrandr'
 
             Push-RepoToLinux
         }

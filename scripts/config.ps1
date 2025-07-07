@@ -5,7 +5,7 @@
 
 param( $operation )
 
-if(-Not (Get-Command winget -ErrorAction SilentlyContinue))
+if(-Not (Get-Command winget -ErrorAction SilentlyContinue) -and $IsWindows)
 {
     Invoke-RestMethod   "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1"
                         | Invoke-Expression | Out-Null

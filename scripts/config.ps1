@@ -303,7 +303,7 @@ if($isLinux)
                     (Join-Path $LinPSPath "/Microsoft.Powershell_profile.ps1")
 
     $LinFastfetchPath = "~/.config/fastfetch/"
-    $LinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
+    $LinFastfetchList = Get-ChildItem $LinFastfetchPath -File -Recurse
                         | Where-Object {$_ -notmatch "config.jsonc"}
 }
 #WINDOWS PATHS

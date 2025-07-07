@@ -396,6 +396,7 @@ function Push-LinuxToRepo
 function Push-RepoToLinux
 {
     Push-ConfigSafely $RepoVimpath          $LinVimpath         $RepoVimList        $LinVimList
+    Push-ConfigSafely $RepoX11Path          $LinX11Path         $RepoX11List        $LinX11List
     Push-ConfigSafely $RepoSXWMPath         $LinSXWMPath        $RepoSXWMList       $LinSXWMList
     Push-ConfigSafely $RepoWeztermPath      $LinWeztermPath     $RepoWeztermList    $LinWeztermList
     Push-ConfigSafely $RepoPSpath           $LinPSPath          $RepoPSList         $LinPSList
@@ -454,16 +455,21 @@ switch($operation)
     }
     "clean"
     {
-        #TODO: linux cleanup & windows expanded
-        &scoop cleanup --all
-        $nvimLogs = (Get-ChildItem -File (Join-Path $env:LOCALAPPDATA "/nvim-data/"))
-                    | Where-Object {$_ -match ".log"}
-
-        foreach($log in $nvimLogs)
+        if($isLinux)
         {
-            Remove-Item $log
+            #TODO: linux cleanup & windows expanded
         }
+        elseIf($IsWindows)
+        {
+            &scoop cleanup --all
+            $nvimLogs = (Get-ChildItem -File (Join-Path $env:LOCALAPPDATA "/nvim-data/"))
+                        | Where-Object {$_ -match ".log"}
 
+            foreach($log in $nvimLogs)
+            {
+                Remove-Item $log
+            }
+        }
     }
     "update"
     {
@@ -482,8 +488,7 @@ switch($operation)
     }
     "verify"
     {
-        #FIXME: wip
-        Write-Host "Please verify all paths are set adequately below:"
+        Write-Host "Please verify all paths are set adequately below:`n" -ForegroundColor Blue
 
         if($isLinux)
         {
@@ -491,6 +496,37 @@ switch($operation)
             {
                 Write-Host $file
             }
+            Write-Host ""
+
+            foreach($file in $LinX11List)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $LinSXWMList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $LinWeztermList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $LinPSList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $LinFastfetchList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
         }
         elseIf($IsWindows)
         {
@@ -498,6 +534,37 @@ switch($operation)
             {
                 Write-Host $file
             }
+            Write-Host ""
+
+            foreach($file in $WinGlazeList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $WinWeztermList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $WinPSList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $WinFastfetchList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
+
+            foreach($file in $WinFancontrolList)
+            {
+                Write-Host $file
+            }
+            Write-Host ""
         }
     }
     "setup"
@@ -573,7 +640,6 @@ switch($operation)
             Get-ScoopPackage 'spotify'
             Get-ScoopPackage 'vcredist2022'
 
-            #TODO: move OS detection into Get-Binary
             Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
             Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
             Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"

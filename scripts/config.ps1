@@ -438,10 +438,6 @@ switch($operation)
     }
     Default
     {
-        #move these into an array of packages.
-        #Get-FromPkgmgr should also be platform agnostic and just use a
-        #priority list of package managers per platform (scoop/apt/homebrew)
-
         if($isLinux)
         {
             Get-FromPkgmgr pacman   'bat'
@@ -454,12 +450,17 @@ switch($operation)
             Get-FromPkgmgr pacman   'lazygit'
             Get-FromPkgmgr pacman   'nvim'
             Get-FromPkgmgr pacman   'openssh'
-            # Get-FromPkgmgr yay      'powershell-bin'    # yay only if hands off?
-            # Get-FromPkgmgr yay      'sxwm'             # show diff, choose option?
-            Get-FromPkgmgr yay      'picom'
-            Get-FromPkgmgr pacman   'wezterm'           # maybe get a nerd font, too
-            Get-FromPkgmgr pacman   'xorg-server'
-            Get-FromPkgmgr pacman   'xorg-xrandr'
+            # Get-FromPkgmgr yay      'powershell-bin'
+            Get-FromPkgmgr pacman   'wezterm'
+            Get-FromPkgmgr pacman   'wofi'
+            Get-FromPkgmgr pacman   'qutebrowser'
+
+            #TODO: switch over to wayland + sway
+            #swayfx maybe, probably not
+            #rofi (wofi?) and/or prime-run?
+            #slurp
+            #grim
+            #wl-color-picker
 
             Push-RepoToLinux
         }

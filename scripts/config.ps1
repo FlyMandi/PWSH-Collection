@@ -278,7 +278,7 @@ function Push-ConfigSafely
 # TODO: resolve these paths on linux & MAYBE android()
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "/dotfiles/"
 
-$RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "/nvim/"
+$RepoVimPath = Join-Path -PATH $dotfiles -ChildPath "/nvim/"
     #TODO: ignore anything that isn't:
     # init.lua
     # lua/*
@@ -489,7 +489,65 @@ switch($operation)
     }
     "verify"
     {
-        Write-Host "Please verify all paths are set adequately below:`n" -ForegroundColor Blue
+        Write-Host "Please verify all paths are set adequately below:" -ForegroundColor Blue
+
+        if($isLinux)
+        {
+            Write-Host "`nVim:"
+            Write-Host $LinVimPath
+            Write-Host $RepoVimPath
+
+            Write-Host "`nX11:"
+            Write-Host $LinX11Path
+            Write-Host $RepoX11Path
+
+            Write-Host "`nSXWM:"
+            Write-Host $LinSXWMPath
+            Write-Host $RepoSXWMPath
+
+            Write-Host "`nWezterm:"
+            Write-Host $LinWeztermPath
+            Write-Host $RepoWeztermPath
+
+            Write-Host "`nPowerShell:"
+            Write-Host $LinPSPath
+            Write-Host $RepoPSPath
+
+            Write-Host "`nfastfetch:"
+            Write-Host $LinFastfetchPath
+            Write-Host $RepoFastfetchPath
+        }
+        elseIf($IsWindows)
+        {
+            Write-Host "`nVim:"
+            Write-Host $WinVimPath
+            Write-Host $RepoVimPath
+
+            Write-Host "`nGlazeWM:"
+            Write-Host $WinGlazePath
+            Write-Host $RepoVimPath
+
+            Write-Host "`nWezterm:"
+            Write-Host $WinWeztermPath
+            Write-Host $RepoWeztermPath
+
+            Write-Host "`nPowerShell:"
+            Write-Host $WinPSPath
+            Write-Host $RepoPSPath
+
+            Write-Host "`nfastfetch:"
+            Write-Host $WinFastfetchPath
+            Write-Host $RepoFastfetchPath
+
+            Write-Host "`nfancontrol:"
+            Write-Host $WinFancontrolPath
+            Write-Host $RepoFastfetchPath
+        }
+        Write-Host ""
+    }
+    "list"
+    {
+        Write-Host "All found files, in repo and OS path:" -ForegroundColor Blue
 
         if($isLinux)
         {

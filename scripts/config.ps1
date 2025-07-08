@@ -723,6 +723,7 @@ switch($operation)
             Get-FromPkgmgr yay 'wezterm' -o 'wezterm-nightly-bin'
             Get-FromPkgmgr yay 'ripgrep'
             Get-FromPkgmgr yay 'rofi'
+            Get-FromPkgmgr yay 'qemu'
             Get-FromPkgmgr yay 'qutebrowser'
             Get-FromPkgmgr yay 'sxwm'
             Get-FromPkgmgr yay 'xorg-server'

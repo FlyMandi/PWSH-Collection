@@ -315,6 +315,9 @@ if($isLinux)
     $LinWeztermPath =   "~/.config/wezterm/"
     $LinWeztermList =   (Join-Path $LinWeztermPath "/wezterm.lua")
 
+    $LinBashPath =   "~/"
+    $LinBashList =   (Join-Path $LinWeztermPath "/.bashrc")
+
     $LinPSPath =    "~/.config/powershell/"
     $LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),
                     (Join-Path $LinPSPath "/Microsoft.PowerShell_profile.ps1")
@@ -358,6 +361,9 @@ $RepoX11List = Join-Path $RepoX11Path "/.xinitrc"
 
 $RepoSXWMPath = Join-Path -PATH $dotfiles -ChildPath "/sxwm/"
 $RepoSXWMList = Join-Path $RepoSXWMPath "/sxwmrc"
+
+$RepoBashPath = Join-Path -PATH $dotfiles -ChildPath "/bash/"
+$RepoBashList = Join-Path $RepoBashPath "/.bashrc"
 
 $RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "/wezterm/"
 $RepoWeztermList = Get-ChildItem $RepoWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
@@ -403,6 +409,7 @@ function Push-LinuxToRepo
     Push-ConfigSafely $LinVimpath           $RepoVimpath        $LinVimList         $RepoVimList
     Push-ConfigSafely $LinX11Path           $RepoX11Path        $LinX11List         $RepoX11List
     Push-ConfigSafely $LinSXWMPath          $RepoSXWMPath       $LinSXWMList        $RepoSXWMList
+    Push-ConfigSafely $LinBashPath          $RepoBashPath       $LinBashList        $RepoBashList
     Push-ConfigSafely $LinWeztermPath       $RepoWeztermPath    $LinWeztermList     $RepoWeztermList
     Push-ConfigSafely $LinPSPath            $RepoPSpath         $LinPSList          $RepoPSList
     Push-ConfigSafely $LinFastfetchPath     $RepoFastfetchPath  $LinFastfetchList   $RepoFastfetchList
@@ -413,6 +420,7 @@ function Push-RepoToLinux
     Push-ConfigSafely $RepoVimpath          $LinVimpath         $RepoVimList        $LinVimList
     Push-ConfigSafely $RepoX11Path          $LinX11Path         $RepoX11List        $LinX11List
     Push-ConfigSafely $RepoSXWMPath         $LinSXWMPath        $RepoSXWMList       $LinSXWMList
+    Push-ConfigSafely $RepoBashPath         $LinBashPath        $RepoBashList       $LinBashList
     Push-ConfigSafely $RepoWeztermPath      $LinWeztermPath     $RepoWeztermList    $LinWeztermList
     Push-ConfigSafely $RepoPSpath           $LinPSPath          $RepoPSList         $LinPSList
     Push-ConfigSafely $RepoFastfetchPath    $LinFastfetchPath   $RepoFastfetchList  $LinFastfetchList

@@ -1,11 +1,20 @@
 # PWSH-Collection
-[List of all scripts](scripts/)
+[List of all scripts](/scripts/)
 
 When downloading a script, I suggest making a "scripts" folder somewhere safe and then adding that folder to PATH[^1].\
 Then, you can just write the name of the script with arguments in your favourite shell.\
 Example: `script -f flag1 -t -flag2`\
 If not, you will have to call each script either by relative or absolute paths.\
-Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
+Example: `"C:\users\FlyMandi\Downloads\script.ps1" arg1 -switch1`
+
+## config.ps1
+
+[config.ps1](https://github.com/FlyMandi/PWSH-Collection/blob/main/scripts/config.ps1) is a script
+I personally use to set up new computers. It installs and updates all software that I use on a daily basis.
+
+I can't recommend you use it, since the software is highly dependant on personal uses and platforms,
+but certainly have a look at the source code if intrigued.
+It can set up a windows 10/11 as well as Arch Linux install. All you'd need is PowerShell 7 on that machine.
 
 ## View Code Documentation with `cht.sh`
 
@@ -45,7 +54,7 @@ Set-Alarm "CatAlarm" 16:09 "~\Videos\Funny Cat Video.mp4"
 
 or, alternative syntax:
 ```shell
-Set-Alarm -n "Cattie Cat" -t 16:09:30 -p ~\Videos\Cat.mp4 
+Set-Alarm -n "Cattie Cat" -t 16:09:30 -p ~\Videos\Cat.mp4
 ```
 
 You can check status and cancel by name with `-s` and `-c`:
@@ -119,13 +128,12 @@ Written timestamp with mode : <t:1717333334:R>
 
 If you leave out the mode, the mode will fall back to `default` and if you leave out the time, it will use the current unix timestamp.
 
-
 Limitations: can only work with current or specific unix time (for now)\
 
 ## Fix winget showing out-of-date package version with updated app
 [Script to update winget package registry version](scripts/updateWR.ps1)
 
-Some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number. 
+Some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number.
 
 Example usage:
 ```shell
@@ -159,7 +167,7 @@ Simply run
 ```
 PlayniteImageCleaner
 ```
-and the script will clean unused Images, specifically leftovers from the BackgroundChanger and CoverStyleSwitcher extensions. 
+and the script will clean unused Images, specifically leftovers from the BackgroundChanger and CoverStyleSwitcher extensions.
 
 ## Find problematic Skyrim Mods
 Simply run
@@ -238,10 +246,5 @@ winfetchconfig savedefault
 
 I've now also uploaded a version for [fastfetch](https://github.com/fastfetch-cli/fastfetch), which I personally prefer using.
 All arguments are analogous.
-
-## config.ps1
-
-[config.ps1](https://github.com/FlyMandi/PWSH-Collection/blob/main/scripts/config.ps1) is a script I personally use to set up new computers. It installs and updates all software that I use on a daily basis.\
-I can't recommend you using it, since the software is highly dependant on personal uses and platforms, but certainly have a look at the source code if intrigued.
 
 [^1]: Simple tutorial on how to add a folder to PATH [here](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho).

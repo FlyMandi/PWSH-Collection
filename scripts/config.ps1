@@ -316,7 +316,7 @@ if($isLinux)
     $LinWeztermList =   (Join-Path $LinWeztermPath "/wezterm.lua")
 
     $LinBashPath =   "~/"
-    $LinBashList =   (Join-Path $LinBashList "/.bashrc")
+    $LinBashList =   (Join-Path $LinBashPath "/.bashrc")
 
     $LinPSPath =    "~/.config/powershell/"
     $LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),

@@ -87,12 +87,21 @@ function Push-ChangedFiles
         $destFileList
     )
 
-    $sourceFolder = Resolve-Path $sourceFolder
+    $sourceFolder = [string](Resolve-Path $sourceFolder)
     Write-Host "from: $sourceFolder"
-    $destFolder = Resolve-Path $destFolder
+    $destFolder = [string](Resolve-Path $destFolder)
     Write-Host "to: $destFolder"
 
     #TODO: if last char isn't a file separator, "/" or "\", it needs to have one, else the trimming below breaks
+
+    if(-not ($destFolder[-1] -eq "/") -and $isLinux)
+    {
+        $destFolder += "/"
+    }
+    elseIf(-not ($destFolder[-1] -eq "\") -and $isWindows)
+    {
+        $destFolder += "\"
+    }
 
     if($null -eq $sourceFileList)
     {

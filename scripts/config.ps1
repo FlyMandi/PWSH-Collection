@@ -77,7 +77,6 @@ function Get-UpdateSummary
     }
 }
 
-#FIXME: $fileInDest and $fileInSource broken
 function Push-ChangedFiles
 {
     param
@@ -87,6 +86,13 @@ function Push-ChangedFiles
         $sourceFileList,
         $destFileList
     )
+
+    #FIXME: $fileInDest and $fileInSource broken
+    Write-Host $sourceFolder
+    Write-Host $destFolder
+    Write-Host $sourceFileList
+    Write-Host $destFileList
+    return;
 
     if($null -eq $sourceFileList)
     {

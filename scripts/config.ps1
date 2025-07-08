@@ -1,6 +1,6 @@
 #TODO: test this thang on VMs
 #Win11 23H2 onwards.
-#for linux prob only arch.
+#for linux only arch.
 #macOS I don't care about.
 
 param( $operation )
@@ -88,7 +88,11 @@ function Push-ChangedFiles
     )
 
     $sourceFolder = Resolve-Path $sourceFolder
+    Write-Host "from: $sourceFolder"
     $destFolder = Resolve-Path $destFolder
+    Write-Host "to: $destFolder"
+
+    #TODO: if last char isn't a file separator, "/" or "\", it needs to have one, else the trimming below breaks
 
     if($null -eq $sourceFileList)
     {

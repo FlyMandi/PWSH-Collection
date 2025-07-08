@@ -456,6 +456,10 @@ switch($operation)
     }
     "pull"
     {
+        Push-Location $dotfiles
+        &git pull
+        Pop-Location
+
         if($isLinux)
         {
             Push-RepoToLinux

@@ -493,79 +493,127 @@ switch($operation)
 
         if($isLinux)
         {
+            Write-Host "`nVim:"
             foreach($file in $LinVimList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoVimList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nX11:"
             foreach($file in $LinX11List)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoX11List)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nSXWM:"
             foreach($file in $LinSXWMList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoSXWMList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nWezterm:"
             foreach($file in $LinWeztermList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoWeztermList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nPowerShell:"
             foreach($file in $LinPSList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoPSList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nfastfetch:"
             foreach($file in $LinFastfetchList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoFastfetchList)
+            {
+                Write-Host $file
+            }
         }
         elseIf($IsWindows)
         {
+            Write-Host "`nVim:"
             foreach($file in $WinVimList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoVimList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nGlazeWM:"
             foreach($file in $WinGlazeList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoGlazeList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nWezterm:"
             foreach($file in $WinWeztermList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoWeztermList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nPowerShell:"
             foreach($file in $WinPSList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoPSList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nfastfetch:"
             foreach($file in $WinFastfetchList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoFastfetchList)
+            {
+                Write-Host $file
+            }
 
+            Write-Host "`nfancontrol:"
             foreach($file in $WinFancontrolList)
             {
                 Write-Host $file
             }
-            Write-Host ""
+            foreach($file in $RepoFancontrolList)
+            {
+                Write-Host $file
+            }
         }
     }
     "setup"
@@ -588,7 +636,6 @@ switch($operation)
             Get-FromPkgmgr pacman   'nvim'
             Get-FromPkgmgr yay      'oh-my-posh'
             Get-FromPkgmgr pacman   'openssh'
-            Get-FromPkgmgr yay      'powershell-bin'
             Get-FromPkgmgr pacman   'wezterm'
             Get-FromPkgmgr pacman   'rofi'
             Get-FromPkgmgr pacman   'qutebrowser'

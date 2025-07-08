@@ -673,6 +673,7 @@ switch($operation)
                 Write-Host $file
             }
         }
+        Write-Host ""
     }
     "setup"
     {

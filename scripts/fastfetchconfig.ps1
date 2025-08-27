@@ -44,13 +44,19 @@ switch($operation)
     }
     "edit"
     {
+        $editor = "vim"
+        if($null -ne $env:EDITOR)
+        {
+            $editor = $env:EDITOR
+        }
+
         if(Test-Path $pathFromThemeName)
         {
-            &nvim $pathFromThemeName
+            &$editor $pathFromThemeName
         }
         else
         {
-            &nvim $currentConfig
+            &$editor $currentConfig
         }
     }
     "delete"

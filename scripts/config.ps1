@@ -309,8 +309,8 @@ if($isLinux)
     $LinX11Path =   "~/"
     $LinX11List =   (Join-Path $LinX11Path "/.xinitrc")
 
-    $LinSXWMPath =  "~/.config/"
-    $LinSXWMList =  (Join-Path $LinSXWMPath "/sxwmrc")
+    $Lini3Path =  "~/.config/i3/"
+    $Lini3List =  (Join-Path $Lini3Path "/config")
 
     $LinWeztermPath =   "~/.config/wezterm/"
     $LinWeztermList =   (Join-Path $LinWeztermPath "/wezterm.lua")
@@ -359,8 +359,8 @@ $RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ 
 $RepoX11Path = Join-Path -PATH $dotfiles -ChildPath "/x11/"
 $RepoX11List = Join-Path $RepoX11Path "/.xinitrc"
 
-$RepoSXWMPath = Join-Path -PATH $dotfiles -ChildPath "/sxwm/"
-$RepoSXWMList = Join-Path $RepoSXWMPath "/sxwmrc"
+$Repoi3Path = Join-Path -PATH $dotfiles -ChildPath "/i3/"
+$Repoi3List = Join-Path $Repoi3Path "/config"
 
 $RepoBashPath = Join-Path -PATH $dotfiles -ChildPath "/bash/"
 $RepoBashList = Join-Path $RepoBashPath "/.bashrc"
@@ -408,7 +408,7 @@ function Push-LinuxToRepo
 {
     Push-ConfigSafely $LinVimpath           $RepoVimpath        $LinVimList         $RepoVimList
     Push-ConfigSafely $LinX11Path           $RepoX11Path        $LinX11List         $RepoX11List
-    Push-ConfigSafely $LinSXWMPath          $RepoSXWMPath       $LinSXWMList        $RepoSXWMList
+    Push-ConfigSafely $Lini3Path            $Repoi3Path         $Lini3List          $Repoi3List
     Push-ConfigSafely $LinBashPath          $RepoBashPath       $LinBashList        $RepoBashList
     Push-ConfigSafely $LinWeztermPath       $RepoWeztermPath    $LinWeztermList     $RepoWeztermList
     Push-ConfigSafely $LinPSPath            $RepoPSpath         $LinPSList          $RepoPSList
@@ -419,7 +419,7 @@ function Push-RepoToLinux
 {
     Push-ConfigSafely $RepoVimpath          $LinVimpath         $RepoVimList        $LinVimList
     Push-ConfigSafely $RepoX11Path          $LinX11Path         $RepoX11List        $LinX11List
-    Push-ConfigSafely $RepoSXWMPath         $LinSXWMPath        $RepoSXWMList       $LinSXWMList
+    Push-ConfigSafely $Repoi3Path           $Lini3Path        $Repoi3List       $Lini3List
     Push-ConfigSafely $RepoBashPath         $LinBashPath        $RepoBashList       $LinBashList
     Push-ConfigSafely $RepoWeztermPath      $LinWeztermPath     $RepoWeztermList    $LinWeztermList
     Push-ConfigSafely $RepoPSpath           $LinPSPath          $RepoPSList         $LinPSList
@@ -526,9 +526,9 @@ switch($operation)
             Write-Host $LinX11Path
             Write-Host $RepoX11Path
 
-            Write-Host "`nSXWM:"
-            Write-Host $LinSXWMPath
-            Write-Host $RepoSXWMPath
+            Write-Host "`ni3:"
+            Write-Host $Lini3Path
+            Write-Host $Repoi3Path
 
             Write-Host "`nWezterm:"
             Write-Host $LinWeztermPath
@@ -596,12 +596,12 @@ switch($operation)
                 Write-Host $file
             }
 
-            Write-Host "`nSXWM:"
-            foreach($file in $LinSXWMList)
+            Write-Host "`ni3:"
+            foreach($file in $Lini3List)
             {
                 Write-Host $file
             }
-            foreach($file in $RepoSXWMList)
+            foreach($file in $Repoi3List)
             {
                 Write-Host $file
             }
@@ -716,6 +716,7 @@ switch($operation)
             Get-FromPkgmgr yay 'fzf'
             Get-FromPkgmgr yay 'gcc'
             Get-FromPkgmgr yay 'git'
+            Get-FromPkgmgr yay 'i3'
             Get-FromPkgmgr yay 'lazygit'
             Get-FromPkgmgr yay 'lact'
             Get-FromPkgmgr yay 'less'
@@ -737,7 +738,6 @@ switch($operation)
             Get-FromPkgmgr yay 'pipewire-alsa'
             Get-FromPkgmgr yay 'picom'
             Get-FromPkgmgr yay 'qutebrowser'
-            Get-FromPkgmgr yay 'sxwm'
             Get-FromPkgmgr yay 'steam'
             Get-FromPkgmgr yay 'speedtest-cli'
             Get-FromPkgmgr yay 'xorg-server'

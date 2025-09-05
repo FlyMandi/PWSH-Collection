@@ -309,8 +309,9 @@ if($isLinux)
     $LinX11Path =   "~/"
     $LinX11List =   (Join-Path $LinX11Path "/.xinitrc")
 
-    $Lini3Path =  "~/.config/i3/"
-    $Lini3List =  (Join-Path $Lini3Path "/config")
+    $Lini3Path =  "~/.config/"
+    $Lini3List =  (Join-Path $Lini3Path "/i3/config"),
+                  (Join-Path $Lini3Path "/i3status/config")
 
     $LinWeztermPath =   "~/.config/wezterm/"
     $LinWeztermList =   (Join-Path $LinWeztermPath "/wezterm.lua")
@@ -360,7 +361,8 @@ $RepoX11Path = Join-Path -PATH $dotfiles -ChildPath "/x11/"
 $RepoX11List = Join-Path $RepoX11Path "/.xinitrc"
 
 $Repoi3Path = Join-Path -PATH $dotfiles -ChildPath "/i3/"
-$Repoi3List = Join-Path $Repoi3Path "/config"
+$Repoi3List = (Join-Path $Repoi3Path "/i3/config"),
+              (Join-Path $Repoi3Path "/i3status/config")
 
 $RepoBashPath = Join-Path -PATH $dotfiles -ChildPath "/bash/"
 $RepoBashList = Join-Path $RepoBashPath "/.bashrc"

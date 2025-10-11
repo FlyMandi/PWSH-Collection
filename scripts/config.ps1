@@ -827,11 +827,11 @@ switch($operation)
 
             Push-RepoToWindows
 
-            Get-NewMachinePath
-
             #FIXME: not adding to path... add to profile?
             Add-ToUserPath "$env:Repo\PWSH-Collection\scripts\"
             Add-ToUserPath "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\"
+
+            Get-NewMachinePath
         }
 
         Test-GitUserName

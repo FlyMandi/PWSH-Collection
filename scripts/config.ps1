@@ -805,31 +805,33 @@ switch($operation)
             Get-FromPkgmgr scoop    'renderdoccli' -o 'renderdoc'
             Get-FromPkgmgr scoop    'tree-sitter'
             Get-FromPkgmgr scoop    'tldr'
+            Get-FromPkgmgr winget   'MSBuild' -o 'Microsoft.VisualStudio.2022.Community'
             Get-FromPkgmgr scoop    'wezterm' -o 'wezterm-nightly'
-            Get-FromPkgmgr scoop    'winfetch'
-            Get-FromPkgmgr scoop    'wireguard' -o 'wireguard.wireguard'
-            Get-FromPkgmgr scoop    'yt-dlp'
-            Get-FromPkgmgr scoop    'zoomit'
+            # Get-FromPkgmgr scoop    'wireguard' -o 'wireguard.wireguard'
+            # Get-FromPkgmgr scoop    'yt-dlp'
+            # Get-FromPkgmgr scoop    'zoomit'
 
-            Get-ScoopPackage 'cpu-z'
-            Get-ScoopPackage 'ddu'
-            Get-ScoopPackage 'discord'
-            Get-ScoopPackage 'fancontrol'
-            Get-ScoopPackage 'gpu-z'
-            Get-ScoopPackage 'listary'
-            Get-ScoopPackage 'libreoffice'
-            Get-ScoopPackage 'lua-for-windows'
-            Get-ScoopPackage 'spotify'
-            Get-ScoopPackage 'vcredist2022'
+            # Get-ScoopPackage 'cpu-z'
+            # Get-ScoopPackage 'ddu'
+            # Get-ScoopPackage 'discord'
+            # Get-ScoopPackage 'fancontrol'
+            # Get-ScoopPackage 'gpu-z'
+            # Get-ScoopPackage 'listary'
+            # Get-ScoopPackage 'libreoffice'
+            # Get-ScoopPackage 'lua-for-windows'
+            # Get-ScoopPackage 'spotify'
 
             Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
             Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
             Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
-            $env:PATH += ";$env:Repo\PWSH-Collection\scripts\"
-
             Push-RepoToWindows
+
             Get-NewMachinePath
+
+            #FIXME: not adding to path... add to profile?
+            Add-ToMachinePath "$env:Repo\PWSH-Collection\scripts\"
+            Add-ToMachinePath "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\"
         }
 
         Test-GitUserName

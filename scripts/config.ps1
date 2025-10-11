@@ -795,6 +795,7 @@ switch($operation)
             Get-FromPkgmgr scoop    'imgcat'
             Get-FromPkgmgr scoop    'lazygit'
             Get-FromPkgmgr scoop    'less'
+            Get-FromPkgmgr winget   'clang' -o 'LLVM.LLVM'
             Get-FromPkgmgr scoop    'luarocks'
             Get-FromPkgmgr scoop    'ninja'
             Get-FromPkgmgr scoop    'npm' -o 'nodejs'
@@ -828,7 +829,7 @@ switch($operation)
             Push-RepoToWindows
 
             #FIXME: not adding to path... add to profile?
-            Add-ToUserPath "$env:Repo\PWSH-Collection\scripts\"
+            Add-ToUserPath "C:\Repository\PWSH-Collection\scripts\"
             Add-ToUserPath "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\"
 
             Get-NewMachinePath

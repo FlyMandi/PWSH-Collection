@@ -516,7 +516,7 @@ switch($operation)
     {
         if($IsLinux)
         {
-            &yay
+            &yay -Syu
         }
         elseIf($IsWindows)
         {
@@ -755,7 +755,7 @@ switch($operation)
             Get-FromPkgmgr yay 'mold'
             Get-FromPkgmgr yay 'nemo'
             Get-FromPkgmgr yay 'nitrogen'
-            Get-FromPkgmgr yay 'nvim'
+            Get-FromPkgmgr yay 'neovim-nightly'
             Get-FromPkgmgr yay 'oh-my-posh'
             Get-FromPkgmgr yay 'openssh'
             Get-FromPkgmgr yay 'wezterm-nightly-bin'
@@ -788,6 +788,7 @@ switch($operation)
             Get-FromPkgmgr scoop    'fastfetch'
             Get-FromPkgmgr scoop    'fzf'
             Get-FromPkgmgr winget   'git' -o 'git.git'
+            Get-FromPkgmgr scoop    'gcc'
             Get-FromPkgmgr scoop    'glazewm'
             Get-FromPkgmgr scoop    'hwinfo'
             Get-FromPkgmgr scoop    'hxd'
@@ -798,14 +799,19 @@ switch($operation)
             Get-FromPkgmgr scoop    'luarocks'
             Get-FromPkgmgr scoop    'ninja'
             Get-FromPkgmgr scoop    'npm' -o 'nodejs'
-            Get-FromPkgmgr scoop    'nvim' -o 'neovim'
+            Get-FromPkgmgr scoop    'nvim' -o 'neovim-nightly'
             Get-FromPkgmgr scoop    'oh-my-posh'
             Get-FromPkgmgr scoop    'premake5' -o 'premake'
+            Get-FromPkgmgr scoop    'cargo' -o 'rust'
             Get-FromPkgmgr scoop    'rg' -o 'ripgrep'
             Get-FromPkgmgr scoop    'renderdoccli' -o 'renderdoc'
             Get-FromPkgmgr scoop    'tree-sitter'
             Get-FromPkgmgr scoop    'tldr'
             Get-FromPkgmgr winget   'MSBuild' -o 'Microsoft.VisualStudio.2022.Community'
+
+            &scoop install          'vcredist2022'
+            &scoop uninstall        'vcredist2022'
+
             Get-FromPkgmgr scoop    'wezterm' -o 'wezterm-nightly'
             # Get-FromPkgmgr scoop    'wireguard' -o 'wireguard.wireguard'
             # Get-FromPkgmgr scoop    'yt-dlp'

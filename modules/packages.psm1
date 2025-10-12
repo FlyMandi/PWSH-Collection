@@ -18,12 +18,12 @@ Function Get-FromPkgmgr
     {
         "pacman"
         {
-            $installCmd = "-S"
+            $installCmd = "-Sy"
             $installPrefix = "sudo "
         }
         "yay"
         {
-            $installCmd = "-S"
+            $installCmd = "-Sy"
         }
         Default
         {

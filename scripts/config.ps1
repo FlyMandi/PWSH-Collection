@@ -42,7 +42,7 @@ function Get-FilesAdded
 {
     if(-Not($script:filesAdded -eq 0))
     {
-        Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black
+        Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan
     }
     $script:filesAdded = 0
 }
@@ -51,7 +51,7 @@ function Get-FilesUpdated
 {
     if(-Not($script:filesUpdated -eq 0))
     {
-        Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black
+        Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta
     }
     $script:filesUpdated = 0
 }
@@ -146,7 +146,7 @@ function Push-ChangedFiles
         }
         Copy-Item -Path $fileInSource -Destination $fileInDest
         Write-Host "Added Item: " -ForegroundColor White -NoNewline
-        Write-Host $file.InputObject -ForegroundColor Cyan -BackgroundColor Black
+        Write-Host $file.InputObject -ForegroundColor Cyan
         $script:filesAdded++
     }
 
@@ -160,7 +160,7 @@ function Push-ChangedFiles
             Remove-Item $fileInDest -Force
             Copy-Item $fileInSource -Destination $fileInDest
             Write-Host "Updated Item: " -ForegroundColor White -NoNewline
-            Write-Host $file -ForegroundColor Magenta -BackgroundColor Black
+            Write-Host $file -ForegroundColor Magenta
             $script:filesUpdated++
         }
     }

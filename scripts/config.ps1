@@ -728,12 +728,13 @@ switch($operation)
     {
         if($isLinux)
         {
-            #TODO: check for needed stuff for nvim (ninja, npm, pip, etc)
-
             Get-FromPkgmgr yay 'bat'
             Get-FromPkgmgr yay 'base'
+            Get-FromPkgmgr yay 'balena-etcher'
             Get-FromPkgmgr yay 'btop'
             Get-FromPkgmgr yay 'cloc'
+            Get-FromPkgmgr yay 'chatterino'
+            Get-FromPkgmgr yay 'chromium'
             Get-FromPkgmgr yay 'dust'
             Get-FromPkgmgr yay 'fastfetch'
             Get-FromPkgmgr yay 'firmware'
@@ -747,11 +748,16 @@ switch($operation)
             Get-FromPkgmgr yay 'libx11'
             Get-FromPkgmgr yay 'libxinerama'
             Get-FromPkgmgr yay 'linux'
+            Get-FromPkgmgr yay 'lxappearance'
             Get-FromPkgmgr yay 'make'
             Get-FromPkgmgr yay 'mold'
             Get-FromPkgmgr yay 'nemo'
             Get-FromPkgmgr yay 'nitrogen'
+            Get-FromPkgmgr yay 'ninja'
             Get-FromPkgmgr yay 'neovim-nightly'
+            Get-FromPkgmgr yay 'npm'
+            Get-FromPkgmgr yay 'obs-studio-browser'
+            Get-FromPkgmgr yay 'obs-multi-rtmp'
             Get-FromPkgmgr yay 'oh-my-posh'
             Get-FromPkgmgr yay 'openssh'
             Get-FromPkgmgr yay 'wezterm-nightly-bin'
@@ -762,7 +768,7 @@ switch($operation)
             Get-FromPkgmgr yay 'pipewire-jack'
             Get-FromPkgmgr yay 'pipewire-pulse'
             Get-FromPkgmgr yay 'pipewire-alsa'
-            Get-FromPkgmgr yay 'qutebrowser'
+            Get-FromPkgmgr yay 'protontricks'
             Get-FromPkgmgr yay 'steam'
             Get-FromPkgmgr yay 'speedtest-cli'
             Get-FromPkgmgr yay 'xorg-server'

@@ -33,14 +33,10 @@ updatewr jagex.oldSchoolRunescape -reg 'steam app 1343370'
 
 NOTE: to update the ones stuck in `HKEY_LOCAL_MACHINE`, you will need to run this script in an elevated prompt. Please never run scripts off the internet without having read through them. Unfortunately, not everyone is as nice as me. :eye:
 
-If you want to take matters into your own hands, hit `Win+R`, type `regedit`, hit enter & search for the folder yourself in
-```shell
-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall
-```
-or
-```shell
-HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall
-```
+If you want to take matters into your own hands, hit `Win+R`, type `regedit`, hit enter & search for the folder yourself in\
+```HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall```\
+or\
+```HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall```
 and look for the Registry Key called `DisplayVersion`, then update it.
 
 ## Swap between winfetch configs

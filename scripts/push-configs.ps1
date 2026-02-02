@@ -83,11 +83,6 @@ $RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPr
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
 
-$pwshCollectionModules = Get-ChildItem (Join-Path $env:Repo "\PWSH-Collection\modules\")
-foreach($module in $pwshCollectionModules){
-    Import-Module $module
-}
-
 if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
     
@@ -97,6 +92,11 @@ if ($PSHome -eq $PS1Home){
 
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green 
     &cmd.exe "/c TASKKILL /F /PID $PID" | Out-Null
+}
+
+$pwshCollectionModules = Get-ChildItem (Join-Path $env:Repo "\PWSH-Collection\modules\")
+foreach($module in $pwshCollectionModules){
+    Import-Module $module
 }
 
 function Get-Binary{

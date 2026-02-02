@@ -1,5 +1,6 @@
 param(
-    $date = (Get-Date).AddYears(-10)
+    $date = (Get-Date).AddYears(-8),
+    $bigESPSize = 50000000
 )
 
 $modsPattern = "ModOrganizer\Skyrim\Mods"
@@ -18,7 +19,8 @@ if(-Not(Test-Path $modsFolder)){
     }
 }    
 
-$count = 0
+$bigESPs = @()
+$outdatedCount = 0
 $i = 0
 $modList = Get-ChildItem $modsFolder -Directory
 $nexusTime = [DateTime]"1/1/1800 00:00:00"
@@ -27,16 +29,27 @@ $nexusTime = [DateTime]"1/1/1800 00:00:00"
 $host.privatedata.ProgressForegroundColor = 'Blue'
 $host.privatedata.ProgressBackgroundColor = $Host.UI.RawUI.BackgroundColor;
 
-#TODO: expand exclusion list
 $exclusionList = @(
+    "cleaned CCAE",
     "120 FPS User Interface",
     "3rd Person View During Alduin Attack on Helgen",
     "A Good Death - Old Orc's Various Opponents",
-    ""
+    "Blended Roads - ESP only",
+    "Fires Hurt SE",
+    "Trainwreck - A Crash Logger",
+    "Jaxonz Renamer",
+    "Lifelike Idle Animations DAR Version"
+)
+
+$exclusionIfUpdated = @(
+    "Exchange Currency SE",
+    "Frostfall 3.4.1 SE Release",
+    "Relationship Dialogue Overhaul"
 )
 
 foreach($subfolder in $modList){
     $latestFile = Get-LatestFileInFolderNoConfig $subfolder
+    $pluginList = Get-ChildItem $subfolder -File | Where-Object {$_ -match ".esp|.esm|.esl"}
 
     #TODO: read lastNexusUpdate in MO2 meta.ini if present
     #$nexusTime = 
@@ -54,27 +67,17 @@ foreach($subfolder in $modList){
         Status = "Scanned $i of " + $modList.Length + ", total progress: $percentComplete%"
         PercentComplete = $percentComplete 
     }
+    
     Write-Progress @progressParameters
     ++$i 
 
-
-    if('' -eq $latestFile.FilePath){ continue; }
+    if('' -eq $latestFile.FilePath){ 
+        continue; 
+    }
     
-    if($exclusionList.Contains($current.ModPath.BaseName)){ continue; }
-   
-    #TODO:feature - switch($current.ModFramework)
-        #warn about outdated frameworks:
-        #FNIS
-        #Nemesis
-        #DAR
-        #Anything not "NG" that has an "NG" equivalent
-        #Anything "NG" that's borked -> like Fires Hurt
-        #incorrect TK Dodge setup
-        #Using MFAO and CFPAO together
-        #Having mods share OAR priority
-        #SPID & SkyPatcher for leveled lists
-
-    #TODO: warn about not having run parallaxgen or CS enabled with PBR textures 
+    if($exclusionList.Contains($current.ModPath.BaseName)){ 
+        continue; 
+    }
 
     #TODO: switch($current.ModFileType)
         #eval differently and warn differently based on mod type
@@ -83,7 +86,7 @@ foreach($subfolder in $modList){
 
     #fallback:
     if($current.ModTime -lt $date){
-        $count += 1
+        $outdatedCount += 1
         Write-Host "`nWARNING: " -NoNewline -ForegroundColor Red
         Write-Host "found likely outdated mod: "
         Write-Host "    Name:           " $current.ModPath.BaseName
@@ -93,7 +96,19 @@ foreach($subfolder in $modList){
         Write-Host $current.ModTime -ForegroundColor Red
         Write-Host ""
     }
-
+    
+    foreach($plugin in $pluginList){
+        if($plugin.Length -gt $bigESPSize){
+        $bigESPs += $plugin
+        Write-Host "`nWARNING: " -NoNewline -ForegroundColor Yellow
+        Write-Host "found large Plugin: "
+        Write-Host "    Name:           " $plugin.BaseName
+        Write-Host "    Path:           " $plugin
+        Write-Host "    Size:            " -NoNewline
+        Write-Host ([math]::Truncate($plugin.Length / 1MB)) -NoNewline -ForegroundColor Yellow
+        Write-Host " MB`n" -ForegroundColor Yellow
+        }
+    }
 }
 
 #TODO: add 6 months, 1 year, 2 years and 3+ years back, separate them into categories
@@ -105,7 +120,19 @@ foreach($subfolder in $modList){
 
 $exclusionList = ''
 
-#TODO: change the summary to distinct between different levels of outdated
+#TODO: change the summary to distinct between different levels of outdated.
 Write-Host "`nScan Complete.`n"
-if($count -gt 0){ Write-Host "Summary: found " $count " outdated mods (no changes except config since" $date" or earlier): please check log above." -ForegroundColor Red}
-else{ Write-Host "No outdated mods could be found. Splendid!" -ForegroundColor Green }
+if($outdatedCount -gt 0){ 
+    Write-Host "Summary:`n found $outdatedCount outdated mods (no changes except config since $date or earlier): please check log above." -ForegroundColor Red
+}else{ 
+    Write-Host "{No outdated mods could be found. Splendid!" -ForegroundColor Green 
+}
+
+if($bigESPs.Length -gt 0){
+    Write-Host "found " $bigESPs " large ESPs. Please check list of 10 biggest below and reconsider." -ForegroundColor Yellow
+    for($j = 0; ($j -lt 10) -and ($j -lt $bigESPs.Length); ++$j){
+        Write-Host $bigESPs[$j].BaseName ", size: " ([math]::Truncate($bigESPs[$j].Length / 1MB)) " MB" -ForegroundColor Yellow
+    }
+}else{
+    Write-Host "No particurlaly large ESPs found. Splendid!" -ForegroundColor Green
+}

@@ -1,12 +1,13 @@
 if(-Not (Test-Path $repo)){
-    Write-Host "Set `$repo for first execution of this script:"    
+    Write-Host "Set \Repository\ location for first execution of this script:"    
     $repo = Read-Host
 }
 
 $dotfiles = Join-Path -Path $repo -ChildPath "\dotfiles\"
 if (-Not(Test-Path $dotfiles)){ 
     Write-Host "No valid directory \dotfiles\ in $repo."
-    &git clone "https://github.com/FlyMandi/dotfiles" (Join-Path -PATH $repo -ChildPath "\dotfiles\")
+    &git clone "https://github.com/FlyMandi/dotfiles" $dotfiles 
+    Write-Host "Cloned FlyMandi/dotfiles repo successfully!" -ForegroundColor Green
 }
 
 if (-Not (Get-Command winget -ErrorAction SilentlyContinue)){
@@ -21,8 +22,18 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add "sysinternals"
 }
 
-[int]$filesAdded = 0
-[int]$filesUpdated = 0
+[int]$global:filesAdded = 0
+[int]$global:filesUpdated = 0
+
+function Get-filesAdded{
+    if (-Not($global:filesAdded -eq 0)){Write-Host "Files Added: $global:filesAdded" -ForegroundColor Cyan}
+    $global:filesAdded = 0
+}
+
+function Get-filesUpdated{
+    if(-Not($global:filesUpdated -eq 0)){Write-Host "Files Updated: $global:filesUpdated" -ForegroundColor Magenta}
+    $global:filesUpdated = 0
+}
 
 $scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
 
@@ -93,6 +104,7 @@ function Get-Binary {
             Write-Host "Installing latest $namePattern pre-release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases/latest").assets | Where-Object name -like $namePattern).browser_download_url
         }
+
         $zipFolderName = $(Split-Path -Path $sourceURI -Leaf)
         $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $zipFolderName 
         Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
@@ -153,10 +165,14 @@ function Push-ChangedFiles{
     }
 
     foreach($file in $missingFiles){
-        Copy-Item -Path (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject) -Destination (Join-Path -PATH $destFolder -ChildPath $file.InputObject)  
+        $fileInSource = (Join-Path -PATH $sourceFolder -ChildPath $file.InputObject)
+        $fileInDest = (Join-Path -PATH $destFolder -ChildPath $file.InputObject)
+
+        if (-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest)}
+        Copy-Item -Path $fileInSource -Destination $fileInDest
         Write-Host "Added Item: " -NoNewline
         Write-Host $file.InputObject -ForegroundColor Cyan
-        $filesAdded += 1
+        $global:filesAdded += 1
     }
     
     foreach($file in $sourceTransformed){
@@ -168,7 +184,7 @@ function Push-ChangedFiles{
             Copy-Item $fileInSource -Destination $fileInDest
             Write-Host "Updated Item: " -NoNewline
             Write-Host $file -ForegroundColor Magenta
-            $filesUpdated += 1
+            $global:filesUpdated += 1
         }
     }
 
@@ -186,19 +202,17 @@ function Push-Certain{
         throw "Not a valid path to copy config from."
     }
 
-    if (-Not(Test-Path $outputPath) || $null -eq (Get-ChildItem $outputPath -File -Recurse)){
+    if (-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse)){
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 	    Copy-Item $inputPath $outputPath -Recurse
-        $filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
+        $global:filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
     }
     else{
         Write-Host "`nExisting config found in $outputPath, updating..."
     	Push-ChangedFiles $inputPath $outputPath
     }
         Write-Host "Update Complete. "
-        if(-Not($filesAdded -eq 0)){Write-Host "added $filesAdded Items." -ForegroundColor Cyan}
-        if(-Not($filesUpdated -eq 0)){Write-Host "updated $filesUpdated Items." -ForegroundColor Magenta}
-        elseIf(($filesAdded -eq 0) && ($filesUpdated -eq 0)){Write-Host "No files changed."}
+        if(($global:filesAdded -eq 0) -And ($global:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
 &scoop cleanup --all 6>$null
 Get-Package scoop '7z' -o '7zip'
@@ -237,7 +251,11 @@ Push-Certain $RepoPSpath $WinPSPath
 #Push-Certain $RepoTermpath $WinTermpath
 #Push-Certain $RepoTermpath $WinTermPreviewPath
 
+$temp = $env:Path
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables refreshed."}
 
-Write-Host "`nEnvironment variables refreshed."
-Write-Host "All configs are now up to date! ^^" -ForegroundColor Green
+if(-Not($global:filesAdded -eq 0) -Or -Not($global:filesUpdated -eq 0)){Write-Host "`nTotal:" -ForegroundColor Green}
+Get-filesAdded
+Get-filesUpdated
+Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green

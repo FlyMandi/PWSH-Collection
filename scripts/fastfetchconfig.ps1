@@ -28,6 +28,7 @@ switch ($operation) {
     }
     "list"{
         Get-ChildItem "$configFolder\*.jsonc" | Select-Object BaseName
+        #TODO: exclude config.jsonc
     }
     "edit"{
         &nvim $currentConfig

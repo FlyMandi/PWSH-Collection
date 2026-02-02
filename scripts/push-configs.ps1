@@ -1,5 +1,5 @@
 if(-Not (Test-Path $repo)){
-    Write-Host "Set \Repository\ location for first execution of this script:"    
+    Write-Host "Set \Repository\ location for first execution of this script:" -ForegroundColor Red 
     $repo = Read-Host
 }
 

@@ -253,7 +253,7 @@ Push-Certain $RepoPSpath $WinPSPath
 
 $temp = $env:Path
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables refreshed."}
+if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
 
 if(-Not($global:filesAdded -eq 0) -Or -Not($global:filesUpdated -eq 0)){Write-Host "`nTotal:" -ForegroundColor Green}
 Get-filesAdded

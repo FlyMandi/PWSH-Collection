@@ -189,6 +189,7 @@ Get-FromPkgmgr scoop 'npm' -o 'nodejs'
 Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
 Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
 Get-FromPkgmgr scoop 'winfetch'
+Get-FromPkgmgr scoop "$env:PROGRAMFILES\WireGuard\wireguard.exe" -o 'wireguard.wireguard'
 Get-FromPkgmgr scoop 'zoomit'
 
 Get-ScoopPackage 'discord'
@@ -200,7 +201,8 @@ Get-ScoopPackage 'vcredist2022'
 Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
 Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
-Get-Binary alpine -o "https://alpineapp.email/alpine/release/src/alpine-2.26.zip"
+
+#Get-Binary alpine -o "https://alpineapp.email/alpine/release/src/alpine-2.26.zip"
 
 Push-Certain $RepoTermpath $WinTermpath
 Push-Certain $RepoTermPreviewpath $WinTermPreviewPath

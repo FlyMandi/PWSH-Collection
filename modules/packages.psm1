@@ -35,11 +35,11 @@ Function Get-FromPkgmgr
     {
         if(-Not ($null -eq $override))
         {
-            Invoke-Expression $installPrefix $pkgmgr $installCmd $override
+            Invoke-Expression "$installPrefix $pkgmgr $installCmd $override"
         }
         else
         {
-            Invoke-Expression $install$Prefix $pkgmgr $installCmd $trgt
+            Invoke-Expression "$install$Prefix $pkgmgr $installCmd $trgt"
         }
     }
 }

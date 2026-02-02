@@ -1,4 +1,25 @@
-function Set-CombinedPath{
+$scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
+
+$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
+$RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
+
+$WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
+$RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
+
+$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
+$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
+
+$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
+$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
+$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
+$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
+
+
+[int]$global:filesAdded = 0
+[int]$global:filesUpdated = 0
+
+
+function Get-NewMachinePath{
     $temp = $env:Path
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
@@ -43,37 +64,18 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add "sysinternals"
 }
 
-[int]$global:filesAdded = 0
-[int]$global:filesUpdated = 0
-
-function Get-filesAdded{
+#In separate functions, in case I want to call it after every download or config push.
+function Get-FilesAdded{
     if (-Not($global:filesAdded -eq 0)){Write-Host "Files Added: $global:filesAdded" -ForegroundColor Cyan}
     $global:filesAdded = 0
 }
 
-function Get-filesUpdated{
+function Get-FilesUpdated{
     if(-Not($global:filesUpdated -eq 0)){Write-Host "Files Updated: $global:filesUpdated" -ForegroundColor Magenta}
     $global:filesUpdated = 0
 }
 
-$scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
-
-$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
-$RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
-
-$WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
-$RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
-
-$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
-$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
-
-
-$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
-$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
-$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
-$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
-
-Function Get-Package { 
+Function Get-FromPkgmgr{ 
     Param(
         $pkgmgr,
         $trgt,
@@ -88,7 +90,7 @@ Function Get-Package {
     }
 }
 
-Function Get-ScoopPackage {
+Function Get-ScoopPackage{
     Param(
         $scoopTrgt
     )
@@ -101,7 +103,7 @@ Function Get-ScoopPackage {
     }
 }
 
-function Get-Binary {
+function Get-Binary{
     Param(
         $command,
         $sourceRepo,
@@ -232,27 +234,26 @@ function Push-Certain{
 }
 
 &scoop cleanup --all 6>$null
-Get-Package scoop '7z' -o '7zip'
-Get-Package scoop 'everything'
-Get-Package scoop 'innounp'
-Get-Package scoop 'lazygit'
-Get-Package scoop 'neofetch'
-Get-Package scoop 'nvim' -o 'neovim'
-Get-Package scoop 'ninja'
-Get-Package scoop 'npm' -o 'nodejs'
-Get-Package scoop 'rg' -o 'ripgrep'
-Get-Package scoop 'spt' -o 'spotify-tui'
-Get-Package scoop 'winfetch'
-Get-Package scoop 'zoomit'
+Get-FromPkgmgr scoop '7z' -o '7zip'
+Get-FromPkgmgr scoop 'everything'
+Get-FromPkgmgr scoop 'innounp'
+Get-FromPkgmgr scoop 'lazygit'
+Get-FromPkgmgr scoop 'neofetch'
+Get-FromPkgmgr scoop 'nvim' -o 'neovim'
+Get-FromPkgmgr scoop 'ninja'
+Get-FromPkgmgr scoop 'npm' -o 'nodejs'
+Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
+Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
+Get-FromPkgmgr scoop 'winfetch'
+Get-FromPkgmgr scoop 'zoomit'
+Get-FromPkgmgr winget 'git' -o 'git.git'
+Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
 
 Get-ScoopPackage 'discord'
 Get-ScoopPackage 'listary'
 Get-ScoopPackage 'libreoffice'
 Get-ScoopPackage 'spotify'
 Get-ScoopPackage 'vcredist2022'
-
-Get-Package winget 'git' -o 'git.git'
-Get-Package winget 'glazewm' -o 'glzr-io.glazeWM'
 
 Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
@@ -265,13 +266,14 @@ Push-Certain $RepoPSpath $WinPSPath
 Push-Certain $RepoTermpath $WinTermpath
 Push-Certain $RepoTermPreviewpath $WinTermPreviewPath
 
-Set-CombinedPath
+Get-NewMachinePath
 
 &git config --global user.name FlyMandi
 &git config --global user.email steidlmartinez@gmail.com
 #TODO: automatically set up git-cli ssh (take ssh key from github as input)
 
 if(-Not($global:filesAdded -eq 0) -Or -Not($global:filesUpdated -eq 0)){Write-Host "`nTotal config file changes:" -ForegroundColor White}
-Get-filesAdded
-Get-filesUpdated
+Get-FilesAdded
+Get-FilesUpdated
+
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green

@@ -77,6 +77,7 @@ function Get-UpdateSummary
     }
 }
 
+#FIXME: wezterm path broken
 function Push-ChangedFiles
 {
     param
@@ -585,6 +586,7 @@ switch($operation)
             Get-FromPkgmgr pacman   'libxinerama'
             Get-FromPkgmgr pacman   'make'
             Get-FromPkgmgr pacman   'nvim'
+            Get-FromPkgmgr yay      'oh-my-posh'
             Get-FromPkgmgr pacman   'openssh'
             Get-FromPkgmgr yay      'powershell-bin'
             Get-FromPkgmgr pacman   'wezterm'
@@ -619,6 +621,7 @@ switch($operation)
             Get-FromPkgmgr scoop    'ninja'
             Get-FromPkgmgr scoop    'npm' -o 'nodejs'
             Get-FromPkgmgr scoop    'nvim' -o 'neovim'
+            Get-FromPkgmgr scoop    'oh-my-posh'
             Get-FromPkgmgr scoop    'premake5' -o 'premake'
             Get-FromPkgmgr scoop    'rg' -o 'ripgrep'
             Get-FromPkgmgr scoop    'renderdoccli' -o 'renderdoc'

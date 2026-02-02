@@ -8,6 +8,9 @@ Param(
     
 $theme = [System.IO.Path]::GetFileNameWithoutExtension($theme)
 
+$editor = "notepad"
+if (Get-Command "nvim" -ErrorAction SilentlyContinue) { $editor = "nvim" }
+
 $destination = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\winfetch"
 if (-Not (Test-Path $destination)){
     &mkdir $destination
@@ -65,7 +68,6 @@ function Push-Theme{
     winfetch
 }
 
-# input logic
 switch ($operation) {
     "delete" {
         if (Test-Path $themePath){
@@ -96,12 +98,12 @@ switch ($operation) {
         Get-List
     }
     "edit"{
-        # notepad is fine, no real need to use another editor... but I'm not gonna stop you.
+
         if ($theme -eq ''){
-            notepad $currentConfig
+            &$editor $currentConfig
         }
         else{
-            notepad $themePath
+            &$editor $themePath
         }
     }
     "choose"{

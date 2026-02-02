@@ -1,5 +1,5 @@
-$BCfileCount = 0
-$CSfileCount = 0
+$script:BCfileCount = 0
+$script:CSfileCount = 0
 $i = 0
 $extensionPath = $null
 $coverStylesBackupFolder = $null
@@ -36,6 +36,7 @@ function Remove-BackgroundChangerLeftovers{
         }elseIf(-Not(Test-Path $extensionPath)){ throw $ERRpathInvalid}
     }
 
+    $i = 0
     $backgroundChangerImageFolder = Join-Path $extensionPath "\3afdd02b-db6c-4b60-8faa-2971d6dfad2a\Images"
     $backgroundChangerJsonPath = Join-Path $extensionPath "\3afdd02b-db6c-4b60-8faa-2971d6dfad2a\BackgroundChanger"
     $backgroundChangerImageFolderList = Get-ChildItem $backgroundChangerImageFolder
@@ -44,7 +45,7 @@ function Remove-BackgroundChangerLeftovers{
 
         $percentComplete = [math]::floor(($i / $backgroundChangerImageFolderList.Length) * 100)
         $progressParameters = @{
-            Activity = "Scanning game with id " + $gameID
+            Activity = "Scanning BC game with id " + $gameID
             Status = "Scanned $i of " + $backgroundChangerImageFolderList.Length
             PercentComplete = $percentComplete 
         }
@@ -56,9 +57,9 @@ function Remove-BackgroundChangerLeftovers{
         
 
         if(-Not(Test-Path $BCJson)){
-            $BCfileCount += (Get-ChildItem $gameFolder).count
+            $script:BCfileCount += (Get-ChildItem $gameFolder).count
             Remove-Item $gameFolder -Recurse
-            Write-Host "    Removed leftover Folder (no corresponding BC {gameid}.json): " -ForegroundColor Green -NoNewline
+            Write-Host "    Removed leftover Folder (no corresponding BC {gameid}.json): " -ForegroundColor Red -NoNewline
             Write-Host $gameFolder
             continue;
         }
@@ -68,11 +69,42 @@ function Remove-BackgroundChangerLeftovers{
         
         foreach($photo in $BCPhotos){
             if(-Not(Test-HasCorrespondingJson $photo $BCPhotosJson)){
-                ++$BCfileCount
+                ++$script:BCfileCount
                 Remove-Item $photo
-                Write-Host "    Removed leftover Photo (no BC {gameid}.json Name entry): " -ForegroundColor Green -NoNewline
+                Write-Host "    Removed leftover Photo (no BC {gameid}.json Name entry): " -ForegroundColor Red -NoNewline
                 Write-Host $photo
             }
+        }
+    }
+}
+
+function Remove-DuplicateCoversInFolder{
+    param( $path )
+
+    $imageFullList = Get-ChildItem $path
+    $imageNameList = ""
+    foreach($new in $imageFullList){
+        if($imageNameList.Contains($new.BaseName)){
+            foreach($cover in $imageFullList){
+                if(($new.BaseName -eq $cover.BaseName) -and ($new -ne $cover)){
+                    ++$script:CSfileCount
+                    if($new.LastWriteTime -ge $cover.LastWriteTime){
+                        if(Test-Path $cover){ 
+                            Remove-Item $cover
+                            Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
+                            Write-Host $cover
+                        }
+                    }elseIf(Test-Path $new){
+                        Remove-Item $new
+                        Write-Host "    Removed (older) duplicate cover: " -ForegroundColor DarkRed -NoNewline
+                        Write-Host $new
+
+                        $new = $cover
+                    }
+                }
+            }
+        }else{
+            $imageNameList += $new.BaseName
         }
     }
 }
@@ -80,11 +112,24 @@ function Remove-BackgroundChangerLeftovers{
 function Remove-DuplicatesInSlot{
     param( $path )
 
-    foreach($platform in (Get-ChildItem -Directory $path)){
+    $i = 0
+
+    $CSplatformFolderList = Get-ChildItem -Directory $path
+    foreach($platform in $CSplatformFolderList){
+
+        $percentComplete = [math]::floor(($i / $CSplatformFolderList.Length) * 100)
+        $progressParameters = @{
+            Activity = "Scanning CS platform in slot: " + $path.BaseName
+            Status = "Scanned $i of " + $CSplatformFolderList.Length
+            PercentComplete = $percentComplete
+        }
+        Write-Progress @progressParameters
+        ++$i
+
         if(($platform.BaseName -eq "gameid") -or ($platform.BaseName -eq "special characters")){
             Remove-DuplicatesInSlot $platform
         }else{
-            #TODO: actually do the thing    
+            Remove-DuplicateCoversInFolder $platform
         }
     }
 }
@@ -112,7 +157,7 @@ Remove-BackgroundChangerLeftovers
 Remove-CoverStyleDuplicates
 
 Write-Host "`nSummary: Removed " -NoNewline
-Write-Host $BCfileCount -ForegroundColor Green -NoNewline
+Write-Host $script:BCfileCount -ForegroundColor Red -NoNewline
 Write-Host " unused images and " -NoNewline
-Write-Host $CSfileCount -ForegroundColor Blue -NoNewline
+Write-Host $script:CSfileCount -ForegroundColor DarkRed -NoNewline
 Write-Host " duplicates."

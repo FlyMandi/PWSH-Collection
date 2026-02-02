@@ -115,8 +115,8 @@ Function Get-FromPkgmgr{
     )
 
     if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){ 
-        if(-Not ($null -eq $override)){ $trgt = $override }
-        &$pkgmgr install $trgt
+        if(-Not ($null -eq $override)){ &$pkgmgr install $override }
+        else { &$pkgmgr install $trgt }
     }
 }
 

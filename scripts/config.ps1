@@ -704,6 +704,8 @@ switch($operation)
             Get-FromPkgmgr pacman   'xorg-xrandr'
 
             Push-RepoToLinux
+
+            #TODO: add scripts folder to path
         }
         elseIf($isWindows)
         {
@@ -754,6 +756,8 @@ switch($operation)
             Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
             Push-RepoToWindows
+
+            #TODO: add scripts folder to path
         }
 
         Get-NewMachinePath

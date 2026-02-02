@@ -140,8 +140,20 @@ switch ($operation) {
         Move-Item -Path "$tempFolder\!default.ps1" -Destination $defaultPath -Force
         Write-Host "Successfully saved current theme as default."
     }
+    ''{
+        Write-Host "No operation specified."
+    }
+    # fallback (choose)
     Default {
-        Write-Host "Not a valid operation."
+        # super scuffed but listen, it works.
+        $theme = $operation
+        Set-Env
+        if ($themePathValid){
+            Push-Theme
+        }
+        else {
+            Write-Host "No theme found with the name '$theme'."
+        }
     }
 }
 

@@ -12,7 +12,9 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add scoop-imgcat https://github.com/danielgatis/scoop-imgcat.git
 }
 
-#TODO: get rid of wt.exe in favour of WezTerm
+#TODO: Replace wt detecting functionality with WezTerm
+#TODO: add pull-config (opposite functionality, from current config to dotfiles)
+    #TODO: maybe rename them, since push-configs would rather be pushing from windows, pulling would be from github intuitively for me
 
 [int]$script:filesAdded = 0
 [int]$script:filesUpdated = 0

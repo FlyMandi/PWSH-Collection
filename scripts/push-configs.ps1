@@ -1,8 +1,8 @@
-if (-Not (Get-Command winget -ErrorAction SilentlyContinue)){
+if(-Not (Get-Command winget -ErrorAction SilentlyContinue)){
     Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
 }
 
-if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){ 
+if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){ 
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
 
@@ -15,7 +15,7 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
 [int]$script:filesUpdated = 0
 
 function Get-FilesAdded{
-    if (-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
+    if(-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
     $script:filesAdded = 0
 }
 
@@ -34,7 +34,7 @@ if(-Not(Test-Path $env:Repo)){
     Write-Host "(y/n): " -NoNewline -ForegroundColor Yellow
 
     $answer = Read-Host
-    if (($answer -eq "y") -Or ($answer -eq "yes")){ 
+    if(($answer -eq "y") -Or ($answer -eq "yes")){ 
         [System.Environment]::SetEnvironmentVariable("Repo", "C:\Repository\", "User")
         $env:Repo = "C:\Repository\"
     }
@@ -42,7 +42,7 @@ if(-Not(Test-Path $env:Repo)){
         Write-Host "Please provide another Directory: " -ForegroundColor Yellow -NoNewline
         $InputRepo = Read-Host
 
-        if (-Not(Test-Path $InputRepo)){
+        if(-Not(Test-Path $InputRepo)){
             throw "FATAL: Directory doesn't exist. Please create it or choose a valid Directory."
         }
         else{
@@ -83,7 +83,7 @@ $RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPr
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
 
-if ($PSHome -eq $PS1Home){
+if($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
     
     $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1")
@@ -113,17 +113,17 @@ function Get-Binary{
         [string]$override = $null
     )
 
-    if (-Not(Get-Command $command -ErrorAction SilentlyContinue)){
+    if(-Not(Get-Command $command -ErrorAction SilentlyContinue)){
         $libFolder = Join-Path -PATH $env:Repo -ChildPath "/lib/"
        
-        if ([string]::IsNullOrEmpty($override)){ $sourceURI = Get-GitLatestReleaseURI $sourceRepo -n $namePattern -preRelease $preRelease }
+        if([string]::IsNullOrEmpty($override)){ $sourceURI = Get-GitLatestReleaseURI $sourceRepo -n $namePattern -preRelease $preRelease }
         else{ $sourceURI = $override }
 
         $zipFolderName = $(Split-Path -Path $sourceURI -Leaf)
         $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $zipFolderName 
         Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
    
-        if ([string]::IsNullOrEmpty($sourceRepo)){ $destFolder = Join-Path $libFolder -ChildPath $zipFolderName }
+        if([string]::IsNullOrEmpty($sourceRepo)){ $destFolder = Join-Path $libFolder -ChildPath $zipFolderName }
         else { $destFolder = (Join-Path $libFolder -ChildPath $sourceRepo) }
 
 
@@ -134,7 +134,7 @@ function Get-Binary{
 
         $binFolder = (Join-Path -PATH $destFolder -ChildPath "\bin")
 
-        if ((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*")){
+        if((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$binFolder",[EnvironmentVariableTarget]::User)       
             Write-Host "Added $binFolder to path!" -ForegroundColor Green
         }
@@ -153,14 +153,14 @@ function Push-Certain{
         $outputPath
     )
 
-    if (-Not(Test-Path $inputPath)){
+    if(-Not(Test-Path $inputPath)){
         Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
         Write-Host $inputPath -BackgroundColor DarkGray
         Write-Host "Not a valid path to copy config from." -ForegroundColor Red
         break
     }
 
-    if (-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse)){
+    if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse)){
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 	    Copy-Item $inputPath $outputPath -Recurse
         $script:filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
@@ -218,7 +218,7 @@ $gitUserEmail = &git config get user.email
 if([string]::IsNullOrEmpty($gitUserName)){
     Write-Host "No git user.name found, please enter one now: " -NoNewline
     $gitUserName = Read-Host
-    if ([string]::IsNullOrEmpty($gitUserName)) {
+    if([string]::IsNullOrEmpty($gitUserName)) {
         Write-Host "ERROR: please enter username." -ForegroundColor Red
         break
     }
@@ -228,7 +228,7 @@ if([string]::IsNullOrEmpty($gitUserName)){
 if([string]::IsNullOrEmpty($gitUserEmail)){
     Write-Host "No git user.email found, please enter one now: " -NoNewline
     $gitUserEmail = Read-Host
-    if (-Not(Test-EmailAddress $gitUserEmail)) {
+    if(-Not(Test-EmailAddress $gitUserEmail)) {
         Write-Host "ERROR: please enter a valid e-mail address." -ForegroundColor Red
         break
     }
@@ -247,7 +247,7 @@ if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
 }
 
 if(Test-IsNotWinTerm){
-    if (-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal }
+    if(-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal }
 
     $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
     $windowPID = $window.ProcessId

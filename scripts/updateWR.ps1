@@ -40,7 +40,7 @@ ElseIf ($path2Valid){
     $oldVersion = (Get-Item -LiteralPath $truePath).GetValue($valueName)
 } 
 Else {
-    throw "Can't find a valid registry path."
+    throw "ERROR: Can't find a valid registry path."
 }
 
 # pull newest version number from winget

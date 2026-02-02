@@ -8,6 +8,10 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add extras
     &scoop bucket add nerd-fonts 
 }
+#TODO: ensure glsl_analyzer and premake5 are installed
+if (-Not (Get-Command glsl_analyzer.exe -ErrorAction SilentlyContinue)){
+    
+}
 
 $dotfiles = Join-Path -Path $repo -ChildPath "\dotfiles\"
 if (-Not (Test-Path $dotfiles)){ throw "No valid directory \dotfiles\ in $repo." }

@@ -177,7 +177,7 @@ if(-Not(Test-Path $env:Repo))
         $answer = Read-Host
         if(($answer -eq "y") -Or ($answer -eq "yes"))
         {
-            [System.Environment]::SetEnvironmentVariable("repo", "~/repository/", "User")
+            [System.Environment]::SetEnvironmentVariable("Repo", "~/repository/", "User")
             $env:Repo = "~/repository/"
         }
         else
@@ -695,29 +695,30 @@ switch($operation)
     {
         if($isLinux)
         {
-            Get-FromPkgmgr pacman   'bat'
-            Get-FromPkgmgr pacman   'btop'
-            Get-FromPkgmgr pacman   'cloc'
-            Get-FromPkgmgr pacman   'dust'
-            Get-FromPkgmgr pacman   'fastfetch'
-            Get-FromPkgmgr pacman   'fzf'
-            Get-FromPkgmgr pacman   'gcc'
-            Get-FromPkgmgr pacman   'git'
-            Get-FromPkgmgr pacman   'lazygit'
-            Get-FromPkgmgr pacman   'less'
-            Get-FromPkgmgr pacman   'libx11'
-            Get-FromPkgmgr pacman   'libxinerama'
-            Get-FromPkgmgr pacman   'make'
-            Get-FromPkgmgr pacman   'nvim'
-            Get-FromPkgmgr yay      'oh-my-posh'
-            Get-FromPkgmgr pacman   'openssh'
-            Get-FromPkgmgr pacman   'wezterm'
-            Get-FromPkgmgr pacman   'rofi'
-            Get-FromPkgmgr pacman   'qutebrowser'
-            Get-FromPkgmgr yay      'sxwm'
-            Get-FromPkgmgr pacman   'xorg-server'
-            Get-FromPkgmgr pacman   'xorg-xinit'
-            Get-FromPkgmgr pacman   'xorg-xrandr'
+            Get-FromPkgmgr yay 'bat'
+            Get-FromPkgmgr yay 'btop'
+            Get-FromPkgmgr yay 'cloc'
+            Get-FromPkgmgr yay 'dust'
+            Get-FromPkgmgr yay 'fastfetch'
+            Get-FromPkgmgr yay 'fzf'
+            Get-FromPkgmgr yay 'gcc'
+            Get-FromPkgmgr yay 'git'
+            Get-FromPkgmgr yay 'lazygit'
+            Get-FromPkgmgr yay 'less'
+            Get-FromPkgmgr yay 'libx11'
+            Get-FromPkgmgr yay 'libxinerama'
+            Get-FromPkgmgr yay 'make'
+            Get-FromPkgmgr yay 'nvim'
+            Get-FromPkgmgr yay 'oh-my-posh'
+            Get-FromPkgmgr yay 'openssh'
+            Get-FromPkgmgr yay 'wezterm'
+            Get-FromPkgmgr yay 'ripgrep'
+            Get-FromPkgmgr yay 'rofi'
+            Get-FromPkgmgr yay 'qutebrowser'
+            Get-FromPkgmgr yay 'sxwm'
+            Get-FromPkgmgr yay 'xorg-server'
+            Get-FromPkgmgr yay 'xorg-xinit'
+            Get-FromPkgmgr yay 'xorg-xrandr'
 
             Push-RepoToLinux
 

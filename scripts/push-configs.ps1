@@ -133,6 +133,7 @@ Get-NewMachinePath
 
 &scoop cleanup --all 6>$null
 Get-FromPkgmgr scoop '7z' -o '7zip'
+Get-FromPkgmgr scoop 'ant'
 Get-FromPkgmgr scoop 'everything'
 Get-FromPkgmgr scoop 'fzf'
 Get-FromPkgmgr winget 'git' -o 'git.git'

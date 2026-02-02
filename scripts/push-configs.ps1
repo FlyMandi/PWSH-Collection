@@ -62,6 +62,12 @@ function Copy-IntoRepo{
         &git clone "https://github.com/FlyMandi/$folderName" $folderPath
         Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
     }
+    else{
+        $current = Get-Location
+        Set-Location $folderPath
+        &git pull
+        Set-Location $current
+    }
 }
 
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"

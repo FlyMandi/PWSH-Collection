@@ -25,6 +25,7 @@ if(-Not(Test-Path $env:Repo)){
 }
 
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
+
 if (-Not(Test-Path $dotfiles)){ 
     Write-Host "No valid directory \dotfiles\ in $env:Repo."
     &git clone "https://github.com/FlyMandi/dotfiles" $dotfiles 

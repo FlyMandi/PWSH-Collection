@@ -8,10 +8,12 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
 
+    &scoop config SCOOP_BRANCH develop
     &scoop bucket add "extras"
     &scoop bucket add "nerd-fonts" 
     &scoop bucket add "sysinternals"
     &scoop bucket add scoop-imgcat https://github.com/danielgatis/scoop-imgcat.git
+    &scoop update
 }
 
 #TODO: Replace wt detecting functionality with WezTerm

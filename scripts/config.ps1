@@ -310,7 +310,8 @@ if($isLinux)
 
     $LinX11Path =   "~/"
     $LinX11List =   (Join-Path $LinX11Path "/.xinitrc"),
-                    (Join-Path $LinX11Path "/.Xresources")
+                    (Join-Path $LinX11Path "/.Xresources"),
+                    (Join-Path $LinX11Path "/.config/fontconfig/fonts.conf")
 
     $Lini3Path =  "~/.config/"
     $Lini3List =  (Join-Path $Lini3Path "/i3/config"),
@@ -365,7 +366,8 @@ $RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ 
 
 $RepoX11Path = Join-Path -PATH $dotfiles -ChildPath "/x11/"
 $RepoX11List = (Join-Path $RepoX11Path "/.xinitrc"),
-               (Join-Path $RepoX11Path "/.Xresources")
+               (Join-Path $RepoX11Path "/.Xresources"),
+               (Join-Path $RepoX11Path "/fontconfig/fonts.conf")
 
 $Repoi3Path = Join-Path -PATH $dotfiles -ChildPath "/i3/"
 $Repoi3List = (Join-Path $Repoi3Path "/i3/config"),

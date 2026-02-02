@@ -7,7 +7,7 @@ Example: `script -f flag1 -t -flag2`\
 If not, you will have to call each script either by relative or absolute paths.\
 Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
-# View Code Documentation with `cht.sh`
+## View Code Documentation with `cht.sh`
 
 Make sure you've installed `less` and `fzf`, both available via scoop.
 This streamlines the use of `curl cht.sh/language/topic` like so:
@@ -30,7 +30,7 @@ and topics:
 csh cpp
 ```
 
-# Set Alarm with mpvnet
+## Set Alarm with mpvnet
 [Script to set alarm from CLI](scripts/set-alarm.ps1)
 
 Didn't you always want to set an alarm from your terminal? Well, now you can. First, make sure you've installed `mpvnet`.
@@ -60,7 +60,7 @@ To cancel:
 Set-Alarm "Cattie Cat" -c
 ```
 
-# Get & convert unix time & discord timestamps
+## Get & convert unix time & discord timestamps
 [Script to get unix & discord timestamps](scripts/unix.ps1)
 
 I communicate with a lot of people abroad via discord and it's super handy to be able to set a discord timestamp that automatically converts to the reader's timezone. For example, when I set a streaming schedule and want to say "Tuesdays at x time, thursdays at y time" I can't say my time because that's only going to apply to people within my timezone. Here's a quick way to get a formatted discord timestamp from a time of your desire:
@@ -78,7 +78,6 @@ Output:
 ```
 Writing time 06/02/2024 15:02:13 (1717333334) to clipboard.
 ```
-`1717333334` will have been written to your clipboard.
 
 ### To convert a unix time to clipboard (without formatting):
 Input:
@@ -88,10 +87,6 @@ unix convert 1717333334
 or
 ```shell
 unix convert -t 1717333334
-```
-Output:
-```
-02 June 2024 15:02:14
 ```
 `02 June 2024 15:02:14` will have been written to your clipboard.
 
@@ -121,16 +116,13 @@ Output:
 Writing time 06/02/2024 15:13:45 to clipboard.
 Written timestamp with mode : <t:1717333334:R>
 ```
-`<t:1717333334:R>` will have been written to your clipboard.
 
 If you leave out the mode, the mode will fall back to `default` and if you leave out the time, it will use the current unix timestamp.
 
 
 Limitations: can only work with current or specific unix time (for now)\
-//TODO: Take any date & time as input\
-//TODO: Take relative dates & times as input
 
-# Fix winget showing out-of-date package version with updated app
+## Fix winget showing out-of-date package version with updated app
 [Script to update winget package registry version](scripts/updateWR.ps1)
 
 Some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number. 
@@ -139,7 +131,6 @@ Example usage:
 ```shell
 updatewr discord.discord
 ```
-[Here it is in action.](images/xample_discord.png)
 
 Limitations: registry key folder must match the name that's displayed via "winget show" or you have to supply the registry folder name.\
 Example:
@@ -164,7 +155,7 @@ or\
 ```HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall```\
 and look for the Registry Key called `DisplayVersion`, then update it.
 
-# Swap between winfetch configs
+## Swap between winfetch configs
 
 [Script to change between made winfetch config files](scripts/winfetchconfig.ps1)
 
@@ -225,25 +216,18 @@ To reset theme to (saved) default, write:
 winfetchconfig reset
 ```
 
-To reset default to default (c'mon now), write:
+To reset default to very default (c'mon now), write:
 ```shell
 winfetch -genconf
 winfetchconfig savedefault
 ```
 
-# Automated backup
-[Simple script to compress & back-up a folder with 7zip](scripts/backup.ps1)
+I've now also uploaded a version for [fastfetch](https://github.com/fastfetch-cli/fastfetch), which I personally prefer using.
+All arguments are analogous.
 
-It will take a source Folder as the -f flag and a destination Folder as the -t flag, copy & compress everything from the source folder and create an aptly named backup. If nothing is specified, it will take the default destination from the folder and the current folder as the folder to be backed up.
+## config.ps1
 
-Example usage:
-```shell
-backup -f 'C:\Important Files\' -t 'D:\Backup Folder\'
-```
-Limitations: can only backup entire folders, does not discriminate between drives
-
-//TODO: Automate rolling backups (delete old files)\
-//TODO: config file for number of backups, locations, etc
-//TODO: categorize folders by drive
+[config.ps1](https://github.com/FlyMandi/PWSH-Collection/blob/main/scripts/config.ps1) is a script I personally use to set up new computers. It installs and updates all software that I use on a daily basis.\
+I can't recommend you using it, since the software is highly dependant on personal uses and platforms, but certainly have a look at the source code if intrigued.
 
 [^1]: Simple tutorial on how to add a folder to PATH [here](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho).

@@ -31,17 +31,15 @@ Function Get-FromPkgmgr
         }
     }
 
-    $pkgmgr = $installPrefix + $pkgmgr
-
     if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue))
     {
         if(-Not ($null -eq $override))
         {
-            &$pkgmgr $installCmd $override
+            Invoke-Expression $installPrefix $pkgmgr $installCmd $override
         }
         else
         {
-            &$pkgmgr $installCmd $trgt
+            Invoke-Expression $install$Prefix $pkgmgr $installCmd $trgt
         }
     }
 }

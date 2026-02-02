@@ -77,7 +77,7 @@ function Get-UpdateSummary
     }
 }
 
-#FIXME: wezterm path broken
+#FIXME: $fileInDest and $fileInSource broken
 function Push-ChangedFiles
 {
     param

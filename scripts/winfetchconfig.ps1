@@ -37,6 +37,7 @@ function Clear-Temp {
         Remove-Item -force -recurse $tempFolder
     }
 }
+# just to be sure, can't hurt.
 Clear-Temp
 mkdir $tempFolder | Out-Null
 
@@ -51,6 +52,7 @@ function Save-Theme{
 }
 
 if (($save -and $delete) -or ($f -and $delete) -or ($delete -and $edit)){
+    Clear-Temp
     throw "ERROR: Can't edit/save and delete at the same time."
 }
 elseif ($list){
@@ -66,19 +68,16 @@ elseif ($edit){
         notepad $themePath
     }
 }
-elseif ($f){
-    if (Test-Path $themePath){
-        Remove-Item -Path $themePath
-        Save-Theme
-    }
-    else{
-        Save-Theme
-    }
-}
 elseif ($save){
-    if (Test-Path $themePath){    
-        Clear-Temp
-        throw "Config file with name already exists. To overwrite it, use 'winfetchconfig ThemeName -save -f'"
+    if (Test-Path $themePath){
+        if ($f){
+            Remove-Item -Path $themePath
+            Save-Theme
+        }
+        else {
+            Clear-Temp
+            throw "Config file with name already exists. To overwrite it, use 'winfetchconfig ThemeName -save -f'"
+        }
     }
     else{
         Save-Theme

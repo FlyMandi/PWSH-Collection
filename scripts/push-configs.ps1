@@ -27,34 +27,32 @@ if ($PSHome -eq $PS1Home){
 #        Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -WindowStyle hidden
 #}
 
-#TODO: rewrite this block so that:
-    #1. It Suggests C:\Repository\, but asks for (y\n) input
-        #1.1 If input is "y" or "yes" (case insensitive), then carry on
-        #1.2 Else if input "n" or "no" (case insensitive), ask for user provided folder that has to exist
-        #1.3 Else, invalid option, abort
-    #2. It also clones PWSH-Collection
 if(-Not(Test-Path $env:Repo)){
-    Write-Host "\Repository\ folder location not set or set to an invalid path, please do so now " -ForegroundColor Red -NoNewline
-    Write-Host "(current value: " -NoNewline -ForegroundColor Red
-    Write-Host $env:Repo -ForegroundColor Yellow -NoNewline
-    Write-Host "):" -ForegroundColor Red
-    $InputRepo = Read-Host
-    if (-Not(Test-Path $InputRepo)){
-        throw "ERROR: Directory doesn't exist. Please create it or choose a valid Directory."
+    Write-Host "\Repository\ folder location at: " -ForegroundColor Red -NoNewline
+    Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
+    Write-Host " not found, do you want to set it as 'C:\Repository\'?" -ForegroundColor Red -NoNewline
+    Write-Host "(y/n): " -NoNewline -ForegroundColor Yellow
+
+    $answer = Read-Host
+    if (($answer -eq "y") -Or ($answer -eq "yes")){ 
+        [System.Environment]::SetEnvironmentVariable("Repo", "C:\Repository\", "User")
+        $env:Repo = "C:\Repository\"
     }
     else{
-        [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
-        $env:Repo = $InputRepo
+        Write-Host "Please provide another Directory: " -ForegroundColor Yellow -NoNewline
+        $InputRepo = Read-Host
+
+        if (-Not(Test-Path $InputRepo)){
+            throw "ERROR: Directory doesn't exist. Please create it or choose a valid Directory."
+        }
+        else{
+            [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
+            $env:Repo = $InputRepo
+        }
     }
 }
 
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
-
-if (-Not(Test-Path $dotfiles)){ 
-    Write-Host "No valid directory \dotfiles\ in $env:Repo."
-    &git clone "https://github.com/FlyMandi/dotfiles" $dotfiles 
-    Write-Host "Cloned FlyMandi/dotfiles repo successfully!" -ForegroundColor Green
-}
 
 $scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
 
@@ -89,6 +87,18 @@ function Get-NewMachinePath{
     $temp = $env:Path
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
+}
+
+function Copy-IntoRepo{
+    Param(
+        $folderName
+    )
+    
+    $folderPath = Join-Path $env:Repo $folderName
+    if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
+        &git clone "https://github.com/FlyMandi/$folderName" $folderPath
+        Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
+    }
 }
 
 function Test-IsNotWinTerm{
@@ -243,6 +253,9 @@ function Push-Certain{
         Write-Host "Update Complete. "
         if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
+
+Copy-IntoRepo "dotfiles"
+Copy-IntoRepo "PWSH-Collection"
 
 &scoop cleanup --all 6>$null
 Get-FromPkgmgr scoop '7z' -o '7zip'

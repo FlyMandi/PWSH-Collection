@@ -14,7 +14,10 @@ I personally use to set up new computers. It installs and updates all software t
 
 I can't recommend you use it, since the software is highly dependant on personal uses and platforms,
 but certainly have a look at the source code if intrigued.
-It can set up a windows 10/11 as well as Arch Linux install. All you'd need is PowerShell 7 on that machine.
+It can set up windows 10/11 as well as Arch Linux machines, completely from scratch.
+All you'd need is PowerShell 7 on that machine and the `yay` package manager, if on linux.
+Other distros might work,
+but I've only tested this script on arch and will only update/fix if it breaks for arch.
 
 ## View Code Documentation with `cht.sh`
 

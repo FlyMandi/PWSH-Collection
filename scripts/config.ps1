@@ -39,6 +39,16 @@ function Get-UpdateSummary{
         Get-FilesAdded
         Get-FilesUpdated
         Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
+
+        if($operation -eq "push"){
+            Write-Host "Would you like to commit your changes now?(y/n):" -ForegroundColor Yellow
+            Read-Host $answer
+            if(($answer -eq "y") -Or ($answer -eq "yes")){
+                Push-Location "$env:Repo\dotfiles\"
+                &lazygit
+                Pop-Location
+            }
+        }
     }
 }
 
@@ -173,8 +183,8 @@ $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
 
 $WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
 $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
-$WinVimList = Get-ChildItem $WinVimpath -File -Recurse
-$RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse
+$WinVimList = Get-ChildItem $WinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
+$RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
 $WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
 $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"

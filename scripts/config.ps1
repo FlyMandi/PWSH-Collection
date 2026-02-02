@@ -86,10 +86,13 @@ function Push-ChangedFiles
         $sourceFileList,
         $destFileList
     )
-    Write-Host $sourceFolder
-    Write-Host $destFolder
-    Write-Host $sourceFileList
-    Write-Host $destFileList
+
+    #HACK: this should not break things on windows, but it does
+    if($IsLinux)
+    {
+        $sourceFolder = Resolve-Path $sourceFolder
+        $destFolder = Resolve-Path $destFolder
+    }
 
     if($null -eq $sourceFileList)
     {

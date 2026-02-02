@@ -46,15 +46,11 @@ $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
 $WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 
-#FIXME: this .json isn't the only file to copy, it doesn't include:
-# keybinds
-# general term profile
-# default profile settings
-# font & appearance settings
 
-#$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
-#$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\settings.json"
-#$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\wt\settings.json"
+$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
+$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
+$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
+$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
 
 Function Get-Package { 
     Param(
@@ -187,7 +183,6 @@ function Push-ChangedFiles{
             $global:filesUpdated += 1
         }
     }
-
 }
 
 function Push-Certain{
@@ -246,8 +241,8 @@ Push-Certain $RepoVimpath $WinVimpath
 Push-Certain $RepoGlazepath $WinGlazepath
 Push-Certain $RepoPSpath $WinPSPath
 
-#Push-Certain $RepoTermpath $WinTermpath
-#Push-Certain $RepoTermpath $WinTermPreviewPath
+Push-Certain $RepoTermpath $WinTermpath
+Push-Certain $RepoTermPreviewpath $WinTermPreviewPath
 
 $temp = $env:Path
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")

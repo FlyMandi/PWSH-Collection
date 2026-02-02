@@ -269,7 +269,8 @@ function Push-ConfigSafely
         break;
     }
 
-    if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse))
+    #TESTING: should not break anything
+    if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File))
     {
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 
@@ -311,20 +312,18 @@ if($isLinux)
     $LinX11Path =   "~/"
     $LinX11List =   (Join-Path $LinX11Path "/.xinitrc"),
                     (Join-Path $LinX11Path "/.Xresources"),
-                    (Join-Path $LinX11Path "/.config/fontconfig/fonts.conf")
+                    (Join-Path $LinX11Path "/.bashrc")
 
     $Lini3Path =  "~/.config/"
     $Lini3List =  (Join-Path $Lini3Path "/i3/config"),
-                  (Join-Path $Lini3Path "/i3status/config")
+                  (Join-Path $Lini3Path "/i3status/config"),
+                  (Join-Path $Lini3Path "/fontconfig/fonts.conf")
 
     $LinPicomPath = "~/.config/picom/"
     $LinPicomList = Join-Path $LinPicomPath "picom.conf"
 
     $LinWeztermPath =   "~/.config/wezterm/"
     $LinWeztermList =   (Join-Path $LinWeztermPath "/wezterm.lua")
-
-    $LinBashPath =   "~/"
-    $LinBashList =   (Join-Path $LinBashPath "/.bashrc")
 
     $LinPSPath =    "~/.config/powershell/"
     $LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),
@@ -367,17 +366,15 @@ $RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ 
 $RepoX11Path = Join-Path -PATH $dotfiles -ChildPath "/x11/"
 $RepoX11List = (Join-Path $RepoX11Path "/.xinitrc"),
                (Join-Path $RepoX11Path "/.Xresources"),
-               (Join-Path $RepoX11Path "/fontconfig/fonts.conf")
+               (Join-Path $RepoX11Path "/.bashrc")
 
 $Repoi3Path = Join-Path -PATH $dotfiles -ChildPath "/i3/"
 $Repoi3List = (Join-Path $Repoi3Path "/i3/config"),
-              (Join-Path $Repoi3Path "/i3status/config")
+              (Join-Path $Repoi3Path "/i3status/config"),
+              (Join-Path $Repoi3Path "/fontconfig/fonts.conf")
 
 $RepoPicomPath = Join-Path $dotfiles "/picom/"
 $RepoPicomList = Join-Path $RepoPicomPath "picom.conf"
-
-$RepoBashPath = Join-Path -PATH $dotfiles -ChildPath "/bash/"
-$RepoBashList = Join-Path $RepoBashPath "/.bashrc"
 
 $RepoWeztermPath = Join-Path -PATH $dotfiles -ChildPath "/wezterm/"
 $RepoWeztermList = Get-ChildItem $RepoWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
@@ -424,7 +421,6 @@ function Push-LinuxToRepo
     Push-ConfigSafely $LinX11Path           $RepoX11Path        $LinX11List         $RepoX11List
     Push-ConfigSafely $Lini3Path            $Repoi3Path         $Lini3List          $Repoi3List
     Push-ConfigSafely $LinPicomPath         $RepoPicomPath      $LinPicomList       $RepoPicomList
-    Push-ConfigSafely $LinBashPath          $RepoBashPath       $LinBashList        $RepoBashList
     Push-ConfigSafely $LinWeztermPath       $RepoWeztermPath    $LinWeztermList     $RepoWeztermList
     Push-ConfigSafely $LinPSPath            $RepoPSpath         $LinPSList          $RepoPSList
     Push-ConfigSafely $LinFastfetchPath     $RepoFastfetchPath  $LinFastfetchList   $RepoFastfetchList
@@ -436,7 +432,6 @@ function Push-RepoToLinux
     Push-ConfigSafely $RepoX11Path          $LinX11Path         $RepoX11List        $LinX11List
     Push-ConfigSafely $Repoi3Path           $Lini3Path          $Repoi3List         $Lini3List
     Push-ConfigSafely $RepoPicomPath        $LinPicomPath       $RepoPicomList      $LinPicomList
-    Push-ConfigSafely $RepoBashPath         $LinBashPath        $RepoBashList       $LinBashList
     Push-ConfigSafely $RepoWeztermPath      $LinWeztermPath     $RepoWeztermList    $LinWeztermList
     Push-ConfigSafely $RepoPSpath           $LinPSPath          $RepoPSList         $LinPSList
     Push-ConfigSafely $RepoFastfetchPath    $LinFastfetchPath   $RepoFastfetchList  $LinFastfetchList
@@ -835,7 +830,6 @@ switch($operation)
 
             Push-RepoToWindows
 
-            #FIXME: not adding to path... add to profile?
             Add-ToUserPath "C:\Repository\PWSH-Collection\scripts\"
             Add-ToUserPath "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\"
 

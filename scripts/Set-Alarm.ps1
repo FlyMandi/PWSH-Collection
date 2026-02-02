@@ -5,6 +5,17 @@ Param(
     [string]$path
 )
 
+#TODO: run this only if prompted by user to do so
+# Unregister-ScheduledTask -TaskName 'ALARM' -Confirm:$false
+
+#TODO: add error handling for trying to create an alarm that already exists, or deleting one that doesn't.
+
+#TODO: parse alarm name from user input
+
+if (-Not (Test-Path $path)){
+    throw "Not a valid filepath."
+}
+
 if ($alarmTimeString -match "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:?[0-5]?[0-9]?$") {
 
     $_hours = $alarmTimeString.Substring(0,2)
@@ -30,11 +41,23 @@ else {
 
 $fileName = [System.IO.Path]::GetFileNameWithoutExtension($path)
 
-
-#TODO: actually schedule to play the video or audio file
-
-
 Write-Host "alarm set to go off at " -NoNewline
 Write-Host $alarmTime -NoNewline -BackgroundColor Green
 Write-Host ", queued to play " -NoNewline
 Write-Host $fileName -BackgroundColor Cyan -NoNewline
+
+
+if (Get-Command mpvnet -errorAction SilentlyContinue){
+    $params = '--really-quiet', '--title=ALARM', '--fs', '--keep-open=no', '--loop-file=inf' 
+
+#FIXME: mpvnet not executing properly
+    $action = New-ScheduledTaskAction -Execute "mpvnet" -Argument "$params $path"
+    $trigger = New-ScheduledTaskTrigger -Once -At $alarmTime
+    $settings = New-ScheduledTaskSettingsSet -WakeToRun
+    $task = New-ScheduledTask -Action $action -Trigger $trigger -Settings $settings
+
+    Register-ScheduledTask -TaskName 'ALARM' -InputObject $task
+}
+else{
+    throw "mpvnet not installed."
+}

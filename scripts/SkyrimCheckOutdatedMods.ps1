@@ -1,3 +1,5 @@
+#TODO: auto detect skyrim install
+
 param(
     $folder,
     $date = (Get-Date).AddYears(-5)
@@ -6,7 +8,6 @@ param(
 $count = 0
 $i = 0
 $folderList = Get-ChildItem $folder -Directory
-$length = $folderList.Length
 $nexusTime = [DateTime]"1/1/1800 00:00:00"
 
 #FIXME: doesnt't work:
@@ -35,10 +36,10 @@ foreach($subfolder in $folderList){
         ModFramework = Get-SkyrimModFramework $subfolder;
     }
 
-    $percentComplete = [math]::floor(($i / $length) * 100)
+    $percentComplete = [math]::floor(($i / $folderList.Length) * 100)
     $progressParameters = @{
         Activity = 'Scan in Progress...'
-        Status = "Scanned $i of $length, total progress: $percentComplete%"
+        Status = "Scanned $i of " + $folderList.Length + ", total progress: $percentComplete%"
         PercentComplete = $percentComplete 
     }
     Write-Progress @progressParameters

@@ -32,12 +32,6 @@ switch ($operation) {
     "edit"{
         &nvim $currentConfig
     }
-    "push"{
-
-    }
-    "pull"{
-
-    }
     "delete"{
         if(Test-Path $pathFromThemeName){
             Remove-Item $pathFromThemeName

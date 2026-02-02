@@ -111,7 +111,7 @@ Function Get-FromPkgmgr{
     Param(
         $pkgmgr,
         $trgt,
-        [string]$override = $null
+        $override = $null
     )
 
     if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){ 
@@ -265,6 +265,9 @@ function Test-Email{
 &scoop cleanup --all 6>$null
 Get-FromPkgmgr scoop '7z' -o '7zip'
 Get-FromPkgmgr scoop 'everything'
+Get-FromPkgmgr scoop 'fzf'
+Get-FromPkgmgr winget 'git' -o 'git.git'
+Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
 Get-FromPkgmgr scoop 'innounp'
 Get-FromPkgmgr scoop 'lazygit'
 Get-FromPkgmgr scoop 'neofetch'
@@ -275,8 +278,6 @@ Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
 Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
 Get-FromPkgmgr scoop 'winfetch'
 Get-FromPkgmgr scoop 'zoomit'
-Get-FromPkgmgr winget 'git' -o 'git.git'
-Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
 
 Get-ScoopPackage 'discord'
 Get-ScoopPackage 'listary'
@@ -299,14 +300,14 @@ Get-NewMachinePath
 $gitUserName = &git config get user.name
 $gitUserEmail = &git config get user.email
 
-if($null -eq $gitUserName){
+if([string]::IsNullOrEmpty($gitUserName)){
     Write-Host "No git user.name found, please enter one now: " -NoNewline
     $gitUserName = Read-Host
-    if (($null -eq $gitUserName) -Or ("" -eq $gitUserName)) { throw "ERROR: please enter username." }
+    if ([string]::IsNullOrEmpty($gitUserName)) { throw "ERROR: please enter username." }
     &git config set user.name $gitUserName
 }
 
-if($null -eq $gitUserEmail){
+if([string]::IsNullOrEmpty($gitUserEmail)){
     Write-Host "No git user.email found, please enter one now: " -NoNewline
     $gitUserEmail = Read-Host
     if (-Not(Test-Email $gitUserEmail)) { throw "ERROR: please enter a valid e-mail address." }

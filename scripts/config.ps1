@@ -87,22 +87,15 @@ function Push-ChangedFiles
         $destFileList
     )
 
-    #FIXME: $fileInDest and $fileInSource broken
-    Write-Host $sourceFolder
-    Write-Host $destFolder
-    Write-Host $sourceFileList
-    Write-Host $destFileList
-    return;
-
     if($null -eq $sourceFileList)
     {
         Write-Host "ERROR: No files to copy from." -ForegroundColor Red
-        break
+        break;
     }
     elseIf($null -eq $destFileList)
     {
         Write-Host "ERROR: No files to compare against." -ForegroundColor Red
-        break
+        break;
     }
     else
     {
@@ -122,6 +115,11 @@ function Push-ChangedFiles
         $missingFiles = Compare-Object $sourceTransformed $destTransformed
                         | Where-Object {$_.sideindicator -eq "<="}
     }
+    #FIXME: broken
+    Write-Host $sourceTransformed
+    Write-Host $destTransformed
+    Write-Host $missingFiles
+    return;
 
     foreach($file in $missingFiles)
     {

@@ -47,6 +47,9 @@ To restore defaults, write:\
 To save current to default (why? :suspect:), write:\
 `winfetchconfig !default -save -f`
 
+To view all available configs (your custom ones + default), write:\
+`winfetchconfig -list`
+
 The location for all your personal configs is in `%UserProfile%\Documents\.personalConfigs\winfetch`.\
 You shouldn't need to access this folder unless you desire to change them in a specific text editor instead of with the script.\
 At that point, just go and edit the line that says `notepad` in the `.ps1` script.

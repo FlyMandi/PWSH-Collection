@@ -1,3 +1,14 @@
+if(-Not (Test-Path $repo)){
+    throw "Set `$repo for first execution of this script."    
+}
+else{
+    $dotfiles = Join-Path -Path $repo -ChildPath "\dotfiles\"
+    if (-Not (Test-Path $dotfiles)){ 
+        throw "No valid directory \dotfiles\ in $repo." 
+    }
+}
+
+
 if (-Not (Get-Command winget -ErrorAction SilentlyContinue)){
     Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
 }
@@ -8,13 +19,6 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add extras
     &scoop bucket add nerd-fonts 
 }
-#TODO: ensure glsl_analyzer and premake5 are installed
-if (-Not (Get-Command glsl_analyzer.exe -ErrorAction SilentlyContinue)){
-    
-}
-
-$dotfiles = Join-Path -Path $repo -ChildPath "\dotfiles\"
-if (-Not (Test-Path $dotfiles)){ throw "No valid directory \dotfiles\ in $repo." }
 
 $scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
 
@@ -66,7 +70,44 @@ Function Get-ScoopPackage {
     }
 }
 
-function Push-Config
+function Get-Binary {
+    Param(
+        $command,
+        $sourceRepo,
+        $namePattern,
+        [switch]$preRelease = $false
+    )
+    if (-Not(Get-Command $command -ErrorAction SilentlyContinue)){
+        $destination = Join-Path -PATH $repo -ChildPath "/lib/"
+        
+        if ($preRelease){
+            Write-Host "Installing latest $namePattern release package from $sourceRepo..."
+            $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases")[0].assets | Where-Object name -like $namePattern).browser_download_url
+        }
+        else{
+            Write-Host "Installing latest $namePattern pre-release package from $sourceRepo..."
+            $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases/latest").assets | Where-Object name -like $namePattern).browser_download_url
+        }
+        $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $(Split-Path -Path $sourceURI -Leaf)
+        Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
+
+        Expand-Archive -Path $tempZIP -DestinationPath $destination -Force
+        Remove-Item $tempZIP -Force
+
+        #$tempFolder = (Join-Path -PATH $destination -ChildPath "$sourceRepo/lib/")  
+        #Move-Item -Path $tempFolder -Destination (Join-Path -PATH $destination -ChildPath "/bin/")
+        #Remove-Item $tempFolder -Force -Recurse
+        
+        $binFolder = (Join-Path -PATH $destination -ChildPath "/bin/") 
+        Move-Item -Path "$binFolder/*.*" -Destination $destination -Force
+        Remove-Item $binFolder -Recurse -Force
+    }
+    else{
+        Write-Host "$command already installed, continuing..."
+    }
+}
+
+function Push-Certain
 {
     param (
         $inputPath,
@@ -107,12 +148,15 @@ Get-Package winget glazewm -o glzr-io.glazeWM
 Get-ScoopPackage listary
 Get-ScoopPackage discord
 
-Push-Config $RepoVimpath $WinVimpath
-Push-Config $RepoGlazepath $WinGlazepath
+Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
+Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
+
+Push-Certain $RepoVimpath $WinVimpath
+Push-Certain $RepoGlazepath $WinGlazepath
 #FIXME: for some reason Windows Terminal doesn't want to play nice with the paths.
-#Push-Config $RepoTermpath $WinTermpath
-#Push-Config $RepoTermpath $WinTermPreviewPath
-Push-Config $RepoPSpath $PROFILE 
+#Push-Certain $RepoTermpath $WinTermpath
+#Push-Certain $RepoTermpath $WinTermPreviewPath
+Push-Certain $RepoPSpath $PROFILE 
 
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Cyan 
 

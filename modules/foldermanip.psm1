@@ -23,6 +23,14 @@ function Push-ChangedFiles{
         $sourceFolder,
         $destFolder
     )
+    if ([string]::IsNullOrEmpty($sourceFolder)){ 
+        Write-Host "ERROR: source folder is an empty path."
+        break
+    }
+    if ([string]::IsNullOrEmpty($destFolder)){ 
+        Write-Host "ERROR: destination folder is an empty path."
+        break
+    }
 
     $sourceFileList = Get-ChildItem $sourceFolder -Recurse -File
     $destFileList = Get-ChildItem $destFolder -Recurse -File

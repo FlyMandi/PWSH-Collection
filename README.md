@@ -16,10 +16,14 @@ Example: ```updatewr jandedobbeleer.ohmyposh``` doesn't work, but \
 ```updatewr jandedobbeleer.ohmyposh -reg "Oh My Posh_is1"``` does.
 
 to update a steam app that is recognized via `winget` but has an out-of-date or unknown version number, you can utilize the steam app ID, as follows:\
-```updatewr jagex.oldSchoolRunescape -reg 'Steam App 1343370'```\
+```updatewr jagex.oldSchoolRunescape -reg 'steam app 1343370'```\
 [Example Image here.](images/xample_elevated.png)
 
 NOTE: to update the ones stuck in `HKEY_LOCAL_MACHINE`, you will need to run this script in an elevated prompt. Please never run scripts off the internet without having read through them. Unfortunately, not everyone is as nice as me. :eye:
+
+If you want to take matters into your own hands, hit `Win+R`, type `regedit`, hit enter & search for the folder yourself in `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall` or\
+`HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall`\
+and look for the Registry Key called `DisplayVersion`, then update it.
 
 ## Automated backup
 [Simple script to compress & back-up a folder with 7zip](scripts/backup.ps1), it will take a source Folder as the -f flag and a destination Folder as the -t flag, copy & compress everything from the source folder and create an aptly named backup. If nothing is specified, it will take the default destination from the folder and the current folder as the folder to be backed up.

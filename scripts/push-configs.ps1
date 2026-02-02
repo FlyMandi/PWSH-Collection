@@ -1,10 +1,24 @@
+if (-Not (Get-Command winget -ErrorAction SilentlyContinue)){
+    Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
+}
+
+if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){ 
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+    Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
+
+    &scoop bucket add "extras"
+    &scoop bucket add "nerd-fonts" 
+    &scoop bucket add "sysinternals"
+}
+
 $PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
 $PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
 
+#FIXME: this isn't getting called via IRM ... | IEX
 if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
     Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Wait -NoNewWindow
-    Write-Host "`nOpened a PowerShell 7 window!" -ForegroundColor Green
+    Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
     &pwsh
 }
 
@@ -13,6 +27,12 @@ if ($PSHome -eq $PS1Home){
 #        Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -WindowStyle hidden
 #}
 
+#TODO: rewrite this block so that:
+    #1. It Suggests C:\Repository\, but asks for (y\n) input
+        #1.1 If input is "y" or "yes" (case insensitive), then carry on
+        #1.2 Else if input "n" or "no" (case insensitive), ask for user provided folder that has to exist
+        #1.3 Else, invalid option, abort
+    #2. It also clones PWSH-Collection
 if(-Not(Test-Path $env:Repo)){
     Write-Host "\Repository\ folder location not set or set to an invalid path, please do so now " -ForegroundColor Red -NoNewline
     Write-Host "(current value: " -NoNewline -ForegroundColor Red
@@ -34,18 +54,6 @@ if (-Not(Test-Path $dotfiles)){
     Write-Host "No valid directory \dotfiles\ in $env:Repo."
     &git clone "https://github.com/FlyMandi/dotfiles" $dotfiles 
     Write-Host "Cloned FlyMandi/dotfiles repo successfully!" -ForegroundColor Green
-}
-
-if (-Not (Get-Command winget -ErrorAction SilentlyContinue)){
-    Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
-}
-if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){ 
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-    Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
-
-    &scoop bucket add "extras"
-    &scoop bucket add "nerd-fonts" 
-    &scoop bucket add "sysinternals"
 }
 
 $scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
@@ -263,12 +271,11 @@ Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
 Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
 
+Push-Certain $RepoTermpath $WinTermpath
+Push-Certain $RepoTermPreviewpath $WinTermPreviewPath
 Push-Certain $RepoVimpath $WinVimpath
 Push-Certain $RepoGlazepath $WinGlazepath
 Push-Certain $RepoPSpath $WinPSPath
-
-Push-Certain $RepoTermpath $WinTermpath
-Push-Certain $RepoTermPreviewpath $WinTermPreviewPath
 
 Get-NewMachinePath
 
@@ -290,6 +297,6 @@ if(Test-IsNotWinTerm){
     $windowPID = $window.ProcessId
     $parentPID = $window.ParentProcessId
     &wt.exe
-    &cmd.exe "/c TASKKILL /PID $windowPID"
-    &cmd.exe "/c TASKKILL /PID $parentPID"
+    &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
+    &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
 }

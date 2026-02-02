@@ -91,7 +91,9 @@ function Push-ChangedFiles
     if($IsLinux)
     {
         $sourceFolder = Resolve-Path $sourceFolder
+        Write-Host "src: $sourceFolder"
         $destFolder = Resolve-Path $destFolder
+        Write-Host "dest: $destFolder"
     }
 
     if($null -eq $sourceFileList)
@@ -111,12 +113,16 @@ function Push-ChangedFiles
 
         foreach($file in $sourceFileList)
         {
-            $sourceTransformed += ([string]$file).Substring($sourceFolder.Length)
+            $file = Resolve-Path $file
+            $file = ([string]$file).Substring($sourceFolder.Length)
+            $sourceTransformed += $file
         }
 
         foreach($file in $destFileList)
         {
-            $destTransformed += ([string]$file).Substring($destFolder.Length)
+            $file = Resolve-Path $file
+            $file = ([string]$file).Substring($destFolder.Length)
+            $destTransformed += $file
         }
 
         $missingFiles = Compare-Object $sourceTransformed $destTransformed

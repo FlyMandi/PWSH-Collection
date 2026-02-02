@@ -31,7 +31,9 @@ switch ($operation) {
         #TODO: exclude config.jsonc
     }
     "edit"{
-        &nvim $currentConfig
+        if(Test-Path $pathFromThemeName){
+            &nvim $pathFromThemeName
+        }else{ &nvim $currentConfig }
     }
     "delete"{
         if(Test-Path $pathFromThemeName){
@@ -40,10 +42,6 @@ switch ($operation) {
         }else{
             $themeNotFound
         }
-    }
-    "reset"{
-        Remove-Item $currentConfig
-        Get-Fastfetch
     }
     ""{
         Get-Fastfetch

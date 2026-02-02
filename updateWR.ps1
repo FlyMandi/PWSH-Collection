@@ -42,7 +42,7 @@ try {
         # setVersion = the new, changed value
         $setVersion = (Get-Item -LiteralPath $keyPath).GetValue($valueName)
         Write-Host "`n Updated registry key to reflect winget package newest version:
-        Outdated: $oldVersion`n    Now: $setVersion"
+    Outdated: $oldVersion`n    Now: $setVersion"
     }
 } 
 catch {

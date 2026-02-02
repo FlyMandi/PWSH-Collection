@@ -18,10 +18,10 @@ function Get-NewMachinePath
 }
 Export-ModuleMember -Function Get-NewMachinePath
 
-function Add-ToMachinePath
+function Add-ToUserPath
 {
     Param([string]$toAdd)
 
-    [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$toAdd", [System.EnvironmentVariableTarget]::Machine);
+    [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$toAdd", "User");
 }
-Export-ModuleMember -Function Add-ToMachinePath
+Export-ModuleMember -Function Add-ToUserPath

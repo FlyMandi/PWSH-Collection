@@ -15,11 +15,13 @@ $PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
 $PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
 
 #FIXME: this isn't getting called via IRM ... | IEX
+
 if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
+    #DEBUG:
+    Write-Host "PS Command Path: $PSCommandPath" -ForegroundColor Yellow
     Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Wait -NoNewWindow
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
-    &pwsh
 }
 
 #Start the rest of this process as admin (avoid using it, comment out only for testing)

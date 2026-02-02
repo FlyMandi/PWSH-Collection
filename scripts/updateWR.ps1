@@ -11,7 +11,6 @@ $valueName = "DisplayVersion"
 $pathSet = $false
 
 If(-Not('' -eq $reg)){
-    # Set the folder name directly
     $app = $reg
     $pathSet = $true
     $keyPath = "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\$reg"
@@ -19,14 +18,14 @@ If(-Not('' -eq $reg)){
 }
 
 if (-Not ($pathSet)){
-    # try to derive key path from package info
-    $app =(((winget show $pkg | FINDSTR "Found").Trim("Found ")) -replace('(\[.*)')).Trim()
-    #search in registry from app name
+    $appPattern = "Found (?<appName>.*) \[.*\]"
+    (winget show $pkg | Where-Object{$_ -match "Found"}) -match $appPattern
+    $app = $matches["appName"]
+
     $keyPath = "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\$app"
     $keyPath2 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$app"
 }
 
-# test validity of paths
 $pathValid = Test-Path $keyPath
 $path2Valid = Test-Path $keyPath2
 

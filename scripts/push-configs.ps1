@@ -124,8 +124,7 @@ function Push-ChangedFiles{
         $folder2
     )
 
-#FIXME: cannot bind DifferenceObject parameter because it is null
-
+#FIXME: Cannot bind argument to parameter 'DifferenceObject' because it is null.
     $missingFiles = Compare-Object -ReferenceObject (Get-ChildItem -Path $folder1 -File) -DifferenceObject (Get-ChildItem -Path $folder2 -File) | Where-Object { $_.SideIndicator -eq '<=' }
     $filesToReplace = Compare-Object -ReferenceObject (Get-ChildItem -Path $folder1 -File) -DifferenceObject (Get-ChildItem -Path $folder2 -File) | Where-Object { $_.SideIndicator -eq '=>' }
     
@@ -156,7 +155,7 @@ function Push-Certain
         throw "Not a valid path to copy config from."
     }
 
-    if (-Not(Test-Path $outputPath) || (Get-ChildItem $outputPath | Measure-Object).count -eq 0){
+    if (-Not(Test-Path $outputPath) || (Get-ChildItem $outputPath -Force -File | Measure-Object).count -eq 0){
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 	Copy-Item $inputPath $outputPath -Recurse
     }

@@ -1,3 +1,7 @@
+#TODO: improve this function to prefer the best package manager:
+#For windows, scoop > winget > anything else
+#For linux, apt > dpkg > anything else
+#probably $isWindows and then just have a lil hierarchy
 Function Get-FromPkgmgr{ 
     Param(
         $pkgmgr,

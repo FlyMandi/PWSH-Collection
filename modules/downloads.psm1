@@ -52,7 +52,7 @@ function Get-Binary
 
         Remove-LayeredFolderLayers $destFolder
 
-        $binFolder = (Join-Path -PATH $destFolder -ChildPath "\bin")
+        $binFolder = (Join-Path -PATH $destFolder -ChildPath "/bin")
 
         if((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*"))
         {

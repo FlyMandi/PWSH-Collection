@@ -77,10 +77,10 @@ function Push-Config
 
     if (Test-Path $outputPath){
         Remove-Item -PATH $outputPath -Recurse
-        Write-Host "Deleted existing config in $outputPath." 
+        Write-Host "`nDeleted existing config in $outputPath." 
     }
     else{
-        Write-Host "No existing config found in $outputPath, pushing..."
+        Write-Host "`nNo existing config found in $outputPath, pushing..."
     }
 
     Copy-Item -PATH $inputPath -Destination $outputPath -Recurse
@@ -111,3 +111,5 @@ Push-Config $RepoGlazepath $WinGlazepath
 Push-Config $RepoPSpath $PROFILE 
 
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Cyan 
+
+&fetch

@@ -494,7 +494,7 @@ switch($operation)
     {
         if($isLinux)
         {
-            #TODO: linux cleanup & windows expanded
+            &yay -Sc
         }
         elseIf($IsWindows)
         {

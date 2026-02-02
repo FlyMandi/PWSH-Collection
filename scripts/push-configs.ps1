@@ -1,24 +1,3 @@
-$scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
-
-$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
-$RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
-
-$WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
-$RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
-
-$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
-$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
-
-$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
-$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
-$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
-$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
-
-
-[int]$global:filesAdded = 0
-[int]$global:filesUpdated = 0
-
-
 function Get-NewMachinePath{
     $temp = $env:Path
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -64,6 +43,24 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     &scoop bucket add "sysinternals"
 }
 
+$scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
+
+$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
+$RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
+
+$WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
+$RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
+
+$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
+$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
+
+$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\"
+$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\"
+$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
+$RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
+
+[int]$global:filesAdded = 0
+[int]$global:filesUpdated = 0
 #In separate functions, in case I want to call it after every download or config push.
 function Get-FilesAdded{
     if (-Not($global:filesAdded -eq 0)){Write-Host "Files Added: $global:filesAdded" -ForegroundColor Cyan}
@@ -79,10 +76,10 @@ Function Get-FromPkgmgr{
     Param(
         $pkgmgr,
         $trgt,
-        $override = "default"
+        [string]$override = $null
     )
     if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){
-        if (-Not ($override -eq "default")) { $trgt = $override }
+        if(-Not ($null -eq $override)){ $trgt = $override }
         &$pkgmgr install $trgt
     }
     else{

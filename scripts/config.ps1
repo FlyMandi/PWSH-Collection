@@ -150,8 +150,30 @@ if(-Not(Test-Path $env:Repo))
         Write-Host "/Repository/ folder location at: " -ForegroundColor Red -NoNewline
         Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
         Write-Host " not found, do you want to set it as '~/repository/'?" -ForegroundColor Red -NoNewline
+        Write-Host "(y/n): " -NoNewline -ForegroundColor Yellow
 
-        #TODO: finish setting up repo and dotfiles vars
+        #FIXME : finish setting up repo
+        $answer = Read-Host
+        if(($answer -eq "y") -Or ($answer -eq "yes"))
+        {
+            [System.Environment]::SetEnvironmentVariable("repo", "~/repository/", "User")
+            $env:Repo = "~/repository/"
+        }
+        else
+        {
+            Write-Host "Please provide another Directory: " -ForegroundColor Yellow -NoNewline
+            $InputRepo = Read-Host
+
+            if(-Not(Test-Path $InputRepo))
+            {
+                throw "FATAL: Directory doesn't exist. Please create it or choose a valid Directory."
+            }
+            else
+            {
+                [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
+                $env:Repo = $InputRepo
+            }
+        }
     }
     elseIf($IsWindows)
     {
@@ -257,47 +279,52 @@ $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "/nvim/"
     # lua/*
     # ftplugin/*
 
-#WINDOWS PATHS
-$WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "/nvim/"
-$WinVimList = Get-ChildItem $WinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
-
-$WinGlazePath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.glzr/glazewm/"
-$WinGlazeList = Get-ChildItem $WinGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
-
-$WinWeztermPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/wezterm/"
-$WinWeztermList = Get-ChildItem $WinWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
-
-$WinPSPath =    Join-Path -PATH $env:USERPROFILE -ChildPath "/Documents/PowerShell/"
-$WinPSList =    (Join-Path $WinPSPath "/config.omp.json"),
-                (Join-Path $WinPSPath "/Microsoft.PowerShell_profile.ps1")
-
-$WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/fastfetch/"
-$WinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
-                    | Where-Object {$_ -notmatch "config.jsonc"}
-
-$WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/scoop/persist/fancontrol/configurations/"
-$WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
-
 #LINUX PATHS
-$LinVimPath = "~/config/nvim/"
-$LinVimList = Get-ChildItem $LinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
+if($isLinux)
+{
+    $LinVimPath = "~/config/nvim/"
+    $LinVimList = Get-ChildItem $LinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
-$LinX11Path =   "~/"
-$LinX11List =   (Join-Path $LinX11Path "/.xinitrc")
+    $LinX11Path =   "~/"
+    $LinX11List =   (Join-Path $LinX11Path "/.xinitrc")
 
-$LinSXWMPath =  "~/.config/"
-$LinSXWMList =  (Join-Path $LinSXWMPath "/sxwmrc")
+    $LinSXWMPath =  "~/.config/"
+    $LinSXWMList =  (Join-Path $LinSXWMPath "/sxwmrc")
 
-$LinWeztermPath =   "~/"
-$LinWeztermList =   (Join-Path $LinWeztermPath "/.wezterm.lua")
+    $LinWeztermPath =   "~/"
+    $LinWeztermList =   (Join-Path $LinWeztermPath "/.wezterm.lua")
 
-$LinPSPath =    "~/.config/powershell/"
-$LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),
-                (Join-Path $LinPSPath "/Microsoft.Powershell_profile.ps1")
+    $LinPSPath =    "~/.config/powershell/"
+    $LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),
+                    (Join-Path $LinPSPath "/Microsoft.Powershell_profile.ps1")
 
-$LinFastfetchPath = "~/config/fastfetch/"
-$LinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
-                    | Where-Object {$_ -notmatch "config.jsonc"}
+    $LinFastfetchPath = "~/config/fastfetch/"
+    $LinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
+                        | Where-Object {$_ -notmatch "config.jsonc"}
+}
+#WINDOWS PATHS
+elseIf($IsWindows)
+{
+    $WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "/nvim/"
+    $WinVimList = Get-ChildItem $WinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
+
+    $WinGlazePath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.glzr/glazewm/"
+    $WinGlazeList = Get-ChildItem $WinGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+
+    $WinWeztermPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/wezterm/"
+    $WinWeztermList = Get-ChildItem $WinWeztermPath -File -Recurse | Where-Object {$_ -notmatch ".log"}
+
+    $WinPSPath =    Join-Path -PATH $env:USERPROFILE -ChildPath "/Documents/PowerShell/"
+    $WinPSList =    (Join-Path $WinPSPath "/config.omp.json"),
+                    (Join-Path $WinPSPath "/Microsoft.PowerShell_profile.ps1")
+
+    $WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/.config/fastfetch/"
+    $WinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
+                        | Where-Object {$_ -notmatch "config.jsonc"}
+
+    $WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/scoop/persist/fancontrol/configurations/"
+    $WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
+}
 
 #REPO PATHS
 $RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
@@ -326,7 +353,7 @@ $RepoFancontrolPath = Join-Path -PATH $dotfiles -ChildPath "/fancontrol/"
 $RepoFancontrolList =   Get-Childitem $RepoFancontrolPath -File -Recurse
                         | Where-Object {$_ -notmatch "CACHE"}
 
-if($PSHome -eq $PS1Home)
+if($isWindows -and ($PSHome -eq $PS1Home))
 {
     if(-Not(Test-Path $PS7exe))
     {

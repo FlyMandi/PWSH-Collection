@@ -398,8 +398,6 @@ foreach($module in $pwshCollectionModules)
     Import-Module $module
 }
 
-Get-NewMachinePath
-
 function Push-LinuxToRepo
 {
     Push-ConfigSafely $LinVimpath           $RepoVimpath        $LinVimList         $RepoVimList
@@ -493,7 +491,6 @@ switch($operation)
         if($IsLinux)
         {
             &yay
-            # Get-NewMachinePath
         }
         elseIf($IsWindows)
         {
@@ -773,11 +770,10 @@ switch($operation)
             Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
             Push-RepoToWindows
+            Get-NewMachinePath
 
             #TODO: add scripts folder to path
         }
-
-        Get-NewMachinePath
 
         Test-GitUserName
         Test-GitUserEmail

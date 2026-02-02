@@ -132,7 +132,6 @@ function Push-Certain
 
 #FIXME: Out-Null not working at all here
 
-&scoop update --all | Out-Null
 Get-Package scoop '7z' -o '7zip'
 Get-Package scoop 'everything'
 Get-Package scoop 'innounp'
@@ -141,16 +140,16 @@ Get-Package scoop 'neofetch'
 Get-Package scoop 'nvim' -o 'neovim'
 Get-Package scoop 'ninja'
 Get-Package scoop 'npm' -o 'nodejs'
+Get-Package scoop 'spt' -o 'spotify-tui'
 Get-Package scoop 'winfetch'
 Get-Package scoop 'zoomit'
 
 &scoop cleanup --all | Out-Null
-Get-ScoopPackage 'listary'
 Get-ScoopPackage 'discord'
+Get-ScoopPackage 'listary'
 Get-ScoopPackage 'libreoffice'
+Get-ScoopPackage 'spotify'
 
-&winget update --all | Out-Null
-&winget upgrade --all --include-unknown | Out-Null
 Get-Package winget 'git' -o 'git.git'
 #TODO: automatically check & set github username and e-mail
 #TODO: automatically set up ssh (take ssh key from github as input)
@@ -164,6 +163,6 @@ Push-Certain $RepoGlazepath $WinGlazepath
 #FIXME: for some reason Windows Terminal doesn't want to play nice with the paths.
 #Push-Certain $RepoTermpath $WinTermpath
 #Push-Certain $RepoTermpath $WinTermPreviewPath
-Push-Certain $RepoPSpath $PROFILE 
+Push-Certain $RepoPSpath $PROFILE
 
 Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Cyan 

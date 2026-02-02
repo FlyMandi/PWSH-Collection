@@ -88,11 +88,7 @@ function Push-ChangedFiles
     )
 
     $sourceFolder = [string](Resolve-Path $sourceFolder)
-    Write-Host "from: $sourceFolder"
     $destFolder = [string](Resolve-Path $destFolder)
-    Write-Host "to: $destFolder"
-
-    #TODO: if last char isn't a file separator, "/" or "\", it needs to have one, else the trimming below breaks
 
     if(-not ($destFolder[-1] -eq "/") -and $isLinux)
     {
@@ -136,11 +132,6 @@ function Push-ChangedFiles
         $missingFiles = Compare-Object $sourceTransformed $destTransformed
                         | Where-Object {$_.sideindicator -eq "<="}
     }
-    #FIXME: broken
-    Write-Host $sourceTransformed
-    Write-Host $destTransformed
-    Write-Host $missingFiles
-    return;
 
     foreach($file in $missingFiles)
     {
@@ -321,8 +312,8 @@ if($isLinux)
     $LinSXWMPath =  "~/.config/"
     $LinSXWMList =  (Join-Path $LinSXWMPath "/sxwmrc")
 
-    $LinWeztermPath =   "~/"
-    $LinWeztermList =   (Join-Path $LinWeztermPath "/.wezterm.lua")
+    $LinWeztermPath =   "~/.config/wezterm/"
+    $LinWeztermList =   (Join-Path $LinWeztermPath "/wezterm.lua")
 
     $LinPSPath =    "~/.config/powershell/"
     $LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),

@@ -83,15 +83,12 @@ Copy-IntoRepo "PWSH-Collection"
 if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
 
-    if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
-    else{ $commandPath = $PSCommandPath }
-    #DEBUG:
-    Write-Host $commandPath -BackgroundColor Magenta
-
+    
+    #if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
+    #else{ $commandPath = $PSCommandPath }
+    
+    $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1")
     $commandArgs = "$commandPath", "-ExecutionPolicy Bypass", "-Wait", "-NoNewWindow"
-    #DEBUG:
-    Write-Host "Input: $PS7exe $commandArgs" -BackgroundColor DarkBlue
-
     &$PS7exe $commandArgs
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
     &pwsh

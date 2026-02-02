@@ -6,34 +6,28 @@ Param(
     [switch]$f = $false
 )
     
-# juuust to make sure we don't run into "theme.ps1.ps1" shenanigans 
 $theme = [System.IO.Path]::GetFileNameWithoutExtension($theme)
 
-# destination should not need to be changed. Current config is in C:\users\YOU\.config\winfetch
 $destination = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\winfetch"
 if (-Not (Test-Path $destination)){
-    throw "ERROR: winfetch not installed. Run 'scoop install winfetch' to install. If winfetch is installed, the .config folder can't be found."
+    &mkdir $destination
 }
 
-$configPath = Join-Path -Path "$env:USERPROFILE" -ChildPath "\Documents\.personalConfigs\winfetch\"
-$defaultPath = (Join-Path -Path $configPath -ChildPath "\default")
-# if config directory doesn't exist, create it
+$configPath = Join-Path -Path $repo -ChildPath "\dotfiles\winfetch\"
+$defaultPath = (Join-Path -Path $configPath -ChildPath "\default\")
 if (-Not (Test-Path $defaultPath)){
-    $defaultPath = (Join-Path -Path $configPath -ChildPath "\default")
-    mkdir $defaultPath
+    &mkdir $defaultPath
 }
 
-$defaultConfig = Join-Path -Path $configPath -ChildPath "default\!default.ps1"
-$currentConfig = Join-Path -Path $destination -ChildPath "\config.ps1"
+$defaultConfig = Join-Path -Path $defaultPath -ChildPath "!default.ps1"
+$currentConfig = Join-Path -Path $destination -ChildPath "config.ps1"
 
-# if "!default.ps1" doesn't exist, copy current config and store it there
 if (-Not (Test-Path $defaultConfig)){
     Copy-Item -Path $currentConfig -Destination $script:defaultPath
     Rename-Item -Path (Join-Path -Path $script:defaultPath -ChildPath "\config.ps1") -NewName "!default.ps1"
     Write-Host "`nCurrent config stored as '!default'."
 }
 
-# set environment
 $tempFolder = Join-Path -PATH $configPath -ChildPath "\temp"
 $tempConfig = Join-Path -Path $tempFolder -ChildPath "\config.ps1"
 function Set-Env{
@@ -61,7 +55,7 @@ function Save-Theme{
 }
 
 function Get-List{
-    Get-ChildItem "$configPath\*.ps1" -Name
+    Get-ChildItem "$configPath\*.ps1" | Select-Object BaseName
 }
 
 function Push-Theme{
@@ -137,11 +131,9 @@ switch ($operation) {
         Move-Item -Path "$tempFolder\!default.ps1" -Destination $defaultPath -Force
         Write-Host "Successfully saved current theme as default."
     }
-    # true fallback (just display)
     ''{
         winfetch
     }
-    # fallback (choose)
     Default {
         # super scuffed but listen, it works.
         $theme = $operation
@@ -155,5 +147,4 @@ switch ($operation) {
     }
 }
 
-# make sure to leave no leftovers
 Clear-Temp

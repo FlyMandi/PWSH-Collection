@@ -1,4 +1,11 @@
 # PWSH-Collection
+[List of all scripts](scripts/)
+
+When downloading a script, I suggest making a "scripts" folder somewhere safe and then adding that folder to PATH[^1].\
+Then, you can just write the name of the script with arguments in your favourite shell.
+Example: `script -f flag1 -t -flag2`
+If not, you will have to call each script either by relative or absolute paths.\
+Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
 ## Fix winget showing out-of-date package version with updated app
 [Script to update winget package registry version](scripts/updateWR.ps1), some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number. 
@@ -23,3 +30,5 @@ Limitations: can only backup entire folders, does not discriminate between drive
 //TODO: Automate rolling backups (delete old files)\
 //TODO: config file for rar.exe path and/or backup folder\
 //TODO: categorize folders by drive\
+
+[^1]: Simple tutorial on how to add a folder to PATH [here](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho).

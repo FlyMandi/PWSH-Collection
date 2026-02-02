@@ -796,6 +796,20 @@ switch($operation)
 
         Get-UpdateSummary
     }
+    Default
+    {
+        Write-Host "No operation specified."
+        Write-Host "Available operations:"
+
+        Write-Host "setup: `tsets up a brand-new machine. On arch linux, make sure yay is installed."
+        Write-Host "push: `tpushes local configuration files to their respective place in the dotfiles repository."
+        Write-Host "pull: `tpulls files from the local clone of the repository and pushes them to their respective place."
+        Write-Host "`twill update the local dotfiles branch."
+        Write-Host "update:`tupdates the OS and/or updates all installed packages from respective package managers."
+        Write-Host "clean: `tcleans packages and other miscellaneous outdated files"
+        Write-Host "verify:`tlists the paths to be pushed/pulled from to sanity check"
+        Write-Host "list: `tlists all files that are going to get pushed/pulled to verify paths"
+    }
 }
 
 #TODO: rewrite function for WezTerm

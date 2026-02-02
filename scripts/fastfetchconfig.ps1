@@ -32,11 +32,6 @@ switch ($operation) {
     "edit"{
         &nvim $currentConfig
     }
-    "rename"{
-        touch $destination
-        #Move-Item name $destination
-        #Remove-Item name
-    }
     "push"{
 
     }

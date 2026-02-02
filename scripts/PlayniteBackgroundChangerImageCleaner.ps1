@@ -1,4 +1,8 @@
+$gameCount = 0
+$fileCount = 0
 $extensionPath = $null
+
+
 if(Test-Path (Join-Path $env:LOCALAPPDATA "Playnite\ExtensionsData\3afdd02b-db6c-4b60-8faa-2971d6dfad2a")){ 
     $extensionPath = Join-Path $env:LOCALAPPDATA "\Playnite\" 
 }
@@ -14,7 +18,6 @@ if($null -eq $extensionPath){
 }
 
 $backgroundChangerImageFolder = Join-Path $extensionPath "ExtensionsData\3afdd02b-db6c-4b60-8faa-2971d6dfad2a\Images"
-
 $backgroundChangerJsonPath = Join-Path $extensionPath "ExtensionsData\3afdd02b-db6c-4b60-8faa-2971d6dfad2a\BackgroundChanger"
 
 function Test-HasCorrespondingJson{
@@ -32,12 +35,14 @@ function Test-HasCorrespondingJson{
 }
 
 foreach($gameFolder in (Get-ChildItem $backgroundChangerImageFolder)){
+    $gameCount++
     $gameID = (Get-Item $gameFolder).BaseName
     $BCJson = "$backgroundChangerJsonPath\$gameID.json"
     
     Write-Host "Scanning Game with id $gameID..."
 
     if(-Not(Test-Path $BCJson)){
+        $fileCount += (Get-ChildItem $gameFolder).count
         Remove-Item $gameFolder -Recurse
         Write-Host "    Removed leftover Folder (no corresponding .json): " -ForegroundColor Red -NoNewline
         Write-Host $gameFolder
@@ -49,9 +54,16 @@ foreach($gameFolder in (Get-ChildItem $backgroundChangerImageFolder)){
     
     foreach($photo in $BCPhotos){
         if(-Not(Test-HasCorrespondingJson $photo $BCPhotosJson)){
+            $fileCount++
             Remove-Item $photo
             Write-Host "    Removed leftover Photo (no .json Name entry): " -ForegroundColor Red -NoNewline
             Write-Host $photo
         }
     }
 }
+
+Write-Host "`nSummary: Scanned " -NoNewline
+Write-Host $gameCount -ForegroundColor Blue -NoNewline
+Write-Host " BackgroundChanger Folders and removed " -NoNewline
+Write-Host $fileCount -ForegroundColor Red -NoNewline
+Write-Host " Images that were no longer used." -NoNewline

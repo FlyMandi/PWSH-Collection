@@ -20,6 +20,7 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue) -and $IsWindows)
     &scoop config SCOOP_BRANCH develop
     &scoop install git
     &scoop bucket add "extras"
+    &scoop bucket add "versions"
     &scoop bucket add "nerd-fonts"
     &scoop bucket add "sysinternals"
     &scoop bucket add scoop-imgcat https://github.com/danielgatis/scoop-imgcat.git

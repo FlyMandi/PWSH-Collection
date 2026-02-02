@@ -144,9 +144,9 @@ function Remove-OnFileChange{
     )
    
    #TODO: for (every child item in file folder and its counterpart){
-        if (Get-FileChange $file1 $file2){
-            Remove-Item -PATH $outputPath -Recurse
-        }
+#        if (Get-FileChange $file1 $file2){
+#            Remove-Item -PATH $outputPath -Recurse
+#        }
     #}
 }
 
@@ -174,8 +174,6 @@ function Push-Certain
     Copy-Item -PATH $inputPath -Destination $outputPath -Recurse
     Write-Host "Config push successful.`n" -ForegroundColor Green -NoNewline
 }
-
-#FIXME: Out-Null not working at all here
 
 &scoop cleanup --all 6>$null
 Get-Package scoop '7z' -o '7zip'
@@ -215,5 +213,7 @@ Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
 #Push-Certain $RepoTermpath $WinTermpath
 #Push-Certain $RepoTermpath $WinTermPreviewPath
 
-#TODO: reload environment variables without closing the console
-Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Cyan 
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+Write-Host "`nEnvironment variables refreshed."
+Write-Host "All configs are now up to date! ^^" -ForegroundColor Cyan 

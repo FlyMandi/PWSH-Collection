@@ -296,6 +296,7 @@ switch($operation){
 
         Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
         Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
+        Get-Binary termbench_release_clang "cmuratori/termbench" -o "https://github.com/cmuratori/termbench/files/6612606/termbench_v1.zip"
 
         Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList
         Push-ConfigSafely $RepoGlazepath $WinGlazepath $RepoGlazeList $WinGlazeList

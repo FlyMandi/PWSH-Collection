@@ -280,6 +280,7 @@ switch($operation){
         Get-FromPkgmgr scoop 'premake5' -o 'premake'
         Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
         Get-FromPkgmgr scoop 'renderdoccli' -o 'renderdoc'
+        Get-FromPkgmgr scoop 'tree-sitter'
         Get-FromPkgmgr winget 'cargo' -o 'rust'
         Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
         Get-FromPkgmgr scoop 'winfetch'

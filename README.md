@@ -29,11 +29,14 @@ and look for the Registry Key called `DisplayVersion`, then update it.
 
 [Script to change between made winfetch config files](scripts/winfetchconfig.ps1). The first time you run it (or when it can't find a file of the same name), it will store your current config in a file called `!default.ps1`.
 
-To make changes to the current configuration, edit this file:\
-`%UserProfile%\Documents\.config\winfetch\config.ps1`
+To make changes to the current configuration, type:\
+`winfetchconfig -edit`
+
+To make changes to a specific configuration, type:\
+`winfetchconfig ThemeName -edit`
 
 To save a configuration with a name, write:\
-`winfetchconfig ThemeName -save` or `winfetchconfig -save ThemeName`, order of flags is personal preference.
+`winfetchconfig ThemeName -save`
 
 To save & overwrite a theme, write:\
 `winfetchconfig ThemeName -save -f`
@@ -41,8 +44,12 @@ To save & overwrite a theme, write:\
 To restore defaults, write:\
 `winfetchconfig !default`
 
+To save current to default (why?:suspect:), write:\
+`winfetchconfig !default -save -f`
+
 The location for all your personal configs is in `%UserProfile%\Documents\.personalConfigs\winfetch`.\
-You shouldn't need to access this folder unless you desire to change them in a text editor instead of with the script.
+You shouldn't need to access this folder unless you desire to change them in a specific text editor instead of with the script.\
+At that point, just go and edit the line that says `notepad` in the `.ps1` script.
 
 ## Automated backup
 [Simple script to compress & back-up a folder with 7zip](scripts/backup.ps1), it will take a source Folder as the -f flag and a destination Folder as the -t flag, copy & compress everything from the source folder and create an aptly named backup. If nothing is specified, it will take the default destination from the folder and the current folder as the folder to be backed up.

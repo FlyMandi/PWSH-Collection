@@ -1,3 +1,8 @@
+#TODO: test this thang on VMs
+#Win11 23H2 onwards.
+#for linux prob only arch.
+#macOS I don't care about.
+
 param( $operation )
 
 if(-Not (Get-Command winget -ErrorAction SilentlyContinue)){
@@ -9,6 +14,7 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
 
     # TODO: only do this on windows
+    # probably move into a function called Install-PKGMGRs or something?
     &scoop config SCOOP_BRANCH develop
     &scoop bucket add "extras"
     &scoop bucket add "nerd-fonts" 

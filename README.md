@@ -3,9 +3,17 @@
 
 When downloading a script, I suggest making a "scripts" folder somewhere safe and then adding that folder to PATH[^1].\
 Then, you can just write the name of the script with arguments in your favourite shell.\
-Example: `script -f flag1 -t -flag2`\
+Example:
+```sh
+script arg1 -switch1`\
+```
+
 If not, you will have to call each script either by relative or absolute paths.\
-Example: `"C:\users\FlyMandi\Downloads\script.ps1" arg1 -switch1`
+Example:
+```sh
+"C:\users\FlyMandi\Downloads\script.ps1" arg1 -switch1
+
+```
 
 ## config.ps1
 
@@ -15,7 +23,10 @@ I personally use to set up new computers. It installs and updates all software t
 I can't recommend you use it, since the software is highly dependant on personal uses and platforms,
 but certainly have a look at the source code if intrigued.
 It can set up windows 10/11 as well as Arch Linux machines, completely from scratch.
-All you'd need is PowerShell 7 on that machine and the `yay` package manager, if on linux.
+On Windows, it will work out of the box.
+
+On Arch Linux, you'll need `pwsh` and the `yay` package manager.
+
 Other distros might work,
 but I've only tested this script on arch and will only update/fix if it breaks for arch.
 

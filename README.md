@@ -22,7 +22,7 @@ Then, you can set an alarm for any time today. For now, input is limited to `hh:
 Set-Alarm "CatAlarm" 16:09 "~\Videos\Funny Cat Video.mp4"
 ```
 
-or
+or, alternative syntax:
 ```shell
 Set-Alarm -n "Cattie Cat" -t 16:09:30 -p ~\Videos\Cat.mp4 
 ```
@@ -31,7 +31,7 @@ You can check status and cancel by name with `-s` and `-c`:
 
 To view status:
 ```shell
-Set-Alarm "CatAlarm" -s
+Set-Alarm CatAlarm -s
 ```
 
 To cancel:

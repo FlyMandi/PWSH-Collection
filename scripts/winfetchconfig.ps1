@@ -1,12 +1,12 @@
 Param(
     [Parameter(Mandatory=$false,Position=0)]
+    [string]$operation = '',
+    [Parameter(Mandatory=$false,Position=1)]
     [string]$theme,
-    [switch]$save = $false,
-    [switch]$f = $false,
-    [switch]$delete = $false,
-    [switch]$edit = $false,
-    [switch]$list = $false
+    [switch]$f = $false
 )
+
+#TODO: write "random" functionality
 
 # destination should not need to be changed. Current config is in C:\users\YOU\.config\winfetch
 $destination = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\winfetch"
@@ -49,51 +49,55 @@ function Save-Theme{
     Copy-Item -Path $currentConfig -Destination $tempFolder
     Rename-Item -Path $tempConfig -NewName "$theme.ps1"
     Move-Item -Path $tempTheme -Destination $configPath
+    Write-Host "Successfully saved theme as '$theme'"
 }
 
-if (($save -and $delete) -or ($f -and $delete) -or ($delete -and $edit)){
-    Clear-Temp
-    throw "ERROR: Can't edit/save and delete at the same time."
-}
-elseif ($list){
-    Clear-Temp
-    Get-ChildItem $configPath
-}
-elseif ($edit){
-    # notepad is fine, no real need to use another editor... but I'm not gonna stop you.
-    if ($theme -eq ''){
-        notepad $currentConfig
+switch ($operation) {
+    "delete" {
+        Remove-Item -Path $themePath
     }
-    else{   
-        notepad $themePath
-    }
-}
-elseif ($save){
-    if (Test-Path $themePath){
-        if ($f){
-            Remove-Item -Path $themePath
+    "save" {
+        if (Test-Path $themePath){
+            if ($f) {
+                Remove-Item -Path $themePath -Force
+                Save-Theme
+            }
+            else{
+                Clear-Temp
+                Write-Host "Config file with name already exists. To overwrite it, use 'winfetchconfig save ThemeName -f'"
+            }
+        }
+        else{
             Save-Theme
         }
-        else {
-            Clear-Temp
-            throw "Config file with name already exists. To overwrite it, use 'winfetchconfig ThemeName -save -f'"
+    }
+    "list" {
+        Clear-Temp
+        Get-ChildItem $configPath -Name
+    }
+    "edit"{
+        # notepad is fine, no real need to use another editor... but I'm not gonna stop you.
+        if ($theme -eq ''){
+            notepad $currentConfig
+        }
+        else{
+            notepad $themePath
         }
     }
-    else{
-        Save-Theme
+    "choose"{
+        if (Test-Path -Path $themePath){
+            # move config from folder to winfetch
+            Copy-Item -Path $themePath -Destination $tempFolder 
+            Rename-Item -Path $tempTheme -NewName "config.ps1" 
+            Move-Item -Path $tempConfig -Destination $destination -Force 
+            # finally, call winfetch to show changes and success!
+            winfetch
+        }
+        else {Write-Host "Not a valid theme name."}
+    }
+    Default {
+        Write-Host "Not a valid operation."
     }
 }
-elseif ($delete){
-    Remove-Item -Path $themePath
-}
-elseif (Test-Path -Path $themePath){
-    Copy-Item -Path $themePath -Destination $tempFolder 
-    Rename-Item -Path $tempTheme -NewName "config.ps1" 
-    Move-Item -Path $tempConfig -Destination $destination -Force 
-    # finally, call winfetch to show changes and success!
-    winfetch
-}
-else{
-    Write-Host "Not a valid theme name."
-}
+
 Clear-Temp

@@ -734,7 +734,7 @@ switch($operation)
 
             Push-RepoToLinux
 
-            #TODO: add scripts folder to path
+            #TODO: add fastest AUR mirrors automatically
         }
         elseIf($isWindows)
         {

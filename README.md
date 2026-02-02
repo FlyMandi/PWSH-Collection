@@ -28,7 +28,7 @@ where `Mode` can be any of the following:
 | short date        | `shortdate` or `sd`   | `<t:1717331031:d>`    | `02/06/2024`          |
 | long full         | `longfull` or `lf`    | `<t:1717331031:F>`    | `Sunday, 2 June 14:23`|
 | short full        | `shortfull` or `sf`   | `<t:1717331031:f>`    | `2 June 2024 14:23`   |
-| default           |                       | `<t:1717331031>`      | `2 June 2024 14:23`   |
+| default           | blank or invalid      | `<t:1717331031>`      | `2 June 2024 14:23`   |
 
 ### To copy the current unix time to clipboard (without formatting):
 Input:

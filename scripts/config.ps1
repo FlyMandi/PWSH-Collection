@@ -87,14 +87,8 @@ function Push-ChangedFiles
         $destFileList
     )
 
-    #HACK: this should not break things on windows, but it does
-    if($IsLinux)
-    {
-        $sourceFolder = Resolve-Path $sourceFolder
-        Write-Host "src: $sourceFolder"
-        $destFolder = Resolve-Path $destFolder
-        Write-Host "dest: $destFolder"
-    }
+    $sourceFolder = Resolve-Path $sourceFolder
+    $destFolder = Resolve-Path $destFolder
 
     if($null -eq $sourceFileList)
     {
@@ -111,17 +105,18 @@ function Push-ChangedFiles
         $sourceTransformed = @()
         $destTransformed = @()
 
+        #converting to relative after resolving to ensure only filename remains
         foreach($file in $sourceFileList)
         {
             $file = Resolve-Path $file
-            $file = ([string]$file).Substring($sourceFolder.Length)
+            $file = ([string]$file).Substring(([string]$sourceFolder).Length)
             $sourceTransformed += $file
         }
 
         foreach($file in $destFileList)
         {
             $file = Resolve-Path $file
-            $file = ([string]$file).Substring($destFolder.Length)
+            $file = ([string]$file).Substring(([string]$destFolder).Length)
             $destTransformed += $file
         }
 

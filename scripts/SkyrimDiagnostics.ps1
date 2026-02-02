@@ -5,19 +5,23 @@ param(
 
 $modsPattern = "ModOrganizer\Skyrim\Mods"
 $modsFolder = Join-Path "$env:LOCALAPPDATA" $modsPattern
- 
-if(-Not(Test-Path $modsFolder)){
-    foreach($drive in (Get-PSDrive -PSProvider 'FileSystem')){
-        if(Test-Path (Join-Path $drive.Root $modsPattern)){
+
+if(-Not(Test-Path $modsFolder))
+{
+    foreach($drive in (Get-PSDrive -PSProvider 'FileSystem'))
+    {
+        if(Test-Path (Join-Path $drive.Root $modsPattern))
+        {
             $modsFolder = Join-Path $drive.Root $modsPattern
         }
     }
 
-    while(-Not(Test-Path $modsFolder)){
+    while(-Not(Test-Path $modsFolder))
+    {
         Write-Host "Please provide a valid path to your MO2 skyrim mods folder:"
         $modsFolder = Read-Host
     }
-}    
+}
 
 $bigESPs = @()
 $outdatedCount = 0
@@ -29,7 +33,8 @@ $nexusTime = [DateTime]"1/1/1800 00:00:00"
 $host.privatedata.ProgressForegroundColor = 'Blue'
 $host.privatedata.ProgressBackgroundColor = $Host.UI.RawUI.BackgroundColor;
 
-$exclusionList = @(
+$exclusionList =
+@(
     "cleaned CCAE",
     "120 FPS User Interface",
     "3rd Person View During Alduin Attack on Helgen",
@@ -51,36 +56,41 @@ $exclusionList = @(
 #     "Lifelike Idle Animations by HHaleyy for SE"
 # )
 
-foreach($subfolder in $modList){
+foreach($subfolder in $modList)
+{
     $latestFile = Get-LatestFileInFolderNoConfig $subfolder
     $pluginList = Get-ChildItem $subfolder -File | Where-Object {$_ -match ".esp|.esm|.esl"}
 
     #TODO: read lastNexusUpdate in MO2 meta.ini if present
-    #$nexusTime = 
-    $current = [PSCustomObject]@{ 
-        ModPath = $subfolder; 
-        ModTime = $latestFile.FileTime; 
-        NexusTime = $nexusTime; 
-        ModFileType = Get-SkyrimModType $subfolder; 
-        ModFramework = Get-SkyrimModFramework $subfolder;
-    }
+    #$nexusTime =
+    $current =  [PSCustomObject]
+                @{
+                    ModPath = $subfolder;
+                    ModTime = $latestFile.FileTime;
+                    NexusTime = $nexusTime;
+                    ModFileType = Get-SkyrimModType $subfolder;
+                    ModFramework = Get-SkyrimModFramework $subfolder;
+                }
 
     $percentComplete = [math]::floor(($i / $modList.Length) * 100)
-    $progressParameters = @{
+    $progressParameters =
+    @{
         Activity = 'Scan in Progress...'
         Status = "Scanned $i of " + $modList.Length + ", total progress: $percentComplete%"
-        PercentComplete = $percentComplete 
+        PercentComplete = $percentComplete
     }
-    
-    Write-Progress @progressParameters
-    ++$i 
 
-    if('' -eq $latestFile.FilePath){ 
-        continue; 
+    Write-Progress @progressParameters
+    ++$i
+
+    if('' -eq $latestFile.FilePath)
+    {
+        continue;
     }
-    
-    if($exclusionList.Contains($current.ModPath.BaseName)){ 
-        continue; 
+
+    if($exclusionList.Contains($current.ModPath.BaseName))
+    {
+        continue;
     }
 
     #TODO: switch($current.ModFileType)
@@ -89,7 +99,8 @@ foreach($subfolder in $modList){
         #also different dates, 10 year old textures might be good, .esps nuh-uh
 
     #fallback:
-    if($current.ModTime -lt $date){
+    if($current.ModTime -lt $date)
+    {
         $outdatedCount += 1
         Write-Host "`nWARNING: " -NoNewline -ForegroundColor Red
         Write-Host "found likely outdated mod: "
@@ -100,17 +111,19 @@ foreach($subfolder in $modList){
         Write-Host $current.ModTime -ForegroundColor Red
         Write-Host ""
     }
-    
-    foreach($plugin in $pluginList){
-        if($plugin.Length -gt $bigESPSize){
-        $bigESPs += $plugin
-        Write-Host "`nWARNING: " -NoNewline -ForegroundColor Yellow
-        Write-Host "found large Plugin: "
-        Write-Host "    Name:           " $plugin.BaseName
-        Write-Host "    Path:           " $plugin
-        Write-Host "    Size:            " -NoNewline
-        Write-Host ([math]::Truncate($plugin.Length / 1MB)) -NoNewline -ForegroundColor Yellow
-        Write-Host " MB`n" -ForegroundColor Yellow
+
+    foreach($plugin in $pluginList)
+    {
+        if($plugin.Length -gt $bigESPSize)
+        {
+            $bigESPs += $plugin
+            Write-Host "`nWARNING: " -NoNewline -ForegroundColor Yellow
+            Write-Host "found large Plugin: "
+            Write-Host "    Name:           " $plugin.BaseName
+            Write-Host "    Path:           " $plugin
+            Write-Host "    Size:            " -NoNewline
+            Write-Host ([math]::Truncate($plugin.Length / 1MB)) -NoNewline -ForegroundColor Yellow
+            Write-Host " MB`n" -ForegroundColor Yellow
         }
     }
 }
@@ -126,20 +139,27 @@ $exclusionList = ''
 
 #TODO: change the summary to distinct between different levels of outdated.
 Write-Host "`nScan Complete.`n"
-if($outdatedCount -gt 0){ 
+if($outdatedCount -gt 0)
+{
     Write-Host "Summary:`n found $outdatedCount outdated mods (no changes except config since $date or earlier): please check log above." -ForegroundColor Red
-}else{ 
-    Write-Host "{No outdated mods could be found. Splendid!" -ForegroundColor Green 
+}
+else
+{
+    Write-Host "{No outdated mods could be found. Splendid!" -ForegroundColor Green
 }
 
-if($bigESPs.Length -gt 0){
+if($bigESPs.Length -gt 0)
+{
     Write-Host "Summary: found " $bigESPs.Length " large ESPs. Please check list of 10 biggest below and reconsider." -ForegroundColor Yellow
-    for($j = 0; ($j -lt 10) -and ($j -lt $bigESPs.Length); ++$j){
+    for($j = 0; ($j -lt 10) -and ($j -lt $bigESPs.Length); ++$j)
+    {
         Write-Host $bigESPs[$j].BaseName -NoNewline
         Write-Host ", size: " -NoNewline
         Write-Host ([math]::Truncate($bigESPs[$j].Length / 1MB)) -NoNewline -ForegroundColor Yellow
         Write-Host " MB" -ForegroundColor Yellow
     }
-}else{
+}
+else
+{
     Write-Host "No particurlaly large ESPs found. Splendid!" -ForegroundColor Green
 }

@@ -27,8 +27,7 @@ switch ($operation) {
         Write-Host "Successfully saved theme '$name'."
     }
     "list"{
-        Get-ChildItem "$configFolder\*.jsonc" | Select-Object BaseName
-        #TODO: exclude config.jsonc
+        (Get-ChildItem "$configFolder\*.jsonc" | Select-Object BaseName) | Where-Object {$_ -notmatch "config"}
     }
     "edit"{
         if(Test-Path $pathFromThemeName){

@@ -43,6 +43,9 @@ $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
 $WinGlazepath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.glzr\glazewm\"
 $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
 
+$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
+$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
+
 #FIXME: this .json isn't the only file to copy, it doesn't include:
 # keybinds
 # general term profile
@@ -52,9 +55,6 @@ $RepoGlazepath = Join-Path -PATH $dotfiles -ChildPath "\glazewm\"
 #$WinTermpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 #$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\settings.json"
 #$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\wt\settings.json"
-
-$WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\" 
-$RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 
 #TODO: turn function arguments into references whereever possible
 
@@ -146,10 +146,10 @@ function Push-ChangedFiles{
     $destFileList = Get-ChildItem $destFolder -Recurse -File
 
     if($null -eq $sourceFileList){
-       throw "ERROR: No files to copy from."
+        throw "ERROR: No files to copy from."
     }
     elseIf($null -eq $destFileList){
-       Write-Host "No files to compare against, continuing..." 
+        throw "ERROR: no files to compare against."
     }
     else{
         $sourceTransformed = @()
@@ -216,6 +216,7 @@ function Push-Certain{
         Write-Host "Update Complete. "
         if(($global:filesAdded -eq 0) -And ($global:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
+
 &scoop cleanup --all 6>$null
 Get-Package scoop '7z' -o '7zip'
 Get-Package scoop 'everything'

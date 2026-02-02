@@ -313,6 +313,9 @@ if($isLinux)
     $Lini3List =  (Join-Path $Lini3Path "/i3/config"),
                   (Join-Path $Lini3Path "/i3status/config")
 
+    $LinPicomPath = "~/.config/picom/"
+    $LinPicomList = Join-Path $LinPicomPath "picom.conf"
+
     $LinWeztermPath =   "~/.config/wezterm/"
     $LinWeztermList =   (Join-Path $LinWeztermPath "/wezterm.lua")
 
@@ -364,6 +367,9 @@ $Repoi3Path = Join-Path -PATH $dotfiles -ChildPath "/i3/"
 $Repoi3List = (Join-Path $Repoi3Path "/i3/config"),
               (Join-Path $Repoi3Path "/i3status/config")
 
+$RepoPicomPath = Join-Path $dotfiles "/picom/"
+$RepoPicomList = Join-Path $RepoPicomPath "picom.conf"
+
 $RepoBashPath = Join-Path -PATH $dotfiles -ChildPath "/bash/"
 $RepoBashList = Join-Path $RepoBashPath "/.bashrc"
 
@@ -411,6 +417,7 @@ function Push-LinuxToRepo
     Push-ConfigSafely $LinVimpath           $RepoVimpath        $LinVimList         $RepoVimList
     Push-ConfigSafely $LinX11Path           $RepoX11Path        $LinX11List         $RepoX11List
     Push-ConfigSafely $Lini3Path            $Repoi3Path         $Lini3List          $Repoi3List
+    Push-ConfigSafely $LinPicomPath         $RepoPicomPath      $LinPicomList       $RepoPicomList
     Push-ConfigSafely $LinBashPath          $RepoBashPath       $LinBashList        $RepoBashList
     Push-ConfigSafely $LinWeztermPath       $RepoWeztermPath    $LinWeztermList     $RepoWeztermList
     Push-ConfigSafely $LinPSPath            $RepoPSpath         $LinPSList          $RepoPSList
@@ -421,7 +428,8 @@ function Push-RepoToLinux
 {
     Push-ConfigSafely $RepoVimpath          $LinVimpath         $RepoVimList        $LinVimList
     Push-ConfigSafely $RepoX11Path          $LinX11Path         $RepoX11List        $LinX11List
-    Push-ConfigSafely $Repoi3Path           $Lini3Path        $Repoi3List       $Lini3List
+    Push-ConfigSafely $Repoi3Path           $Lini3Path          $Repoi3List         $Lini3List
+    Push-ConfigSafely $RepoPicomPath        $LinPicomPath       $RepoPicomList      $LinPicomList
     Push-ConfigSafely $RepoBashPath         $LinBashPath        $RepoBashList       $LinBashList
     Push-ConfigSafely $RepoWeztermPath      $LinWeztermPath     $RepoWeztermList    $LinWeztermList
     Push-ConfigSafely $RepoPSpath           $LinPSPath          $RepoPSList         $LinPSList
@@ -532,6 +540,10 @@ switch($operation)
             Write-Host $Lini3Path
             Write-Host $Repoi3Path
 
+            Write-Host "`npicom:"
+            Write-Host $LinPicomPath
+            Write-Host $RepoPicomPath
+
             Write-Host "`nWezterm:"
             Write-Host $LinWeztermPath
             Write-Host $RepoWeztermPath
@@ -604,6 +616,16 @@ switch($operation)
                 Write-Host $file
             }
             foreach($file in $Repoi3List)
+            {
+                Write-Host $file
+            }
+
+            Write-Host "`npicom:"
+            foreach($file in $LinPicomList)
+            {
+                Write-Host $file
+            }
+            foreach($file in $RepoPicomList)
             {
                 Write-Host $file
             }
@@ -734,6 +756,7 @@ switch($operation)
             Get-FromPkgmgr yay 'wezterm-nightly-bin'
             Get-FromPkgmgr yay 'ripgrep'
             Get-FromPkgmgr yay 'rofi'
+            Get-FromPkgmgr yay 'picom'
             Get-FromPkgmgr yay 'pipewire'
             Get-FromPkgmgr yay 'pipewire-jack'
             Get-FromPkgmgr yay 'pipewire-pulse'

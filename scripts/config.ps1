@@ -180,11 +180,15 @@ function Push-ConfigSafely{
     if($script:filesUpdated -eq $updated){Write-Host "No existing files changed."}
 }
 
-# TODO: resolve these paths on linux & MAYBE android(if PWSH even runs there)
+# TODO: resolve these paths on linux & MAYBE android()
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
 
 $WinVimpath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\nvim\"
 $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "\nvim\"
+    #TODO: ignore anything that isn't:
+    # init.lua
+    # lua/*
+    # ftplugin/*
 $WinVimList = Get-ChildItem $WinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 $RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
@@ -266,6 +270,9 @@ switch($operation){
         &winget upgrade --all
 
     }Default{
+        #TODO: move these into an array of packages. 
+        #Get-FromPkgmgr should also be platform agnostic and just use a
+        #priority list of package managers per platform (scoop/apt/homebrew)
         Get-FromPkgmgr scoop '7z' -o '7zip'
         Get-FromPkgmgr scoop 'cloc'
         Get-FromPkgmgr scoop 'everything'
@@ -305,6 +312,7 @@ switch($operation){
         Get-ScoopPackage 'spotify'
         Get-ScoopPackage 'vcredist2022'
 
+        #TODO: move OS detection into Get-Binary
         Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
         Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
         Get-Binary termbench_release_clang "cmuratori/termbench" -o "https://github.com/cmuratori/termbench/files/6612606/termbench_v1.zip"

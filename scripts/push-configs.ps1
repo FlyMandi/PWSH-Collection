@@ -30,7 +30,7 @@ if(-Not(Test-Path $env:Repo)){
         $InputRepo = Read-Host
 
         if (-Not(Test-Path $InputRepo)){
-            throw "ERROR: Directory doesn't exist. Please create it or choose a valid Directory."
+            throw "FATAL: Directory doesn't exist. Please create it or choose a valid Directory."
         }
         else{
             [System.Environment]::SetEnvironmentVariable("Repo", $InputRepo, "User")
@@ -49,11 +49,6 @@ function Copy-IntoRepo{
         &git clone "https://github.com/FlyMandi/$folderName" $folderPath
         Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
     }
-}
-
-function Test-IsNotWinTerm{
-    $process = Get-CimInstance -Query "SELECT * from Win32_Process WHERE name LIKE 'WindowsTerminal%'"
-    return($null -eq $process)
 }
 
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
@@ -79,6 +74,11 @@ $RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPr
 
 Copy-IntoRepo "dotfiles"
 Copy-IntoRepo "PWSH-Collection"
+
+$pwshCollectionModules = Get-ChildItem (Join-Path $env:Repo "\PWSH-Collection\modules\")
+foreach($module in $pwshCollectionModules){
+    Import-Module $module
+}
 
 if ($PSHome -eq $PS1Home){
     if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
@@ -130,16 +130,16 @@ Function Get-ScoopPackage{
     }
 }
 
-function Get-Binary{
-    Param(
-        $command,
+function Get-GitLatestReleaseURI{
+    param(
+        [Parameter(Position = 0, mandatory = $false)]
         $sourceRepo,
+        [Parameter(Position = 1, mandatory = $false)]
         $namePattern,
+        [Parameter(Position = 2, mandatory = $false)]
         [switch]$preRelease = $false
     )
-    if (-Not(Get-Command $command -ErrorAction SilentlyContinue)){
-        $libFolder = Join-Path -PATH $env:Repo -ChildPath "/lib/"
-        
+
         if ($preRelease){
             Write-Host "Installing latest $namePattern release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases")[0].assets | Where-Object name -like $namePattern).browser_download_url
@@ -148,29 +148,54 @@ function Get-Binary{
             Write-Host "Installing latest $namePattern pre-release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases/latest").assets | Where-Object name -like $namePattern).browser_download_url
         }
+    return $sourceURI
+}
+
+function Get-Binary{
+    Param(
+        [Parameter(Position = 0, mandatory = $false)]
+        $command,
+        [Parameter(Position = 1, mandatory = $false)]
+        $sourceRepo,
+        [Parameter(Position = 2, mandatory = $false)]
+        $namePattern,
+        [Parameter(Position = 3, mandatory = $false)]
+        [switch]$preRelease = $false,
+        [Parameter(Position = 4, mandatory = $false)]
+        [string]$override = $null
+    )
+
+    if (-Not(Get-Command $command -ErrorAction SilentlyContinue)){
+        $libFolder = Join-Path -PATH $env:Repo -ChildPath "/lib/"
+       
+        if ([string]::IsNullOrEmpty($override)){ $sourceURI = Get-GitLatestReleaseURI $sourceRepo -n $namePattern -preRelease $preRelease }
+        else{ $sourceURI = $override }
 
         $zipFolderName = $(Split-Path -Path $sourceURI -Leaf)
         $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $zipFolderName 
         Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
    
-        $repoNameFolder = (Join-Path -PATH $libFolder -ChildPath $SourceRepo) 
-        $binFolder = (Join-Path -PATH $repoNameFolder -ChildPath "\bin")
-        Expand-Archive -Path $tempZIP -DestinationPath $repoNameFolder -Force
+        if ([string]::IsNullOrEmpty($sourceRepo)){ $destFolder = Join-Path $libFolder -ChildPath $zipFolderName }
+        else { $destFolder = (Join-Path $libFolder -ChildPath $sourceRepo) }
+
+
+        Expand-Archive -Path $tempZIP -DestinationPath $destFolder -Force
         Remove-Item $tempZIP -Force
 
-        $zipFolder = Join-Path -PATH $repoNameFolder -ChildPath ([io.path]::GetFileNameWithoutExtension($zipFolderName))
-        if (Test-Path $zipFolder){
-            Move-Item "$zipFolder\*.*" -Destination $repoNameFolder -Force
-            Remove-Item $zipFolder -Recurse -Force
-        }
+        #TESTING:
+        Write-Host "destination folder: $destFolder"
+        
+        Remove-LayeredFolderLayers $destFolder
+
+        $binFolder = (Join-Path -PATH $destFolder -ChildPath "\bin")
 
         if ((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$binFolder",[EnvironmentVariableTarget]::User)       
             Write-Host "Added $binFolder to path!" -ForegroundColor Green
         }
-        elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$repoNameFolder*")){
-            [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$repoNameFolder",[EnvironmentVariableTarget]::User)       
-            Write-Host "Added $repoNameFolder to path!" -ForegroundColor Green
+        elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$destFolder*")){
+            [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$destFolder",[EnvironmentVariableTarget]::User)       
+            Write-Host "Added $destFolder to path!" -ForegroundColor Green
         }
 
         Write-Host "$command successfully installed!" -ForegroundColor Green
@@ -187,10 +212,12 @@ function Push-ChangedFiles{
     $destFileList = Get-ChildItem $destFolder -Recurse -File
 
     if($null -eq $sourceFileList){
-        throw "ERROR: No files to copy from."
+        Write-Host "ERROR: No files to copy from." -ForegroundColor Red
+        break
     }
     elseIf($null -eq $destFileList){
-        throw "ERROR: no files to compare against."
+        Write-Host "ERROR: no files to compare against." -ForegroundColor Red
+        break
     }
     else{
         $sourceTransformed = @()
@@ -241,7 +268,8 @@ function Push-Certain{
     if (-Not(Test-Path $inputPath)){
         Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
         Write-Host $inputPath -BackgroundColor DarkGray
-        throw "Not a valid path to copy config from."
+        Write-Host "Not a valid path to copy config from." -ForegroundColor Red
+        break
     }
 
     if (-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse)){
@@ -255,11 +283,6 @@ function Push-Certain{
     }
         Write-Host "Update Complete. "
         if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
-}
-
-function Test-Email{
-    param ( $userEmail )
-    return ( $userEmail -match "[a-zA-Z0-9._%±]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}" )
 }
 
 &scoop cleanup --all 6>$null
@@ -289,6 +312,7 @@ Get-ScoopPackage 'vcredist2022'
 Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
 Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
+Get-Binary alpine -o "https://alpineapp.email/alpine/release/src/alpine-2.26.zip"
 
 Push-Certain $RepoTermpath $WinTermpath
 Push-Certain $RepoTermPreviewpath $WinTermPreviewPath
@@ -304,14 +328,20 @@ $gitUserEmail = &git config get user.email
 if([string]::IsNullOrEmpty($gitUserName)){
     Write-Host "No git user.name found, please enter one now: " -NoNewline
     $gitUserName = Read-Host
-    if ([string]::IsNullOrEmpty($gitUserName)) { throw "ERROR: please enter username." }
+    if ([string]::IsNullOrEmpty($gitUserName)) {
+        Write-Host "ERROR: please enter username." -ForegroundColor Red
+        break
+    }
     &git config set user.name $gitUserName
 }
 
 if([string]::IsNullOrEmpty($gitUserEmail)){
     Write-Host "No git user.email found, please enter one now: " -NoNewline
     $gitUserEmail = Read-Host
-    if (-Not(Test-Email $gitUserEmail)) { throw "ERROR: please enter a valid e-mail address." }
+    if (-Not(Test-EmailAddress $gitUserEmail)) {
+        Write-Host "ERROR: please enter a valid e-mail address." -ForegroundColor Red
+        break
+    }
     &git config set user.email $gitUserEmail
 }
 

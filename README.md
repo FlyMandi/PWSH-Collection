@@ -7,9 +7,7 @@ Example: `script -f flag1 -t -flag2`\
 If not, you will have to call each script either by relative or absolute paths.\
 Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
-//TODO: create package to be installed via `scoop`
-
-# Set Alarm with mpvnet (WIP)
+# Set Alarm with mpvnet
 [Script to set alarm from CLI](scripts/set-alarm.ps1)
 
 Didn't you always want to set an alarm from your terminal? Well, now you can. First, make sure you've installed `mpvnet`.

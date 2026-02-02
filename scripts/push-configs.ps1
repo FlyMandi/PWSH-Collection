@@ -86,16 +86,15 @@ if ($PSHome -eq $PS1Home){
     if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
     else{ $commandPath = $PSCommandPath }
     
-    $commandArgs = "-NoExit -NoProfile -ExecutionPolicy Bypass -Wait -NoNewWindow -File $commandPath"
+    $commandArgs = "-File `"$commandPath`" -NoExit -NoProfile -ExecutionPolicy Bypass -Wait -NoNewWindow"
     Start-Process $PS7exe $commandArgs
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
-}
+} #FIXME: I'm calling pwsh.exe with wrongly formatted arguments, apparently
 
 #Start the rest of this process as admin (avoid using it, comment out only for testing)
 #if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){ 
 #        Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -WindowStyle hidden
 #}
-
 
 #In separate functions, in case I want to call it after every download or config push.
 function Get-FilesAdded{
@@ -113,8 +112,6 @@ function Get-NewMachinePath{
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
 }
-
-
 
 Function Get-FromPkgmgr{ 
     Param(
@@ -317,8 +314,9 @@ if(Test-IsNotWinTerm){
     $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
     $windowPID = $window.ProcessId
     $parentPID = $window.ParentProcessId
-
+    
     Start-Process wt.exe
     &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
     &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
 }
+

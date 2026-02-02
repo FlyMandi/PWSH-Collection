@@ -198,8 +198,8 @@ $RepoWeztermList = Get-ChildItem $RepoWeztermPath -File -Recurse | Where-Object 
 
 $WinPSPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\Documents\PowerShell\"
 $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
-$WinPSList = (Join-Path $winPSpath "\mandi.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1")
-$RepoPSList = (Join-Path $RepoPSpath "\mandi.omp.json"), (Join-Path $RepoPSpath "\Microsoft.PowerShell_profile.ps1")
+$WinPSList = (Join-Path $winPSpath "\config.omp.json"), (Join-Path $winPSpath "\Microsoft.PowerShell_profile.ps1")
+$RepoPSList = (Join-Path $RepoPSpath "\config.omp.json"), (Join-Path $RepoPSpath "\Microsoft.PowerShell_profile.ps1")
 
 $WinFastfetchPath = Join-Path -PATH $env:USERPROFILE -ChildPath "\.config\fastfetch\"
 $RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "\fastfetch\"

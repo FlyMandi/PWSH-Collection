@@ -1,7 +1,7 @@
 # PWSH-Collection
 
 ### Fix winget showing out-of-date package version with updated app
-[Simple script to update winget package registry version](https://github.com/FlyMandi/PWSH-Collection/blob/main/updateWR.ps1), some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number. 
+[Script to update winget package registry version](https://github.com/FlyMandi/PWSH-Collection/blob/main/updateWR.ps1), some packages don't update properly (like `Discord.Discord`) and using `winget update` would result in the package being shown as not updated, staying on the version that was first installed. This is a scuffed fix. It will find and update the registry key, but please only use this when you're sure you have the newest version installed and only winget is showing the wrong, outdated version number. 
 
 Example usage: ```updatewr discord.discord``` [Here it is in action.](https://github.com/FlyMandi/PWSH-Collection/blob/main/image.png)
 

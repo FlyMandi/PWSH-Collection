@@ -704,6 +704,8 @@ switch($operation)
     {
         if($isLinux)
         {
+            #TODO: check for needed stuff for nvim (ninja, npm, pip, etc)
+
             Get-FromPkgmgr yay 'bat'
             Get-FromPkgmgr yay 'btop'
             Get-FromPkgmgr yay 'cloc'

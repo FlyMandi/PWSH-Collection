@@ -39,7 +39,8 @@ $exclusionList = @(
     "Trainwreck - A Crash Logger",
     "Jaxonz Renamer",
     "Realistic Conversations",
-    "unofficial skyrim special edition patch"
+    "unofficial skyrim special edition patch",
+    "Sea of Spirits"
 )
 
 #TODO: implement some "don't flag this if an update is installed on top" kinda deal.

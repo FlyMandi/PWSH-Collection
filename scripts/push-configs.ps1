@@ -91,12 +91,6 @@ if ($PSHome -eq $PS1Home){
     &cmd.exe "/c TASKKILL /F /PID $PID" | Out-Null
 }
 
-#Start the rest of this process as admin (avoid using it, comment out only for testing)
-#if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){ 
-#        Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -WindowStyle hidden
-#}
-
-#In separate functions, in case I want to call it after every download or config push.
 function Get-FilesAdded{
     if (-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
     $script:filesAdded = 0
@@ -149,7 +143,8 @@ function Get-Binary{
         if ($preRelease){
             Write-Host "Installing latest $namePattern release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases")[0].assets | Where-Object name -like $namePattern).browser_download_url
-        }else{
+        }
+        else{
             Write-Host "Installing latest $namePattern pre-release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases/latest").assets | Where-Object name -like $namePattern).browser_download_url
         }
@@ -172,7 +167,8 @@ function Get-Binary{
         if ((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$binFolder",[EnvironmentVariableTarget]::User)       
             Write-Host "Added $binFolder to path!" -ForegroundColor Green
-        }elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$repoNameFolder*")){
+        }
+        elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$repoNameFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$repoNameFolder",[EnvironmentVariableTarget]::User)       
             Write-Host "Added $repoNameFolder to path!" -ForegroundColor Green
         }
@@ -261,6 +257,11 @@ function Push-Certain{
         if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
 
+function Test-Email{
+    param ( $userEmail )
+    return ( $userEmail -match "[a-zA-Z0-9._%±]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}" )
+}
+
 &scoop cleanup --all 6>$null
 Get-FromPkgmgr scoop '7z' -o '7zip'
 Get-FromPkgmgr scoop 'everything'
@@ -295,7 +296,22 @@ Push-Certain $RepoPSpath $WinPSPath
 
 Get-NewMachinePath
 
-#TODO: automatically ask for git user.name and user.email if they are not set
+$gitUserName = &git config get user.name
+$gitUserEmail = &git config get user.email
+
+if($null -eq $gitUserName){
+    Write-Host "No git user.name found, please enter one now: " -NoNewline
+    $gitUserName = Read-Host
+    if (($null -eq $gitUserName) -Or ("" -eq $gitUserName)) { throw "ERROR: please enter username." }
+    &git config set user.name $gitUserName
+}
+
+if($null -eq $gitUserEmail){
+    Write-Host "No git user.email found, please enter one now: " -NoNewline
+    $gitUserEmail = Read-Host
+    if (-Not(Test-Email $gitUserEmail)) { throw "ERROR: please enter a valid e-mail address." }
+    &git config set user.email $gitUserEmail
+}
 
 #TODO: automatically ask for git ssh key and set it up 
 
@@ -319,4 +335,3 @@ if(Test-IsNotWinTerm){
     &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
     &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
 }
-

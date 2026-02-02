@@ -29,8 +29,12 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue) -and $IsWindows)
 
 [int]$script:filesAdded = 0
 [int]$script:filesUpdated = 0
-$PS1Home = (Join-Path $env:SYSTEMROOT "/System32/WindowsPowerShell/v1.0")
-$PS7exe = (Join-Path $env:PROGRAMFILES "/PowerShell/7/pwsh.exe")
+
+if($IsWindows)
+{
+    $PS1Home = (Join-Path $env:SYSTEMROOT "/System32/WindowsPowerShell/v1.0")
+    $PS7exe = (Join-Path $env:PROGRAMFILES "/PowerShell/7/pwsh.exe")
+}
 
 function Get-FilesAdded
 {
@@ -282,7 +286,7 @@ $RepoVimpath = Join-Path -PATH $dotfiles -ChildPath "/nvim/"
 #LINUX PATHS
 if($isLinux)
 {
-    $LinVimPath = "~/config/nvim/"
+    $LinVimPath = "~/.config/nvim/"
     $LinVimList = Get-ChildItem $LinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
     $LinX11Path =   "~/"
@@ -298,7 +302,7 @@ if($isLinux)
     $LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),
                     (Join-Path $LinPSPath "/Microsoft.Powershell_profile.ps1")
 
-    $LinFastfetchPath = "~/config/fastfetch/"
+    $LinFastfetchPath = "~/.config/fastfetch/"
     $LinFastfetchList = Get-ChildItem $WinFastfetchPath -File -Recurse
                         | Where-Object {$_ -notmatch "config.jsonc"}
 }

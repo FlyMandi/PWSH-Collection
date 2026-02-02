@@ -130,6 +130,9 @@ function Push-Certain
     Write-Host "Config push successful.`n" -ForegroundColor Green -NoNewline
 }
 
+#FIXME: Out-Null not working at all here
+
+&scoop update --all | Out-Null
 Get-Package scoop '7z' -o '7zip'
 Get-Package scoop 'everything'
 Get-Package scoop 'innounp'
@@ -141,14 +144,17 @@ Get-Package scoop 'npm' -o 'nodejs'
 Get-Package scoop 'winfetch'
 Get-Package scoop 'zoomit'
 
-Get-Package winget 'libreoffice'
+&scoop cleanup --all | Out-Null
+Get-ScoopPackage 'listary'
+Get-ScoopPackage 'discord'
+Get-ScoopPackage 'libreoffice'
+
+&winget update --all | Out-Null
+&winget upgrade --all --include-unknown | Out-Null
 Get-Package winget 'git' -o 'git.git'
 #TODO: automatically check & set github username and e-mail
 #TODO: automatically set up ssh (take ssh key from github as input)
 Get-Package winget 'glazewm' -o 'glzr-io.glazeWM'
-
-Get-ScoopPackage 'listary'
-Get-ScoopPackage 'discord'
 
 Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease

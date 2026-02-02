@@ -56,8 +56,6 @@ $RepoPSpath = Join-Path -PATH $dotfiles -ChildPath "\PowerShell\"
 #$WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Microsoft\Windows.TerminalPreview_8wekyb3d8bbwe\LocalState\settings.json"
 #$RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\wt\settings.json"
 
-#TODO: turn function arguments into references whereever possible
-
 Function Get-Package { 
     Param(
         $pkgmgr,

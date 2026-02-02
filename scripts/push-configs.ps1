@@ -1,13 +1,13 @@
 if(-Not (Test-Path $repo)){
-    throw "Set `$repo for first execution of this script."    
-}
-else{
-    $dotfiles = Join-Path -Path $repo -ChildPath "\dotfiles\"
-    if (-Not (Test-Path $dotfiles)){ 
-        throw "No valid directory \dotfiles\ in $repo." 
-    }
+    Write-Host "Set `$repo for first execution of this script:"    
+    $repo = Read-Host
 }
 
+$dotfiles = Join-Path -Path $repo -ChildPath "\dotfiles\"
+if (-Not(Test-Path $dotfiles)){ 
+    Write-Host "No valid directory \dotfiles\ in $repo."
+    &git clone "https://github.com/FlyMandi/dotfiles" (Join-Path -PATH $repo -ChildPath "\dotfiles\")
+}
 
 if (-Not (Get-Command winget -ErrorAction SilentlyContinue)){
     Invoke-RestMethod "https://raw.githubusercontent.com/asheroto/winget-installer/master/winget-install.ps1" | Invoke-Expression | Out-Null
@@ -115,8 +115,8 @@ function Push-Certain
 
     if (-Not(Test-Path $inputPath)){
         Write-Host "Could not write config from " -NoNewline -ForegroundColor Red
-        Write-Host $inputPath -NoNewline -BackgroundColor DarkGray
-        Write-Host " because it's not a valid path."
+        Write-Host $inputPath -BackgroundColor DarkGray
+        throw "Not a valid path to copy config from."
     }
 
     if (Test-Path $outputPath){
@@ -142,6 +142,10 @@ Get-Package scoop npm -o nodejs
 Get-Package scoop winfetch
 
 Get-Package winget git -o git.git
+
+#TODO: automatically check & set github username and e-mail
+#TODO: automatically set up ssh (take ssh key from github as input)
+
 Get-Package winget glazewm -o glzr-io.glazeWM
 
 Get-ScoopPackage listary

@@ -88,7 +88,7 @@ function Test-IsConfigFileExtension{
     param(
         $extension
     )
-    $listOfConfigFileExtensions = ".ini", ".xml", ".toml", ".yaml", ".txt", ".json"
+    $listOfConfigFileExtensions = ".ini", ".xml", ".toml", ".yaml", ".txt", ".json", ".jslot"
     return $listOfConfigFileExtensions.Contains($extension)
 }
 Export-ModuleMember -Function Test-IsConfigFileExtension
@@ -98,12 +98,14 @@ function Get-LatestFileInFolderNoConfig{
         $path
     )
 
+    $placeholderTime = "5/27/1800"
+
     if((Get-ChildItem $path).count -eq 0){
         $file = Get-Item $path
         return [PSCustomObject]@{ path = $path; extension = $file.Extension; time = $file.LastWriteTime }
     }
     else{
-        [PsCustomObject]$result = @{ Path = ''; Extension = ''; Time = "5/27/1800"; }
+        [PsCustomObject]$result = @{ Path = ''; Extension = ''; Time = $placeholderTime; }
         $filesList = Get-ChildItem $path -File -Recurse
         foreach($file in $filesList){
             [PsCustomObject]$current = @{ Path = $file; Extension = $file.Extension; Time = $file.LastWriteTime }
@@ -111,7 +113,8 @@ function Get-LatestFileInFolderNoConfig{
                 $result = $current
             }
         }
-        return $result
+        if($result.Time -ne $placeholderTime){ return $result }
+        ##else{ -return latest file that's least probable to be a config file, like a .txt (except if it's a README)- }
     }
 }
 Export-ModuleMember -Function Get-LatestFileInFolderNoConfig

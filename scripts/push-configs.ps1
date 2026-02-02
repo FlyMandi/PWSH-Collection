@@ -16,8 +16,9 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-RestMethod -Uri "https://get.scoop.sh" | Invoke-Expression
 
-    &scoop bucket add extras
-    &scoop bucket add nerd-fonts 
+    &scoop bucket add "extras"
+    &scoop bucket add "nerd-fonts" 
+    &scoop bucket add "sysinternals"
 }
 
 $scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
@@ -49,7 +50,6 @@ Function Get-Package {
     if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){
         if (-Not ($override -eq "default")) { $trgt = $override }
         &$pkgmgr install $trgt
-        Write-Host "$trgt successfully installed via $pkgmgr!" -ForegroundColor Green
     }
     else{
         Write-Host "$trgt already installed, continuing..."
@@ -63,7 +63,6 @@ Function Get-ScoopPackage {
 
     if (-Not (Test-Path (Join-Path -Path $scoopDir -ChildPath $scoopTrgt))) { 
         &scoop install $scoopTrgt
-        Write-Host "$scoopTrgt successfully installed via scoop!" -ForegroundColor Green
     }
     else{
         Write-Host "$scoopTrgt already installed, continuing..."
@@ -140,6 +139,7 @@ Get-Package scoop nvim -o neovim
 Get-Package scoop ninja
 Get-Package scoop npm -o nodejs
 Get-Package scoop winfetch
+Get-Package scoop zoomit 
 
 Get-Package winget git -o git.git
 

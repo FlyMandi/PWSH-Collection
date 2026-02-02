@@ -89,15 +89,29 @@ function Get-Binary {
             Write-Host "Installing latest $namePattern pre-release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases/latest").assets | Where-Object name -like $namePattern).browser_download_url
         }
-        $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $(Split-Path -Path $sourceURI -Leaf)
+        $zipFolderName = $(Split-Path -Path $sourceURI -Leaf)
+        $tempZIP = Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $zipFolderName 
         Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
     
         $repoNameFolder = (Join-Path -PATH $libFolder -ChildPath $SourceRepo) 
+        $binFolder = (Join-Path -PATH $repoNameFolder -ChildPath "\bin\")
         Expand-Archive -Path $tempZIP -DestinationPath $repoNameFolder -Force
         Remove-Item $tempZIP -Force
-       
-        #TODO: create shortcut to .exe in $repoNameFolder
-        Write-Host "$command successfully installed from github!" -ForegroundColor Green
+
+        $zipFolder = Join-Path -PATH $repoNameFolder -ChildPath ([io.path]::GetFileNameWithoutExtension($zipFolderName))
+        if (Test-Path $zipFolder){
+            Move-Item "$zipFolder\*.*" -Destination $repoNameFolder -Force
+            Remove-Item $zipFolder -Recurse -Force
+        }
+
+        if (Test-Path "$binFolder"){
+            [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$binFolder",[EnvironmentVariableTarget]::User)       
+        }
+        else{
+            [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$repoNameFolder",[EnvironmentVariableTarget]::User)       
+        }
+
+        Write-Host "$command successfully installed and added to path!" -ForegroundColor Green
     }
     #TODO: change this to elseIf(there's no new release available)
     else{

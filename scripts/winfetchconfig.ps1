@@ -140,8 +140,9 @@ switch ($operation) {
         Move-Item -Path "$tempFolder\!default.ps1" -Destination $defaultPath -Force
         Write-Host "Successfully saved current theme as default."
     }
+    # true fallback (just display)
     ''{
-        Write-Host "No operation specified."
+        winfetch
     }
     # fallback (choose)
     Default {

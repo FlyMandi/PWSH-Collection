@@ -36,7 +36,7 @@ NOTE: to update the ones stuck in `HKEY_LOCAL_MACHINE`, you will need to run thi
 If you want to take matters into your own hands, hit `Win+R`, type `regedit`, hit enter & search for the folder yourself in\
 ```HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall```\
 or\
-```HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall```
+```HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall```\
 and look for the Registry Key called `DisplayVersion`, then update it.
 
 ## Swap between winfetch configs

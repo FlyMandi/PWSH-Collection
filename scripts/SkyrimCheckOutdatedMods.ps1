@@ -55,6 +55,8 @@ foreach($subfolder in $folderList){
         #Nemesis
         #DAR
         #Anything not "NG" that has an "NG" equivalent
+        #Using MFAO and CFPAO together
+        #Having mods share OAR priority
 
     #TODO: warn about not having a bashed patch, merged patch or something of the sorts (just match filename)
 

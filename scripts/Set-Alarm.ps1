@@ -11,6 +11,8 @@ Param(
     [switch]$status = $false
 )
 
+#TODO: add some default file checks if no file was specified, such as the "alarm.wav" from half life 2
+
 #TODO: fix error handling for:
     # - trying to -s or -c an alarm that's not scheduled
 

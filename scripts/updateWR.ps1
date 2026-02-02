@@ -29,7 +29,6 @@ $pathValid = Test-Path $keyPath
 $path2Valid = Test-Path $keyPath2
 
 Write-Host "Trying to update the registry for '$app'.`n"
-Write-Host "'$keyPath':`nFound path: $pathValid`n`n'$keyPath2'`nFound path: $path2Valid`n`n"
 
 if ($pathValid){
     $truePath = $keyPath
@@ -42,6 +41,8 @@ ElseIf ($path2Valid){
 Else {
     throw "ERROR: Can't find a valid registry path."
 }
+
+Write-Host "Found registry key in $truePath"
 
 # pull newest version number from winget
 $newVersion = (winget show $pkg | FINDSTR "Version").Trim("Version: ")

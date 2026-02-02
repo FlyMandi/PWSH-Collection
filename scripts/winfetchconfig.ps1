@@ -16,8 +16,15 @@ if (-Not (Test-Path $destination)){
     &mkdir $destination | Out-Null
 }
 
-$configPath = Join-Path -Path $env:Repo -ChildPath "\dotfiles\winfetch\"
-$defaultPath = (Join-Path -Path $configPath -ChildPath "\default\")
+if (Test-Path("$env:Repo\dotfiles\winfetch\")){
+    $env:configPath = Join-Path $env:Repo "\dotfiles\winfetch\"
+}
+else{
+    $env:configPath = Join-Path $env:USERPROFILE "\.personalConfigs\winfetch\"
+}
+
+
+$defaultPath = (Join-Path -Path $env:configPath -ChildPath "\default\")
 if (-Not (Test-Path $defaultPath)){
     &mkdir $defaultPath | Out-Null
 }
@@ -31,10 +38,10 @@ if (-Not (Test-Path $defaultConfig)){
     Write-Host "`nCurrent config stored as '!default'."
 }
 
-$tempFolder = Join-Path -PATH $configPath -ChildPath "\temp"
+$tempFolder = Join-Path -PATH $env:configPath -ChildPath "\temp"
 $tempConfig = Join-Path -Path $tempFolder -ChildPath "\config.ps1"
 function Set-Env{
-    $script:themePath = Join-Path -Path $configPath -ChildPath "\$theme.ps1"
+    $script:themePath = Join-Path -Path $env:configPath -ChildPath "\$theme.ps1"
     $script:tempTheme = Join-Path -Path $tempFolder -ChildPath "$theme.ps1"
     $script:themePathValid = (Test-Path -Path $themePath)
 }
@@ -53,12 +60,12 @@ mkdir $tempFolder | Out-Null
 function Save-Theme{
     Copy-Item -Path $currentConfig -Destination $tempFolder
     Rename-Item -Path $tempConfig -NewName "$theme.ps1"
-    Move-Item -Path $tempTheme -Destination $configPath
+    Move-Item -Path $tempTheme -Destination $env:configPath
     Write-Host "Successfully saved theme as '$theme'"
 }
 
 function Get-List{
-    Get-ChildItem "$configPath\*.ps1" | Select-Object BaseName
+    Get-ChildItem "$env:configPath\*.ps1" | Select-Object BaseName
 }
 
 function Push-Theme{

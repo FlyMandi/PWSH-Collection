@@ -83,3 +83,18 @@ function Push-ChangedFiles{
     }
 }
 Export-ModuleMember -Function Push-ChangedFiles
+
+function Get-LatestFileTimeNoConfig{
+    param($path)
+    if((Get-ChildItem $path).count -eq 0){
+        return (Get-Item $path).LastWriteTime
+        #change this to fit custok object return
+    }
+    else{
+        #TODO: iterate lol
+        #TODO: return custom object?
+            #path, filetype, lastwritetime
+            #all in array
+    }
+}
+Export-ModuleMember -Function Get-LatestFileTimeNoConfig

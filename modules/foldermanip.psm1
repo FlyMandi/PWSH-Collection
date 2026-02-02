@@ -88,12 +88,12 @@ function Test-IsConfigFileExtension{
     param(
         $extension
     )
-    $listOfConfigFileExtensions = ".ini", ".xml", ".toml", ".yaml", ".txt"
+    $listOfConfigFileExtensions = ".ini", ".xml", ".toml", ".yaml", ".txt", ".json"
     return $listOfConfigFileExtensions.Contains($extension)
 }
 Export-ModuleMember -Function Test-IsConfigFileExtension
 
-function Get-LatestTimeInFolderNoConfig{
+function Get-LatestFileInFolderNoConfig{
     param(
         $path
     )
@@ -114,4 +114,4 @@ function Get-LatestTimeInFolderNoConfig{
         return $result
     }
 }
-Export-ModuleMember -Function Get-LatestTimeInFolderNoConfig
+Export-ModuleMember -Function Get-LatestFileInFolderNoConfig

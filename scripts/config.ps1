@@ -253,7 +253,7 @@ switch($operation){
 
     }"clean"{
         &scoop cleanup --all
-        #TODO: add more cleanup
+        Remove-Item (Join-Path $env:LOCALAPPDATA "/nvim-data/lsp.log")
 
     }"update"{
         &scoop update --all
@@ -262,7 +262,7 @@ switch($operation){
 
     }Default{
         Get-FromPkgmgr scoop '7z' -o '7zip'
-        Get-FromPkgmgr scoop 'ant'
+        Get-FromPkgmgr scoop 'cloc'
         Get-FromPkgmgr scoop 'everything'
         Get-FromPkgmgr scoop 'fastfetch'
         Get-FromPkgmgr scoop 'fzf'
@@ -281,8 +281,6 @@ switch($operation){
         Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
         Get-FromPkgmgr scoop 'renderdoccli' -o 'renderdoc'
         Get-FromPkgmgr scoop 'tree-sitter'
-        Get-FromPkgmgr winget 'cargo' -o 'rust'
-        Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
         Get-FromPkgmgr scoop 'winfetch'
         Get-FromPkgmgr scoop 'wireguard' -o 'wireguard.wireguard'
         Get-FromPkgmgr scoop 'yt-dlp'

@@ -37,11 +37,11 @@ function Test-HasCorrespondingJson{
 
 $backgroundChangerImageFolderList = Get-ChildItem $backgroundChangerImageFolder
 foreach($gameFolder in $backgroundChangerImageFolderList){
-    
+
     $percentComplete = [math]::floor(($i / $backgroundChangerImageFolderList.Length) * 100)
     $progressParameters = @{
-        Activity = 'Scan in Progress...'
-        Status = "Scanned $i of " + $backgroundChangerImageFolderList.Length + ", total progress: $percentComplete%"
+        Activity = "Scanning game with id " + $gameID
+        Status = "Scanned $i of " + $backgroundChangerImageFolderList.Length
         PercentComplete = $percentComplete 
     }
     Write-Progress @progressParameters
@@ -51,7 +51,6 @@ foreach($gameFolder in $backgroundChangerImageFolderList){
     $gameID = (Get-Item $gameFolder).BaseName
     $BCJson = "$backgroundChangerJsonPath\$gameID.json"
     
-    Write-Host "Scanning Game with id $gameID..."
 
     if(-Not(Test-Path $BCJson)){
         $fileCount += (Get-ChildItem $gameFolder).count
@@ -77,5 +76,5 @@ foreach($gameFolder in $backgroundChangerImageFolderList){
 Write-Host "`nSummary: Scanned " -NoNewline
 Write-Host $gameCount -ForegroundColor Blue -NoNewline
 Write-Host " BackgroundChanger Folders and removed " -NoNewline
-Write-Host $fileCount -ForegroundColor Red -NoNewline
+Write-Host $fileCount -ForegroundColor Green -NoNewline
 Write-Host " Images that were no longer used." -NoNewline

@@ -9,6 +9,36 @@ Example: `"C:\users\FlyMandi\Downloads\script.ps1" -f flag1 -t -flag2`
 
 //TODO: create package to be installed via `scoop`
 
+# Set Alarm with mpvnet (WIP)
+[Script to set alarm from CLI](scripts/set-alarm.ps1)
+
+Didn't you always want to set an alarm from your terminal? Well, now you can. First, make sure you've installed `mpvnet`.
+```shell
+scoop install mpv.net
+```
+
+Then, you can set an alarm for any time today. For now, input is limited to `hh:mm:ss` or `hh:mm` within the same day. Specify a file path to then be played.
+```shell
+Set-Alarm "CatAlarm" 16:09 "~\Videos\Funny Cat Video.mp4"
+```
+
+or
+```shell
+Set-Alarm -n "Cattie Cat" -t 16:09:30 -p ~\Videos\Cat.mp4 
+```
+
+You can check status and cancel by name with `-s` and `-c`:
+
+To view status:
+```shell
+Set-Alarm "CatAlarm" -s
+```
+
+To cancel:
+```shell
+Set-Alarm "Cattie Cat" -c
+```
+
 # Get & convert unix time & discord timestamps
 [Script to get unix & discord timestamps](scripts/unix.ps1)
 

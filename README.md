@@ -114,7 +114,7 @@ backup -f 'C:\Important Files\' -t 'D:\Backup Folder\'
 Limitations: can only backup entire folders, does not discriminate between drives
 
 //TODO: Automate rolling backups (delete old files)\
-//TODO: config file for rar.exe path and/or backup folder\
+//TODO: config file for number of backups, locations, etc
 //TODO: categorize folders by drive
 
 [^1]: Simple tutorial on how to add a folder to PATH [here](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho).

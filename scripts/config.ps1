@@ -312,7 +312,7 @@ if($isLinux)
 
     $LinPSPath =    "~/.config/powershell/"
     $LinPSList =    (Join-Path $LinPSPath "/config.omp.json"),
-                    (Join-Path $LinPSPath "/Microsoft.Powershell_profile.ps1")
+                    (Join-Path $LinPSPath "/Microsoft.PowerShell_profile.ps1")
 
     $LinFastfetchPath = "~/.config/fastfetch/"
     $LinFastfetchList = Get-ChildItem $LinFastfetchPath -File -Recurse

@@ -1,5 +1,6 @@
 $gameCount = 0
 $fileCount = 0
+$i = 0
 $extensionPath = $null
 
 
@@ -34,8 +35,19 @@ function Test-HasCorrespondingJson{
     return $false
 }
 
-foreach($gameFolder in (Get-ChildItem $backgroundChangerImageFolder)){
-    $gameCount++
+$backgroundChangerImageFolderList = Get-ChildItem $backgroundChangerImageFolder
+foreach($gameFolder in $backgroundChangerImageFolderList){
+    
+    $percentComplete = [math]::floor(($i / $backgroundChangerImageFolderList.Length) * 100)
+    $progressParameters = @{
+        Activity = 'Scan in Progress...'
+        Status = "Scanned $i of " + $backgroundChangerImageFolderList.Length + ", total progress: $percentComplete%"
+        PercentComplete = $percentComplete 
+    }
+    Write-Progress @progressParameters
+    ++$i
+
+    ++$gameCount
     $gameID = (Get-Item $gameFolder).BaseName
     $BCJson = "$backgroundChangerJsonPath\$gameID.json"
     
@@ -54,7 +66,7 @@ foreach($gameFolder in (Get-ChildItem $backgroundChangerImageFolder)){
     
     foreach($photo in $BCPhotos){
         if(-Not(Test-HasCorrespondingJson $photo $BCPhotosJson)){
-            $fileCount++
+            ++$fileCount
             Remove-Item $photo
             Write-Host "    Removed leftover Photo (no .json Name entry): " -ForegroundColor Red -NoNewline
             Write-Host $photo

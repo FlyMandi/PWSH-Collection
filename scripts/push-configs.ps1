@@ -110,7 +110,7 @@ function Get-Binary {
         Invoke-WebRequest -Uri $sourceURI -Out $tempZIP
     
         $repoNameFolder = (Join-Path -PATH $libFolder -ChildPath $SourceRepo) 
-        $binFolder = (Join-Path -PATH $repoNameFolder -ChildPath "\bin\")
+        $binFolder = (Join-Path -PATH $repoNameFolder -ChildPath "\bin")
         Expand-Archive -Path $tempZIP -DestinationPath $repoNameFolder -Force
         Remove-Item $tempZIP -Force
 
@@ -120,14 +120,16 @@ function Get-Binary {
             Remove-Item $zipFolder -Recurse -Force
         }
 
-        if (Test-Path "$binFolder"){
+        if ((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$binFolder",[EnvironmentVariableTarget]::User)       
+            Write-Host "Added $binFolder to path!" -ForegroundColor Green
         }
-        else{
+        elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$repoNameFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$repoNameFolder",[EnvironmentVariableTarget]::User)       
+            Write-Host "Added $repoNameFolder to path!" -ForegroundColor Green
         }
 
-        Write-Host "$command successfully installed and added to path!" -ForegroundColor Green
+        Write-Host "$command successfully installed!" -ForegroundColor Green
     }
     else{
         Write-Host "$command already installed, continuing..."

@@ -148,7 +148,7 @@ Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
 Get-FromPkgmgr winget 'cargo' -o 'rust'
 Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
 Get-FromPkgmgr scoop 'winfetch'
-Get-FromPkgmgr scoop "$env:PROGRAMFILES\WireGuard\wireguard.exe" -o 'wireguard.wireguard'
+Get-FromPkgmgr scoop 'wireguard' -o 'wireguard.wireguard'
 Get-FromPkgmgr scoop 'yt-dlp'
 Get-FromPkgmgr scoop 'zoomit'
 
@@ -161,8 +161,6 @@ Get-ScoopPackage 'vcredist2022'
 Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
 Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
 Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
-
-#Get-Binary alpine -o "https://alpineapp.email/alpine/release/src/alpine-2.26.zip"
 
 Push-ConfigSafely $RepoTermpath $WinTermpath
 Push-ConfigSafely $RepoTermPreviewpath $WinTermPreviewPath
@@ -187,7 +185,7 @@ if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
 }
 
 if(Test-IsNotWinTerm){
-    if(-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal }
+    if(-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal.Preview }
 
     $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
     $windowPID = $window.ProcessId

@@ -25,6 +25,25 @@ If you want to take matters into your own hands, hit `Win+R`, type `regedit`, hi
 `HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall`\
 and look for the Registry Key called `DisplayVersion`, then update it.
 
+## Swap between winfetch configs
+
+[Script to change between made winfetch config files](scripts/winfetchconfig.ps1). The first time you run it (or when it can't find a file of the same name), it will store your current config in a file called `!default.ps1`.
+
+To make changes to the current configuration, edit this file:\
+`%UserProfile%\Documents\.config\winfetch\config.ps1`
+
+To save a configuration with a name, write:\
+`winfetchconfig ThemeName -save` or `winfetchconfig -save ThemeName`, order of flags is personal preference.
+
+To save & overwrite a theme, write:\
+`winfetchconfig ThemeName -save -f`
+
+To restore defaults, write:\
+`winfetchconfig !default`
+
+The location for all your personal configs is in `%UserProfile%\Documents\.personalConfigs\winfetch`.\
+You shouldn't need to access this folder unless you desire to change them in a text editor instead of with the script.
+
 ## Automated backup
 [Simple script to compress & back-up a folder with 7zip](scripts/backup.ps1), it will take a source Folder as the -f flag and a destination Folder as the -t flag, copy & compress everything from the source folder and create an aptly named backup. If nothing is specified, it will take the default destination from the folder and the current folder as the folder to be backed up.
 

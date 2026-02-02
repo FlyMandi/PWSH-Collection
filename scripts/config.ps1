@@ -270,7 +270,7 @@ function Push-ConfigSafely
     }
 
     #TESTING: should not break anything
-    if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File))
+    if(-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Depth 2))
     {
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 

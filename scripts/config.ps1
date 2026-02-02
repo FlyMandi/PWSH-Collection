@@ -276,7 +276,9 @@ switch($operation){
         Get-FromPkgmgr scoop 'nvim' -o 'neovim'
         Get-FromPkgmgr scoop 'ninja'
         Get-FromPkgmgr scoop 'npm' -o 'nodejs'
+        Get-FromPkgmgr scoop 'premake5' -o 'premake'
         Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
+        Get-FromPkgmgr scoop 'renderdoccli' -o 'renderdoc'
         Get-FromPkgmgr winget 'cargo' -o 'rust'
         Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
         Get-FromPkgmgr scoop 'winfetch'
@@ -293,7 +295,6 @@ switch($operation){
         Get-ScoopPackage 'vcredist2022'
 
         Get-Binary glsl_analyzer "nolanderc/glsl_analyzer" -namePattern "*x86_64-windows.zip"
-        Get-Binary premake5 "premake/premake-core" -namePattern "*windows.zip" -preRelease
         Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip" 
 
         Push-ConfigSafely $RepoVimpath $WinVimpath $RepoVimList $WinVimList

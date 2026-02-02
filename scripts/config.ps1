@@ -826,10 +826,10 @@ switch($operation)
             Get-Binary fd "sharkdp/fd" -namePattern "*x86_64-pc-windows-msvc.zip"
             Get-Binary raddbg "EpicGamesExt/raddebugger" -namePattern "raddbg.zip"
 
+            $env:PATH += ";$env:Repo\PWSH-Collection\scripts\"
+
             Push-RepoToWindows
             Get-NewMachinePath
-
-            #TODO: add scripts folder to path
         }
 
         Test-GitUserName

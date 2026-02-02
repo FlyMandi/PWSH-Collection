@@ -712,7 +712,7 @@ switch($operation)
             Get-FromPkgmgr yay 'nvim'
             Get-FromPkgmgr yay 'oh-my-posh'
             Get-FromPkgmgr yay 'openssh'
-            Get-FromPkgmgr yay 'wezterm'
+            Get-FromPkgmgr yay 'wezterm-nightly-bin'
             Get-FromPkgmgr yay 'ripgrep'
             Get-FromPkgmgr yay 'rofi'
             Get-FromPkgmgr yay 'qutebrowser'

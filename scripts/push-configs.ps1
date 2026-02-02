@@ -146,6 +146,7 @@ Get-FromPkgmgr scoop 'rg' -o 'ripgrep'
 Get-FromPkgmgr scoop 'spt' -o 'spotify-tui'
 Get-FromPkgmgr scoop 'winfetch'
 Get-FromPkgmgr scoop "$env:PROGRAMFILES\WireGuard\wireguard.exe" -o 'wireguard.wireguard'
+Get-FromPkgmgr scoop 'yt-dlp'
 Get-FromPkgmgr scoop 'zoomit'
 
 Get-ScoopPackage 'discord'

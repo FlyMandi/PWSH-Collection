@@ -49,8 +49,7 @@ function Clear-Temp {
         Remove-Item -force -recurse $tempFolder
     }
 }
-# if it already exists, clear it
-# called here just to be sure, can't hurt.
+
 Clear-Temp
 mkdir $tempFolder | Out-Null
 
@@ -66,11 +65,9 @@ function Get-List{
 }
 
 function Push-Theme{
-    # move config from folder to winfetch
     Copy-Item -Path $themePath -Destination $tempFolder
     Rename-Item -Path $tempTheme -NewName "config.ps1" 
     Move-Item -Path $tempConfig -Destination $destination -Force 
-    # finally, call winfetch to show changes
     winfetch
 }
 

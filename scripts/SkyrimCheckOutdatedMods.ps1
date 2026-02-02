@@ -55,8 +55,13 @@ foreach($subfolder in $folderList){
         #Nemesis
         #DAR
         #Anything not "NG" that has an "NG" equivalent
+        #Anything "NG" that's borked -> like Fires Hurt
+        #incorrect TK Dodge setup
         #Using MFAO and CFPAO together
         #Having mods share OAR priority
+        #SPID & SkyPatcher for leveled lists
+
+    #TODO: add nice recommendations, like SC's KS Hairs retex if you have KS installed
 
     #TODO: warn about not having a bashed patch, merged patch or something of the sorts (just match filename)
 

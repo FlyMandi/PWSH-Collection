@@ -165,8 +165,8 @@ function Remove-CoverInSlotIfNoEquivalent{
         }
 
         if($hasNoEquivalent){
-            Remove-Item $image
             ++$script:CSfileCount
+            Remove-Item $image
             #Write-Host "    Removed unnecessarily saved cover: " -ForegroundColor DarkRed -NoNewline
             #Write-Host $image
         } 

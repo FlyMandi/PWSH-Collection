@@ -86,9 +86,10 @@ if ($PSHome -eq $PS1Home){
     if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
     else{ $commandPath = $PSCommandPath }
     
-    $commandArgs = "-File `"$commandPath`" -NoExit -NoProfile -ExecutionPolicy Bypass -Wait -NoNewWindow"
-    Start-Process $PS7exe $commandArgs
+    $commandArgs = "$commandPath", "-ExecutionPolicy Bypass", "-Wait", "-NoNewWindow"
+    &$PS7exe $commandArgs
     Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
+    &pwsh
 } #FIXME: I'm calling pwsh.exe with wrongly formatted arguments, apparently
 
 #Start the rest of this process as admin (avoid using it, comment out only for testing)

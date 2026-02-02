@@ -86,6 +86,10 @@ function Push-ChangedFiles
         $sourceFileList,
         $destFileList
     )
+    Write-Host $sourceFolder
+    Write-Host $destFolder
+    Write-Host $sourceFileList
+    Write-Host $destFileList
 
     if($null -eq $sourceFileList)
     {

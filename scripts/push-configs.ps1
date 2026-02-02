@@ -1,7 +1,11 @@
-function Get-NewMachinePath{
-    $temp = $env:Path
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
+$PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
+$PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
+
+if ($PSHome -eq $PS1Home){
+    if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
+    Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Wait -NoNewWindow
+    Write-Host "`nOpened a PowerShell 7 window!" -ForegroundColor Green
+    &pwsh
 }
 
 #Start the rest of this process as admin (avoid using it, comment out only for testing)
@@ -60,17 +64,28 @@ $WinTermPreviewPath = Join-Path -PATH $env:LOCALAPPDATA -ChildPath "\Packages\Mi
 $RepoTermpath = Join-Path -PATH $dotfiles -ChildPath "\Windows.Terminal\LocalState\"
 $RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPreview\LocalState\"
 
-[int]$global:filesAdded = 0
-[int]$global:filesUpdated = 0
+[int]$script:filesAdded = 0
+[int]$script:filesUpdated = 0
 #In separate functions, in case I want to call it after every download or config push.
 function Get-FilesAdded{
-    if (-Not($global:filesAdded -eq 0)){Write-Host "Files Added: $global:filesAdded" -ForegroundColor Cyan}
-    $global:filesAdded = 0
+    if (-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
+    $script:filesAdded = 0
 }
 
 function Get-FilesUpdated{
-    if(-Not($global:filesUpdated -eq 0)){Write-Host "Files Updated: $global:filesUpdated" -ForegroundColor Magenta}
-    $global:filesUpdated = 0
+    if(-Not($script:filesUpdated -eq 0)){Write-Host "Files Updated: $script:filesUpdated" -ForegroundColor Magenta -BackgroundColor Black}
+    $script:filesUpdated = 0
+}
+
+function Get-NewMachinePath{
+    $temp = $env:Path
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
+}
+
+function Test-IsNotWinTerm{
+    $process = Get-CimInstance -Query "SELECT * from Win32_Process WHERE name LIKE 'WindowsTerminal%'"
+    return($null -eq $process)
 }
 
 Function Get-FromPkgmgr{ 
@@ -79,12 +94,10 @@ Function Get-FromPkgmgr{
         $trgt,
         [string]$override = $null
     )
-    if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){
+
+    if (-Not (Get-Command $trgt -ErrorAction SilentlyContinue)){ 
         if(-Not ($null -eq $override)){ $trgt = $override }
         &$pkgmgr install $trgt
-    }
-    else{
-        Write-Host "$trgt already installed, continuing..."
     }
 }
 
@@ -95,9 +108,6 @@ Function Get-ScoopPackage{
 
     if (-Not (Test-Path (Join-Path -Path $scoopDir -ChildPath $scoopTrgt))) { 
         &scoop install $scoopTrgt
-    }
-    else{
-        Write-Host "$scoopTrgt already installed, continuing..."
     }
 }
 
@@ -114,8 +124,7 @@ function Get-Binary{
         if ($preRelease){
             Write-Host "Installing latest $namePattern release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases")[0].assets | Where-Object name -like $namePattern).browser_download_url
-        }
-        else{
+        }else{
             Write-Host "Installing latest $namePattern pre-release package from $sourceRepo..."
             $sourceURI = ((Invoke-RestMethod -Method GET -Uri "https://api.github.com/repos/$sourceRepo/releases/latest").assets | Where-Object name -like $namePattern).browser_download_url
         }
@@ -138,16 +147,12 @@ function Get-Binary{
         if ((Test-Path "$binFolder") -And -Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$binFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$binFolder",[EnvironmentVariableTarget]::User)       
             Write-Host "Added $binFolder to path!" -ForegroundColor Green
-        }
-        elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$repoNameFolder*")){
+        }elseIf(-Not([Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -like "*$repoNameFolder*")){
             [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) + ";$repoNameFolder",[EnvironmentVariableTarget]::User)       
             Write-Host "Added $repoNameFolder to path!" -ForegroundColor Green
         }
 
         Write-Host "$command successfully installed!" -ForegroundColor Green
-    }
-    else{
-        Write-Host "$command already installed, continuing..."
     }
 }
 
@@ -188,8 +193,8 @@ function Push-ChangedFiles{
         if (-Not(Test-Path (Split-Path $fileInDest))){&mkdir (Split-Path $fileInDest) | Out-Null}
         Copy-Item -Path $fileInSource -Destination $fileInDest
         Write-Host "Added Item: " -ForegroundColor White -NoNewline
-        Write-Host $file.InputObject -ForegroundColor Cyan
-        $global:filesAdded += 1
+        Write-Host $file.InputObject -ForegroundColor Cyan -BackgroundColor Black
+        $script:filesAdded++
     }
     
     foreach($file in $sourceTransformed){
@@ -200,8 +205,8 @@ function Push-ChangedFiles{
             Remove-Item $fileInDest -Force
             Copy-Item $fileInSource -Destination $fileInDest
             Write-Host "Updated Item: " -ForegroundColor White -NoNewline
-            Write-Host $file -ForegroundColor Magenta
-            $global:filesUpdated += 1
+            Write-Host $file -ForegroundColor Magenta -BackgroundColor Black
+            $script:filesUpdated++
         }
     }
 }
@@ -221,14 +226,14 @@ function Push-Certain{
     if (-Not(Test-Path $outputPath) -Or $null -eq (Get-ChildItem $outputPath -File -Recurse)){
         Write-Host "`nNo existing config found in $outputPath, pushing..."
 	    Copy-Item $inputPath $outputPath -Recurse
-        $global:filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
+        $script:filesAdded += (Get-ChildItem $outputPath -File -Recurse).count
     }
     else{
         Write-Host "`nExisting config found in $outputPath, updating..."
     	Push-ChangedFiles $inputPath $outputPath
     }
         Write-Host "Update Complete. "
-        if(($global:filesAdded -eq 0) -And ($global:filesUpdated -eq 0)){Write-Host "No files changed."}
+        if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
 
 &scoop cleanup --all 6>$null
@@ -246,6 +251,7 @@ Get-FromPkgmgr scoop 'winfetch'
 Get-FromPkgmgr scoop 'zoomit'
 Get-FromPkgmgr winget 'git' -o 'git.git'
 Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
+Get-FromPkgmgr winget 'wt' -o 'Microsoft.WindowsTerminal'
 
 Get-ScoopPackage 'discord'
 Get-ScoopPackage 'listary'
@@ -270,8 +276,20 @@ Get-NewMachinePath
 &git config --global user.email steidlmartinez@gmail.com
 #TODO: automatically set up git-cli ssh (take ssh key from github as input)
 
-if(-Not($global:filesAdded -eq 0) -Or -Not($global:filesUpdated -eq 0)){Write-Host "`nTotal config file changes:" -ForegroundColor White}
-Get-FilesAdded
-Get-FilesUpdated
+if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
+    Write-Host "`nTotal config file changes:" -ForegroundColor White
 
-Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
+    Get-FilesAdded
+    Get-FilesUpdated
+
+    Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
+}
+
+if(Test-IsNotWinTerm){
+    $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
+    $windowPID = $window.ProcessId
+    $parentPID = $window.ParentProcessId
+    &wt.exe
+    &cmd.exe "/c TASKKILL /PID $windowPID"
+    &cmd.exe "/c TASKKILL /PID $parentPID"
+}

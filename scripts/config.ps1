@@ -308,6 +308,7 @@ if($isLinux)
 {
     $LinVimPath = "~/.config/nvim/"
     $LinVimList = Get-ChildItem $LinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
+    $LinVimList += Get-ChildItem $LinVimpath -File -Hidden
 
     $LinX11Path =   "~/"
     $LinX11List =   (Join-Path $LinX11Path "/.xinitrc"),
@@ -330,8 +331,7 @@ if($isLinux)
                     (Join-Path $LinPSPath "/Microsoft.PowerShell_profile.ps1")
 
     $LinFastfetchPath = "~/.config/fastfetch/"
-    $LinFastfetchList = Get-ChildItem $LinFastfetchPath -File -Recurse
-                        | Where-Object {$_ -notmatch "config.jsonc"}
+    $LinFastfetchList = Get-ChildItem $LinFastfetchPath -File -Recurse | Where-Object {$_ -notmatch "config.jsonc"}
 }
 #WINDOWS PATHS
 elseIf($IsWindows)
@@ -359,6 +359,7 @@ elseIf($IsWindows)
 
 #REPO PATHS
 $RepoVimList = Get-ChildItem $RepoVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
+$RepoVimList += Get-ChildItem $RepoVimpath -File -Hidden
 
 $RepoGlazePath = Join-Path -PATH $dotfiles -ChildPath "/glazewm/"
 $RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
@@ -384,12 +385,10 @@ $RepoPSList =   (Join-Path $RepoPSpath "/config.omp.json"),
                 (Join-Path $RepoPSpath "/Microsoft.PowerShell_profile.ps1")
 
 $RepoFastfetchPath = Join-Path -PATH $dotfiles -ChildPath "/fastfetch/"
-$RepoFastfetchList =    Get-ChildItem $RepoFastfetchPath -File -Recurse
-                        | Where-Object {$_ -notmatch "config.jsonc"}
+$RepoFastfetchList = Get-ChildItem $RepoFastfetchPath -File -Recurse | Where-Object {$_ -notmatch "config.jsonc"}
 
 $RepoFancontrolPath = Join-Path -PATH $dotfiles -ChildPath "/fancontrol/"
-$RepoFancontrolList =   Get-Childitem $RepoFancontrolPath -File -Recurse
-                        | Where-Object {$_ -notmatch "CACHE"}
+$RepoFancontrolList = Get-Childitem $RepoFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
 
 if($isWindows -and ($PSHome -eq $PS1Home))
 {

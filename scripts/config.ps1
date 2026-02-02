@@ -18,6 +18,7 @@ if(-Not (Get-Command scoop -ErrorAction SilentlyContinue) -and $IsWindows)
 
     #probably move into a function called Install-PKGMGRs or something?
     &scoop config SCOOP_BRANCH develop
+    &scoop install git
     &scoop bucket add "extras"
     &scoop bucket add "nerd-fonts"
     &scoop bucket add "sysinternals"
@@ -307,7 +308,8 @@ if($isLinux)
     $LinVimList = Get-ChildItem $LinVimpath -File -Recurse | Where-Object {$_ -notmatch "lazy-lock"}
 
     $LinX11Path =   "~/"
-    $LinX11List =   (Join-Path $LinX11Path "/.xinitrc")
+    $LinX11List =   (Join-Path $LinX11Path "/.xinitrc"),
+                    (Join-Path $LinX11Path "/.Xresources")
 
     $Lini3Path =  "~/.config/"
     $Lini3List =  (Join-Path $Lini3Path "/i3/config"),
@@ -351,7 +353,7 @@ elseIf($IsWindows)
                         | Where-Object {$_ -notmatch "config.jsonc"}
 
     $WinFancontrolPath = Join-Path -PATH $env:USERPROFILE -ChildPath "/scoop/persist/fancontrol/configurations/"
-    $WinFancontrolList = Get-Childitem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
+    $WinFancontrolList = Get-ChildItem $WinFancontrolPath -File -Recurse | Where-Object {$_ -notmatch "CACHE"}
 }
 
 #REPO PATHS
@@ -361,7 +363,8 @@ $RepoGlazePath = Join-Path -PATH $dotfiles -ChildPath "/glazewm/"
 $RepoGlazeList = Get-ChildItem $RepoGlazePath -File -Recurse | Where-Object {$_ -notmatch ".log"}
 
 $RepoX11Path = Join-Path -PATH $dotfiles -ChildPath "/x11/"
-$RepoX11List = Join-Path $RepoX11Path "/.xinitrc"
+$RepoX11List = (Join-Path $RepoX11Path "/.xinitrc"),
+               (Join-Path $RepoX11Path "/.Xresources")
 
 $Repoi3Path = Join-Path -PATH $dotfiles -ChildPath "/i3/"
 $Repoi3List = (Join-Path $Repoi3Path "/i3/config"),
@@ -748,6 +751,7 @@ switch($operation)
             Get-FromPkgmgr yay 'libxinerama'
             Get-FromPkgmgr yay 'linux'
             Get-FromPkgmgr yay 'make'
+            Get-FromPkgmgr yay 'mold'
             Get-FromPkgmgr yay 'nemo'
             Get-FromPkgmgr yay 'nitrogen'
             Get-FromPkgmgr yay 'nvim'
@@ -761,7 +765,6 @@ switch($operation)
             Get-FromPkgmgr yay 'pipewire-jack'
             Get-FromPkgmgr yay 'pipewire-pulse'
             Get-FromPkgmgr yay 'pipewire-alsa'
-            Get-FromPkgmgr yay 'picom'
             Get-FromPkgmgr yay 'qutebrowser'
             Get-FromPkgmgr yay 'steam'
             Get-FromPkgmgr yay 'speedtest-cli'

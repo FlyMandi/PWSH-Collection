@@ -14,21 +14,6 @@ if (-Not (Get-Command scoop -ErrorAction SilentlyContinue)){
 $PS1Home = (Join-Path $env:SYSTEMROOT "\System32\WindowsPowerShell\v1.0")
 $PS7exe = (Join-Path $env:PROGRAMFILES "\PowerShell\7\pwsh.exe")
 
-#FIXME: this isn't getting called via IRM ... | IEX
-
-if ($PSHome -eq $PS1Home){
-    if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
-    #DEBUG:
-    Write-Host "PS Command Path: $PSCommandPath" -ForegroundColor Yellow
-    #Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Wait -NoNewWindow
-    Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
-}
-
-#Start the rest of this process as admin (avoid using it, comment out only for testing)
-#if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){ 
-#        Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -WindowStyle hidden
-#}
-
 if(-Not(Test-Path $env:Repo)){
     Write-Host "\Repository\ folder location at: " -ForegroundColor Red -NoNewline
     Write-Host "`"$env:Repo`"" -ForegroundColor Yellow -NoNewline
@@ -54,6 +39,23 @@ if(-Not(Test-Path $env:Repo)){
     }
 }
 
+function Copy-IntoRepo{
+    Param(
+        $folderName
+    )
+    
+    $folderPath = Join-Path $env:Repo $folderName
+    if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
+        &git clone "https://github.com/FlyMandi/$folderName" $folderPath
+        Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
+    }
+}
+
+function Test-IsNotWinTerm{
+    $process = Get-CimInstance -Query "SELECT * from Win32_Process WHERE name LIKE 'WindowsTerminal%'"
+    return($null -eq $process)
+}
+
 $dotfiles = Join-Path -Path $env:Repo -ChildPath "\dotfiles\"
 
 $scoopDir = Join-Path $env:USERPROFILE -ChildPath "\scoop\apps\"
@@ -74,6 +76,40 @@ $RepoTermPreviewPath = Join-path -PATH $dotfiles -ChildPath "\Windows.TerminalPr
 
 [int]$script:filesAdded = 0
 [int]$script:filesUpdated = 0
+
+Copy-IntoRepo "dotfiles"
+Copy-IntoRepo "PWSH-Collection"
+
+#FIXME: this isn't getting executed corretly via IRM ... | IEX from powershell 1
+
+if ($PSHome -eq $PS1Home){
+    if(-Not(Test-Path $PS7exe)){ &winget install Microsoft.PowerShell }
+    
+    if ($null -eq $PSCommandPath){ $commandPath = (Join-Path $env:Repo "\PWSH-Collection\scripts\push-configs.ps1") }
+    else { $commandPath = $PSCommandPath }
+    $commandArgs = "-NoProfile -ExecutionPolicy Bypass -Wait -NoNewWindow -File $commandPath"
+    Start-Process $PS7exe $commandArgs
+    Write-Host "`nUpdated to PowerShell 7!" -ForegroundColor Green
+}
+
+if(Test-IsNotWinTerm){
+    if (-Not(Get-Command wt -ErrorAction SilentlyContinue)){ &winget install Microsoft.WindowsTerminal }
+
+    $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
+    $windowPID = $window.ProcessId
+    $parentPID = $window.ParentProcessId
+    #TODO: pass script to wt.exe below
+    &wt.exe 
+    &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
+    &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
+}
+
+#Start the rest of this process as admin (avoid using it, comment out only for testing)
+#if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")){ 
+#        Start-Process pwsh.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -WindowStyle hidden
+#}
+
+
 #In separate functions, in case I want to call it after every download or config push.
 function Get-FilesAdded{
     if (-Not($script:filesAdded -eq 0)){Write-Host "Files Added: $script:filesAdded" -ForegroundColor Cyan -BackgroundColor Black}
@@ -91,22 +127,7 @@ function Get-NewMachinePath{
     if (-Not($temp.Length) -eq ($env:Path.Length)){Write-Host "`nEnvironment variables updated!" -ForegroundColor Green}
 }
 
-function Copy-IntoRepo{
-    Param(
-        $folderName
-    )
-    
-    $folderPath = Join-Path $env:Repo $folderName
-    if((-Not(Test-Path $folderPath)) -Or ((Get-ChildItem $folderPath -File).count -eq 0)){
-        &git clone "https://github.com/FlyMandi/$folderName" $folderPath
-        Write-Host "Cloned FlyMandi/$folderName repository successfully!" -ForegroundColor Green
-    }
-}
 
-function Test-IsNotWinTerm{
-    $process = Get-CimInstance -Query "SELECT * from Win32_Process WHERE name LIKE 'WindowsTerminal%'"
-    return($null -eq $process)
-}
 
 Function Get-FromPkgmgr{ 
     Param(
@@ -256,8 +277,6 @@ function Push-Certain{
         if(($script:filesAdded -eq 0) -And ($script:filesUpdated -eq 0)){Write-Host "No files changed."}
 }
 
-Copy-IntoRepo "dotfiles"
-Copy-IntoRepo "PWSH-Collection"
 
 &scoop cleanup --all 6>$null
 Get-FromPkgmgr scoop '7z' -o '7zip'
@@ -274,7 +293,6 @@ Get-FromPkgmgr scoop 'winfetch'
 Get-FromPkgmgr scoop 'zoomit'
 Get-FromPkgmgr winget 'git' -o 'git.git'
 Get-FromPkgmgr winget 'glazewm' -o 'glzr-io.glazeWM'
-Get-FromPkgmgr winget 'wt' -o 'Microsoft.WindowsTerminal'
 
 Get-ScoopPackage 'discord'
 Get-ScoopPackage 'listary'
@@ -305,13 +323,4 @@ if(-Not($script:filesAdded -eq 0) -Or -Not($script:filesUpdated -eq 0)){
     Get-FilesUpdated
 
     Write-Host "`nAll configs are now up to date! ^^" -ForegroundColor Green
-}
-
-if(Test-IsNotWinTerm){
-    $window = Get-CimInstance Win32_Process -Filter "ProcessId = $PID"
-    $windowPID = $window.ProcessId
-    $parentPID = $window.ParentProcessId
-    &wt.exe
-    &cmd.exe "/c TASKKILL /PID $windowPID" | Out-Null
-    &cmd.exe "/c TASKKILL /PID $parentPID" | Out-Null
 }

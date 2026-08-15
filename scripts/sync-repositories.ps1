@@ -18,6 +18,11 @@ function update_all
 
         git fetch
         git pull
+
+        if($LASTEXITCODE -ne 0)
+        {
+            Write-Host "^^^^^^ $folder`n"
+        }
     }
 }
 

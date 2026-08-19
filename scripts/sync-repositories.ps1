@@ -21,7 +21,7 @@ function update_all
 
         if($LASTEXITCODE -ne 0)
         {
-            Write-Host "^^^^^^ $folder`n"
+            Write-Host "^^^^^^ $_`n"
         }
     }
 }

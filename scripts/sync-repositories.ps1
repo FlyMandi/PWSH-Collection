@@ -27,6 +27,7 @@ function update_all
 }
 
 $folders=@(
+"C:\repository\aphelion-engine\",
 "C:\repository\bash-collection\",
 "C:\repository\blazeterm\",
 "C:\repository\dotfiles\",

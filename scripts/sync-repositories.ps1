@@ -57,14 +57,18 @@ $folders=@(
 "C:\repository\islescape\vendor\river2D\",
 "C:\repository\river2D_mapedit\vendor\river2D\",
 
-"C:\repository\river2D\vendor\imgsurf\vendor\puddle\",
-"C:\repository\river3D\vendor\imgsurf\vendor\puddle\",
 "C:\repository\marino\vendor\river2D\vendor\imgsurf\",
 "C:\repository\islescape\vendor\river2D\vendor\imgsurf\",
 "C:\repository\river2D_mapedit\vendor\river2D\vendor\imgsurf\",
 
-"C:\repository\marino\vendor\river2D\vendor\imgsurf\vendor\puddle\",
-"C:\repository\islescape\vendor\river2D\vendor\imgsurf\vendor\puddle\",
-"C:\repository\river2D_mapedit\vendor\river2D\vendor\imgsurf\vendor\puddle\")
+"C:\repository\river2D\vendor\imgsurf\vendor\datasurf\vendor\puddle\",
+"C:\repository\river3D\vendor\imgsurf\vendor\datasurf\vendor\puddle\",
+"C:\repository\marino\vendor\river2D\vendor\imgsurf\vendor\datasurf\",
+"C:\repository\islescape\vendor\river2D\vendor\imgsurf\vendor\datasurf\",
+"C:\repository\river2D_mapedit\vendor\river2D\vendor\imgsurf\vendor\datasurf\",
+
+"C:\repository\marino\vendor\river2D\vendor\imgsurf\vendor\datasurf\vendor\puddle\",
+"C:\repository\islescape\vendor\river2D\vendor\imgsurf\vendor\datasurf\vendor\puddle\",
+"C:\repository\river2D_mapedit\vendor\river2D\vendor\imgsurf\vendor\datasurf\vendor\puddle\")
 
 update_all
